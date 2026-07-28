@@ -1464,6 +1464,24 @@
     .modal-overlay.mode-compare #ver-col-b { display: flex; }
     .modal-overlay.mode-single #ver-col-b { display: none; }
     .modal-overlay.mode-single .ver-sel { display: none; }
+
+    /* ─── 双击编辑：让 AI 结论 / 复盘面板可被人工修正 ─── */
+    .editable { position: relative; cursor: text; border-radius: 6px; transition: background .15s; }
+    .editable::after {
+      content: "✎ 双击编辑"; position: absolute; top: -10px; right: 0;
+      font-size: 11px; line-height: 1; color: var(--primary);
+      background: var(--surface); padding: 2px 7px; border-radius: 6px;
+      border: 1px solid var(--primary-soft); opacity: 0; transition: opacity .15s; pointer-events: none; white-space: nowrap;
+    }
+    .editable:hover::after { opacity: 1; }
+    .editable.editing { outline: 2px dashed var(--primary); outline-offset: 4px; background: #F8FAFF; }
+    .editable.editing::after { opacity: 0; }
+    .editable[data-manually-edited]::before {
+      content: "✓ 已人工修改"; position: absolute; top: -11px; left: 0;
+      font-size: 11px; line-height: 1; color: var(--success);
+      background: #E7F6EF; padding: 2px 7px; border-radius: 6px; pointer-events: none; white-space: nowrap; z-index: 1;
+    }
+    .activity-pill.edited { background: #E7F6EF; color: var(--success); }
   </style>
 </head>
 <body>
@@ -1817,7 +1835,7 @@
 
               <div class="ai-conclusion">
                 <svg class="ai-conclusion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-                <div class="ai-conclusion-text">
+                <div class="ai-conclusion-text" data-editable data-edit-cap="batch_analyze">
                   <strong>AI 结论</strong><br>
                   该主题主因是「报表查询未做分页与缓存」，在月度峰值并发下触发数据库慢查询与超时。建议优先做服务端缓存 + 异步导出，预计可将导出耗时从 ~120s 降至 ~5s，覆盖 412 位受影响用户。
                 </div>
@@ -2146,7 +2164,7 @@ export_start / export_progress / export_cancel / export_success。
             <span class="review-panel-title">AI 复盘结论</span>
             <span class="review-panel-link" data-ai-cap="ai_review" data-ai-target="#review-body" data-ai-mode="panel">查看复盘 ▸</span>
           </div>
-          <div class="review-panel-body" id="review-body">
+          <div class="review-panel-body" id="review-body" data-editable data-edit-cap="ai_review">
             v1.3 导出报表异步化上线后核心目标全面达成：报表导出 P95 由 40s 降至 7.8s，重复点击率下降 71%，相关主题负反馈下降 34%。「试用 → 导出」转化提升最显著（+17pt），验证「进度可见 + 可取消」假设成立。建议将异步化模式复制至「批量操作」「通知预加载」等同类阻塞场景。
           </div>
         </div>
@@ -2156,7 +2174,7 @@ export_start / export_progress / export_cancel / export_success。
             <span class="suggest-panel-title">下轮优化建议</span>
             <span class="suggest-panel-link" data-ai-cap="ai_suggest" data-ai-target="#suggest-body" data-ai-mode="panel">下轮建议 ▸</span>
           </div>
-          <div class="suggest-panel-body" id="suggest-body">
+          <div class="suggest-panel-body" id="suggest-body" data-editable data-edit-cap="ai_suggest">
             ① 批量操作进度条（优先级 6.8）：复用导出异步化组件，预计再降 12% 重复操作。<br>
             ② 通知中心预加载缓存（优先级 6.2）：降低首屏白屏，提升满意度。<br>
             ③ 搜索语义重排（优先级 7.5）：承接正面情绪上升带来的新用户，巩固留存。

@@ -228,6 +228,7 @@ function renderActivity() {
       : a.status === 'feedback_up' ? ['up', '👍 点赞']
       : a.status === 'feedback_down' ? ['down', '👎 反馈']
       : a.status === 'feedback_none' ? ['', '已取消反馈']
+      : a.status === 'edited' ? ['edited', '已修改']
       : ['', a.status];
     const retry = a.status === 'failed'
       ? `<button class="activity-retry" data-retry="${a.cap}">重试</button>` : '';
@@ -312,10 +313,12 @@ function renderResult(cap, result, targetSel) {
       data.tasks.map(t => `- [${t.role}] ${t.task} · 预估 ${t.estimate_days}d` + (t.depends_on.length ? ` · 依赖 ${t.depends_on.join(',')}` : '')).join('\n');
     target.value += block;
   } else if (cap === CAPABILITY.AI_REVIEW && target) {
+    target.removeAttribute('data-manually-edited');
     target.innerHTML = `<b>${data.headline}</b>　目标达成 ${data.goal_achievement.completed}/${data.goal_achievement.total}　假设验证：${data.hypothesis_validated ? '成立' : '未成立'}<br>` +
       '指标变化：' + data.metric_deltas.map(m => `${m.name} ${m.before}${m.unit}→${m.after}${m.unit}（${m.delta_pct > 0 ? '+' : ''}${m.delta_pct}%）`).join('；') +
       '<br>建议：' + data.recommendations.map(r => `① ${r}`).join('；');
   } else if (cap === CAPABILITY.AI_SUGGEST && target) {
+    target.removeAttribute('data-manually-edited');
     target.innerHTML = data.suggestions.map((s, i) =>
       `${'①②③'[i] || (i + 1)} ${s.title}（优先级 ${s.priority}）：${s.rationale}　[关联：${s.related_opportunity}]`).join('<br>');
   }
@@ -583,6 +586,52 @@ function adoptVersion() {
   closeVersionModal();
 }
 
+/* ============================ 5.7 双击编辑：让 AI 结论 / 复盘面板可被人工修正 ============================
+ * 闭合 UX 审计项「用户能否修改错误结果」。双击进入编辑、失焦保存，
+ * 自动标注「已人工修改」并写入活动日志。AI 重新生成时会在 renderResult 重置为未编辑态。
+ */
+function initInlineEdit() {
+  $$('[data-editable]').forEach(el => {
+    const cap = el.dataset.editCap;
+    el.addEventListener('dblclick', () => enterEdit(el, cap));
+    el.addEventListener('focusout', () => exitEdit(el, cap));
+    // 粘贴时转为纯文本，避免富文本污染面板内容
+    el.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+      document.execCommand('insertText', false, text);
+    });
+  });
+}
+
+function enterEdit(el, cap) {
+  if (el.isContentEditable) return;
+  el.dataset.original = el.innerHTML;
+  el.contentEditable = 'true';
+  el.classList.add('editing');
+  el.focus();
+  // 光标置于末尾
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  range.collapse(false);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+function exitEdit(el, cap) {
+  if (!el.isContentEditable) return;
+  el.contentEditable = 'false';
+  el.classList.remove('editing');
+  if (el.innerHTML !== el.dataset.original) {
+    el.dataset.manuallyEdited = '1';
+    pushActivity(cap, 'edited', '人工');
+    toast('已保存人工修改', 'success');
+  } else {
+    delete el.dataset.manuallyEdited;
+  }
+}
+
 /* ============================ 6. 初始化绑定 ============================ */
 function init() {
   // 绑定所有 [data-ai-cap] 触发元素
@@ -645,6 +694,7 @@ function init() {
   failSel && failSel.addEventListener('change', () => { FAIL_MODE = failSel.value; });
 
   renderActivity();
+  initInlineEdit();
 }
 
 if (document.readyState === 'loading') {
