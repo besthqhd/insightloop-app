@@ -1481,6 +1481,46 @@
       font-size: 11px; line-height: 1; color: var(--success);
       background: #E7F6EF; padding: 2px 7px; border-radius: 6px; pointer-events: none; white-space: nowrap; z-index: 1;
     }
+    /* ===== AI 模型设置（本地密钥存储，不入库） ===== */
+    .ai-settings-btn {
+      margin-left: 8px; padding: 6px 12px; border: 1px solid #E2E8F0;
+      background: #fff; border-radius: 8px; font-size: 13px; color: #334155; cursor: pointer;
+    }
+    .ai-settings-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .ai-settings-overlay {
+      position: fixed; inset: 0; background: rgba(15,23,42,0.45); display: none;
+      align-items: center; justify-content: center; z-index: 1000;
+    }
+    .ai-settings-card {
+      width: 440px; max-width: 92vw; background: #fff; border-radius: 14px; overflow: hidden;
+      box-shadow: 0 12px 40px rgba(13,24,41,0.22); font-family: inherit;
+    }
+    .ai-settings-card .modal-header {
+      display: flex; align-items: center; justify-content: space-between; padding: 14px 18px;
+      font-weight: 600; border-bottom: 1px solid #EEF2F7;
+    }
+    .ai-settings-card .modal-close {
+      border: none; background: transparent; font-size: 16px; cursor: pointer; color: #94A3B8;
+    }
+    .ai-settings-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+    .ai-set-row { display: flex; flex-direction: column; gap: 5px; font-size: 13px; color: #475569; }
+    .ai-set-label { font-weight: 600; color: #1E293B; }
+    .ai-set-row input[type="text"], .ai-set-row input[type="password"] {
+      padding: 8px 10px; border: 1px solid #E2E8F0; border-radius: 8px; font-size: 13px; outline: none;
+    }
+    .ai-set-row input:focus { border-color: var(--primary); }
+    .ai-set-row input[type="checkbox"] { width: 16px; height: 16px; }
+    .ai-set-tip { font-weight: 400; color: #94A3B8; font-size: 12px; }
+    .ai-set-hint { font-size: 12px; color: #94A3B8; line-height: 1.5; margin: 2px 0 0; }
+    .ai-set-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
+    .btn-primary {
+      padding: 8px 16px; border: none; border-radius: 8px; background: var(--primary, #1D5DD9);
+      color: #fff; font-size: 13px; cursor: pointer;
+    }
+    .btn-ghost {
+      padding: 8px 16px; border: 1px solid #E2E8F0; border-radius: 8px; background: #fff;
+      color: #475569; font-size: 13px; cursor: pointer;
+    }
     .activity-pill.edited { background: #E7F6EF; color: var(--success); }
   </style>
 </head>
@@ -1509,9 +1549,44 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             <span class="activity-count" id="activity-count" style="display:none">0</span>
           </div>
+          <button class="ai-settings-btn" id="ai-settings-btn" title="AI 模型设置">⚙ AI 设置</button>
           <div class="avatar">苗</div>
         </div>
       </header>
+
+      <!-- AI 模型设置弹窗（密钥仅存本机 localStorage，不入库） -->
+      <div class="ai-settings-overlay" id="ai-settings-modal" style="display:none">
+        <div class="ai-settings-card">
+          <div class="modal-header">
+            <span>AI 模型设置</span>
+            <button class="modal-close" id="ai-settings-close" aria-label="关闭">✕</button>
+          </div>
+          <div class="ai-settings-body">
+            <label class="ai-set-row">
+              <span class="ai-set-label">使用真实模型</span>
+              <input type="checkbox" id="ai-use-real">
+              <span class="ai-set-tip">关 = 演示模型(mock)；开 = 调用你填写的真实 API</span>
+            </label>
+            <label class="ai-set-row">
+              <span class="ai-set-label">API Base URL</span>
+              <input type="text" id="ai-base" placeholder="https://api.openai.com/v1">
+            </label>
+            <label class="ai-set-row">
+              <span class="ai-set-label">模型名</span>
+              <input type="text" id="ai-model" placeholder="glm-4-flash / deepseek-chat / gpt-4o-mini">
+            </label>
+            <label class="ai-set-row">
+              <span class="ai-set-label">API Key</span>
+              <input type="password" id="ai-key" placeholder="sk-...">
+            </label>
+            <p class="ai-set-hint">密钥仅保存在本机浏览器（localStorage），不上传、不进仓库；部署到 GitHub Pages 后他人也看不到你的 key。</p>
+            <div class="ai-set-actions">
+              <button class="btn-primary" id="ai-set-save">保存</button>
+              <button class="btn-ghost" id="ai-set-cancel">取消</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- AI 活动日志（三层展示法 · ③顶栏活动日志） -->
       <div class="activity-panel" id="activity-panel">
@@ -2485,6 +2560,52 @@ export_start / export_progress / export_cancel / export_success。
         box.textContent = box.classList.contains('checked') ? '✓' : '';
       });
     });
+
+    /* AI 模型设置：密钥仅存本机 localStorage，不入库、不进仓库 */
+    (function () {
+      const btn = document.getElementById('ai-settings-btn');
+      const modal = document.getElementById('ai-settings-modal');
+      const closeBtn = document.getElementById('ai-settings-close');
+      const saveBtn = document.getElementById('ai-set-save');
+      const cancelBtn = document.getElementById('ai-set-cancel');
+      const useReal = document.getElementById('ai-use-real');
+      const baseEl = document.getElementById('ai-base');
+      const modelEl = document.getElementById('ai-model');
+      const keyEl = document.getElementById('ai-key');
+
+      function miniToast(msg) {
+        const t = document.createElement('div');
+        t.textContent = msg;
+        t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0F172A;color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;z-index:2000;box-shadow:0 8px 24px rgba(0,0,0,.25)';
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 2200);
+      }
+
+      function load() {
+        try {
+          const c = JSON.parse(localStorage.getItem('insightloop_ai_config') || 'null');
+          if (c) { baseEl.value = c.baseUrl || ''; modelEl.value = c.model || ''; keyEl.value = c.apiKey || ''; }
+        } catch (e) {}
+        useReal.checked = localStorage.getItem('insightloop_use_real') === '1';
+      }
+      function close() { modal.style.display = 'none'; }
+
+      btn.addEventListener('click', () => { load(); modal.style.display = 'flex'; });
+      closeBtn.addEventListener('click', close);
+      cancelBtn.addEventListener('click', close);
+      modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+
+      saveBtn.addEventListener('click', () => {
+        localStorage.setItem('insightloop_ai_config', JSON.stringify({
+          baseUrl: baseEl.value.trim(),
+          model: modelEl.value.trim(),
+          apiKey: keyEl.value.trim(),
+        }));
+        localStorage.setItem('insightloop_use_real', useReal.checked ? '1' : '0');
+        close();
+        miniToast(useReal.checked ? '已切换到真实模型，点击任意 AI 按钮即可测试' : '已保存，当前仍使用演示模型(mock)');
+      });
+    })();
   </script>
   <script type="module" src="ai-integration.js"></script>
   <script>

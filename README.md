@@ -49,16 +49,19 @@ python -m http.server 8080
 
 ## 接入真实模型
 
-原型用 `mockModel` 按契约返回固定 JSON，仅用于验证交互与状态系统。生产化只需：
+原型默认用 `mockModel` 按契约返回固定 JSON（演示用）。已内置 **OpenAI 兼容适配器** `callRealModel`（`ai-contract.js`），厂商无关，支持 DeepSeek / 智谱 GLM / 阿里通义 / Groq / OpenAI 等。
 
-1. 在 `ai-integration.js` 中用真实 `callRealModel` 替换 `mockModel`；
-2. 读取 `ai-contract.js` 的 `buildContext` / `buildSystemPrompt` 输出调用模型；
-3. 将模型回传的 JSON 交给 `repairJson` + `validate` 处理，其余 UI 与契约层无需改动。
+**使用方式（无需改代码）：**
+1. 点击顶栏「⚙ AI 设置」；
+2. 填写 `API Base URL`（如 `https://api.deepseek.com/v1`）、`模型名`（如 `deepseek-chat` / `glm-4-flash`）、`API Key`；
+3. 勾选「使用真实模型」并保存。之后点击任意 AI 按钮即调用真实模型。
+
+**实现要点：** 密钥仅存浏览器 `localStorage`（`insightloop_ai_config`），**不入库、不进 GitHub**；`callRealModel` 通过 `fetch` 调 `/chat/completions` 并带 `response_format=json_object`，返回文本交给契约层的 `repairJson` + `validate` 处理，UI 与契约层零改动。
 
 ## 现状与边界
 
-- ✅ 已完成：四页可交互原型、AI 契约层、三层展示法、GitHub Pages 托管。
-- ❌ 未做（生产化方向）：真实大模型 API、后端服务、RAG 证据库、多用户与评测后台。
+- ✅ 已完成：四页可交互原型、AI 契约层、三层展示法、GitHub Pages 托管、真实模型 OpenAI 兼容适配器（顶栏「⚙ AI 设置」本地接入，密钥不入库）。
+- ⚠️ 原型阶段为前端直连模型 API（key 存本机 localStorage）；生产化建议改用后端代理转发，避免 key 暴露在客户端。其他未做方向：RAG 证据库、多用户与评测后台。
 
 详见 PRD 第 12–14 节。
 

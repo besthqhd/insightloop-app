@@ -332,8 +332,74 @@ function humanMessage(err) {
   }[c] || '生成失败';
 }
 
-/* 真实模型调用占位（接入时替换为你们的 SDK / fetch） */
+/* ====================== 真实模型调用（OpenAI 兼容适配器） ======================
+ * 厂商无关：只要填 baseUrl + apiKey + model，即可对接
+ *   DeepSeek / 智谱 GLM / 阿里通义 / Groq / OpenAI 等（均 OpenAI 兼容 /chat/completions）。
+ * 密钥仅从 localStorage('insightloop_ai_config') 读取，绝不进入代码仓库。
+ */
+const MODEL_CONFIG_KEY = 'insightloop_ai_config';
+
+export function getModelConfig() {
+  try {
+    const raw = localStorage.getItem(MODEL_CONFIG_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+export function setModelConfig(cfg) {
+  localStorage.setItem(MODEL_CONFIG_KEY, JSON.stringify(cfg));
+}
+
+export function useRealModel() {
+  try { return localStorage.getItem('insightloop_use_real') === '1'; }
+  catch { return false; }
+}
+
+export function setUseRealModel(on) {
+  localStorage.setItem('insightloop_use_real', on ? '1' : '0');
+}
+
 async function callRealModel(systemPrompt, context, { signal } = {}) {
-  // TODO: 接入实际模型 API（OpenAI / 混元 / 自研网关）
-  throw new Error('NOT_IMPLEMENTED');
+  const cfg = getModelConfig();
+  if (!cfg || !cfg.apiKey) {
+    throw new Error('NO_API_KEY: 请在「⚙ AI 设置」中填写 API Key');
+  }
+  const baseUrl = (cfg.baseUrl || 'https://api.openai.com/v1').replace(/\/+$/, '');
+  const model = cfg.model || 'gpt-4o-mini';
+  const userContent = JSON.stringify(context?.context ?? context, null, 2);
+
+  let resp;
+  try {
+    resp = await fetch(`${baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${cfg.apiKey}`,
+      },
+      signal,
+      body: JSON.stringify({
+        model,
+        temperature: 0.7,
+        response_format: { type: 'json_object' },
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: `以下是本次请求的强类型上下文（JSON），请基于它生成符合契约的回复：\n\n${userContent}` },
+        ],
+      }),
+    });
+  } catch (e) {
+    throw new Error('ETIMEDOUT: 网络请求失败（' + (e?.message || e) + '）');
+  }
+
+  if (!resp.ok) {
+    let msg = `HTTP ${resp.status}`;
+    try { const j = await resp.json(); msg = j?.error?.message || msg; } catch {}
+    if (resp.status === 429) throw new Error('429: ' + msg);
+    if (resp.status >= 500) throw new Error('5xx: ' + msg);
+    throw new Error(msg);
+  }
+  const j = await resp.json();
+  const content = j?.choices?.[0]?.message?.content;
+  if (!content) throw new Error('EMPTY_RESPONSE: 模型返回为空');
+  return content; // callModel 会用 repairJson 解析为 JSON
 }

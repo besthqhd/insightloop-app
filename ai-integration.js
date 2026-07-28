@@ -10,7 +10,7 @@
  * 依赖：ai-contract.js 导出的 CAPABILITY / callModel / regenerate / getHistory
  */
 
-import { CAPABILITY, callModel, regenerate, getHistory } from './ai-contract.js';
+import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel } from './ai-contract.js';
 
 /* ============================ 能力中文标签 ============================ */
 const LABELS = {
@@ -352,8 +352,8 @@ async function runAI(cap, opts = {}) {
 
   try {
     const result = await regenerate(cap, params, {
-      requestModel: mockModel,
-      fallbackModel: mockModel,
+      requestModel: useRealModel() ? callRealModel : mockModel,
+      fallbackModel: useRealModel() ? callRealModel : mockModel,
       key: cap,
       variationSeed: seed,
       adjustConstraints: opts.adjust || {},
