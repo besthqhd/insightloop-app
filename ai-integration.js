@@ -176,6 +176,8 @@ function agentFlow() {
 const activities = []; // {ts, cap, status, requestId}
 let drawerCap = null;
 const capTarget = {};   // capability -> 目标选择器，供“采纳版本”使用
+const humanState = {};  // cap -> { adopted: bool, feedback: 'up'|'down'|null } 人工确认/反馈
+const resultBars = {};  // cap -> 结果操作条 DOM（采纳/点赞点踩/版本对比）
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -220,7 +222,13 @@ function renderActivity() {
   panel.innerHTML = activities.map(a => {
     const st = a.status === 'success' ? ['done', '已生成']
       : a.status === 'partial' ? ['partial', '部分生成']
-      : a.status === 'failed' ? ['failed', '生成失败'] : ['', a.status];
+      : a.status === 'failed' ? ['failed', '生成失败']
+      : a.status === 'adopted' ? ['adopted', '已采纳']
+      : a.status === 'unadopted' ? ['', '已取消采纳']
+      : a.status === 'feedback_up' ? ['up', '👍 点赞']
+      : a.status === 'feedback_down' ? ['down', '👎 反馈']
+      : a.status === 'feedback_none' ? ['', '已取消反馈']
+      : ['', a.status];
     const retry = a.status === 'failed'
       ? `<button class="activity-retry" data-retry="${a.cap}">重试</button>` : '';
     return `<div class="activity-item" data-cap="${a.cap}">
@@ -369,8 +377,8 @@ async function runAI(cap, opts = {}) {
       else $('#agent-drawer-error').style.display = 'none';
     }
 
-    // 生成成功后露出“版本对比”入口
-    if (result.status !== 'failed') showVersionButton(cap);
+    // 生成成功后露出“结果操作条”（采纳 / 点赞点踩 / 版本对比）
+    if (result.status !== 'failed') ensureResultBar(cap);
 
     if (result.status === 'failed') {
       toast(result.error?.message || '生成失败，可重试', 'error');
@@ -416,20 +424,67 @@ function formatVersionText(cap, d) {
   return JSON.stringify(d, null, 2);
 }
 
-/* 触发元素旁的内联“版本对比”按钮（生成成功后露出） */
-function showVersionButton(cap) {
+/* ============================ 5.6 结果操作条：人工确认 / 点赞点踩 / 版本对比 ============================
+ * 每个 AI 能力生成结果后，在触发按钮旁出现一条操作条：
+ *   - 采纳：人工确认该结果为最终版（点亮“已采纳”，写入活动日志）——“人在回路”签核
+ *   - 👍 / 👎：对结果质量反馈，回写活动日志，支撑“采纳率/人工修改率”健康指标
+ *   - 版本对比：打开既有版本对比弹窗（5.5）
+ * 状态按 cap 持久在 humanState，操作条重渲染不丢失。
+ */
+function ensureResultBar(cap) {
   const trigger = $(`[data-ai-cap="${cap}"]`);
   if (!trigger) return;
-  let btn = trigger.parentElement.querySelector(':scope > .ai-ver-btn');
-  if (!btn) {
-    btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'ai-ver-btn';
-    trigger.insertAdjacentElement('afterend', btn);
+  let bar = resultBars[cap];
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.className = 'ai-result-bar';
+    trigger.insertAdjacentElement('afterend', bar);
+    resultBars[cap] = bar;
   }
-  const n = getHistory(cap).length;
-  btn.textContent = `版本对比 (${n})`;
-  btn.onclick = () => openVersionModal(cap);
+  const st = humanState[cap] || (humanState[cap] = {});
+  bar.innerHTML = `
+    <span class="rb-tip">对此结果：</span>
+    <button type="button" class="rb-btn rb-adopt ${st.adopted ? 'on' : ''}">${st.adopted ? '✓ 已采纳' : '采纳'}</button>
+    <span class="rb-sep"></span>
+    <button type="button" class="rb-btn rb-up ${st.feedback === 'up' ? 'on' : ''}" title="有用">👍</button>
+    <button type="button" class="rb-btn rb-down ${st.feedback === 'down' ? 'on' : ''}" title="没用">👎</button>
+    <span class="rb-sep"></span>
+    <button type="button" class="rb-btn rb-ver">版本对比 (${getHistory(cap).length})</button>`;
+  bar.querySelector('.rb-adopt').onclick = () => toggleAdopt(cap);
+  bar.querySelector('.rb-up').onclick = () => toggleFeedback(cap, 'up');
+  bar.querySelector('.rb-down').onclick = () => toggleFeedback(cap, 'down');
+  bar.querySelector('.rb-ver').onclick = () => openVersionModal(cap);
+  return bar;
+}
+
+/* 人工确认 / 取消确认 */
+function toggleAdopt(cap) {
+  const st = humanState[cap] || (humanState[cap] = {});
+  st.adopted = !st.adopted;
+  const bar = resultBars[cap];
+  if (bar) {
+    const b = bar.querySelector('.rb-adopt');
+    b.classList.toggle('on', st.adopted);
+    b.textContent = st.adopted ? '✓ 已采纳' : '采纳';
+  }
+  if (st.adopted) setInlineStatus(cap, 'adopted', '已采纳');
+  else setInlineStatus(cap, getHistory(cap).length ? 'success' : 'idle', getHistory(cap).length ? '已生成' : '待生成');
+  pushActivity(cap, st.adopted ? 'adopted' : 'unadopted', '人工');
+  toast(st.adopted ? `已确认采纳「${LABELS[cap] || cap}」` : '已取消采纳', 'success');
+}
+
+/* 点赞 / 点踩（再次点击取消） */
+function toggleFeedback(cap, dir) {
+  const st = humanState[cap] || (humanState[cap] = {});
+  st.feedback = st.feedback === dir ? null : dir;
+  const bar = resultBars[cap];
+  if (bar) {
+    bar.querySelector('.rb-up').classList.toggle('on', st.feedback === 'up');
+    bar.querySelector('.rb-down').classList.toggle('on', st.feedback === 'down');
+  }
+  const a = st.feedback === 'up' ? 'feedback_up' : st.feedback === 'down' ? 'feedback_down' : 'feedback_none';
+  pushActivity(cap, a, '人工');
+  toast(st.feedback === 'up' ? '已点赞，感谢反馈' : st.feedback === 'down' ? '已反馈「没用」，将用于优化' : '已取消反馈', 'info');
 }
 
 let verState = { cap: null, mode: 'single', selA: 0, selB: 1 };
@@ -515,6 +570,15 @@ function adoptVersion() {
     toast(`已采纳 v${hist.length - verState.selA}`, 'success');
   } else {
     toast('该能力无编辑区，仅可查看对比', 'info');
+  }
+  // 联动“人工确认”：版本对比里的采纳即视为对该能力结果的最终确认
+  const st = humanState[cap] || (humanState[cap] = {});
+  if (!st.adopted) {
+    st.adopted = true;
+    const bar = resultBars[cap];
+    if (bar) { const b = bar.querySelector('.rb-adopt'); b.classList.add('on'); b.textContent = '✓ 已采纳'; }
+    setInlineStatus(cap, 'adopted', '已采纳');
+    pushActivity(cap, 'adopted', '人工');
   }
   closeVersionModal();
 }
