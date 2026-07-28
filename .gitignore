@@ -1,0 +1,10 @@
+# WorkBuddy 项目数据（非应用源码，不推）
+.workbuddy/
+
+# 操作系统 / 编辑器垃圾
+.DS_Store
+Thumbs.db
+*.log
+
+# 本静态应用不依赖 node 依赖
+node_modules/

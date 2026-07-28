@@ -1,0 +1,2132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440">
+  <title>InsightLoop - AI 产品迭代闭环工作台</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1D5DD9;
+      --primary-dark: #1E3A8A;
+      --primary-light: #E8F1FF;
+      --primary-soft: #DBEAFE;
+      --primary-ghost: #F5F8FF;
+      --bg: #F4F6F9;
+      --surface: #FFFFFF;
+      --border: #E5E7EB;
+      --border-strong: #D1D5DB;
+      --text-primary: #18191C;
+      --text-secondary: #6B7280;
+      --text-muted: #9CA3AF;
+      --success: #0E9F6E;
+      --success-light: #F0FDF4;
+      --error: #EF4444;
+      --error-light: #FEF2F2;
+      --warning: #F59E0B;
+      --warning-light: #FFFBEB;
+      --avatar-bg: #C7D2FE;
+      --shadow: 0 2px 8px rgba(13, 24, 41, 0.08);
+      --shadow-sm: 0 1px 2px rgba(13, 24, 41, 0.05);
+      --radius-card: 10px;
+      --radius-btn: 8px;
+      --radius-pill: 16px;
+      --radius-badge: 6px;
+      --topbar-h: 60px;
+      --page-w: 1440px;
+      --page-h: 1120px;
+      --scale: 1;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text-primary);
+      background: #fff;
+      overflow-x: hidden;
+    }
+
+    .scale-wrapper {
+      width: 100vw;
+      height: 100vh;
+      overflow: auto;
+      background: var(--bg);
+    }
+
+    .app-root {
+      width: var(--page-w);
+      min-height: var(--page-h);
+      transform-origin: 0 0;
+      transform: scale(var(--scale));
+      background: var(--bg);
+      position: relative;
+    }
+
+    /* ─── Topbar ─── */
+    .topbar {
+      height: var(--topbar-h);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topbar-left, .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-mark {
+      width: 24px;
+      height: 24px;
+      background: var(--primary);
+      border-radius: 6px;
+    }
+
+    .logo-text {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .topbar-tabs {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      margin-left: 10px;
+    }
+
+    .tab {
+      position: relative;
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      height: var(--topbar-h);
+      padding: 0;
+      display: flex;
+      align-items: center;
+      line-height: 1;
+      transition: color .2s;
+    }
+
+    .tab:hover { color: var(--primary); }
+    .tab.active {
+      color: var(--primary);
+      font-weight: 500;
+    }
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 3px;
+      background: var(--primary);
+      border-radius: 2px 2px 0 0;
+    }
+
+    .project-selector {
+      height: 32px;
+      padding: 0 12px;
+      background: var(--bg);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #374151;
+      cursor: pointer;
+    }
+
+    .ai-pill {
+      height: 32px;
+      padding: 0 16px;
+      background: var(--primary-light);
+      border-radius: var(--radius-pill);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--primary);
+    }
+
+    .ai-pill .dot {
+      width: 6px;
+      height: 6px;
+      background: var(--primary);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .45; }
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--avatar-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--primary-dark);
+    }
+
+    /* ─── Pages ─── */
+    .page {
+      display: none;
+      min-height: calc(var(--page-h) - var(--topbar-h));
+      padding: 16px 24px 24px;
+    }
+    .page.active { display: block; }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      min-height: 56px;
+    }
+
+    .page-title-block { display: flex; flex-direction: column; gap: 4px; }
+
+    .page-title {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--text-primary);
+    }
+
+    .page-subtitle {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .page-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ─── Buttons / Chips ─── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1;
+      transition: all .15s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      padding: 0 16px;
+      height: 34px;
+      border-radius: var(--radius-btn);
+    }
+    .btn-primary:hover { background: #1a51be; }
+
+    .btn-outline {
+      background: var(--surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border-strong);
+      padding: 0 14px;
+      height: 34px;
+      border-radius: var(--radius-btn);
+    }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+
+    .btn-blue-outline {
+      background: var(--surface);
+      color: var(--primary);
+      border: 1px solid var(--primary);
+      padding: 0 14px;
+      height: 34px;
+      border-radius: var(--radius-btn);
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 34px;
+      padding: 0 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      font-size: 13px;
+      color: #374151;
+      cursor: pointer;
+    }
+
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow);
+    }
+
+    .icon { display: inline-flex; align-items: center; justify-content: center; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       Page: 反馈中心
+    ═══════════════════════════════════════════════════════════════ */
+
+    .fb-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .fb-search {
+      flex: 1;
+      height: 40px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 14px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .fb-search input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text-primary);
+      background: transparent;
+    }
+
+    .fb-layout {
+      display: flex;
+      gap: 18px;
+    }
+
+    .fb-filters {
+      width: 246px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .filter-group { display: flex; flex-direction: column; gap: 10px; }
+
+    .filter-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .filter-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 13px;
+      color: #374151;
+    }
+
+    .filter-row .left { display: flex; align-items: center; gap: 8px; }
+
+    .checkbox {
+      width: 16px;
+      height: 16px;
+      border: 1px solid var(--border-strong);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .checkbox.checked {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+      font-size: 10px;
+    }
+
+    .filter-count {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .emotion-toggle {
+      display: flex;
+      gap: 8px;
+    }
+
+    .emotion-pill {
+      height: 26px;
+      padding: 0 12px;
+      border-radius: var(--radius-pill);
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+    .emotion-pill.negative.active { background: var(--error-light); color: var(--error); border-color: #FECACA; }
+    .emotion-pill.neutral.active { background: #F3F4F6; color: var(--text-secondary); border-color: var(--border); }
+    .emotion-pill.positive.active { background: var(--success-light); color: var(--success); border-color: #BBF7D0; }
+    .emotion-pill:not(.active) { background: transparent; color: var(--text-muted); border-color: var(--border); }
+
+    .filter-reset {
+      font-size: 13px;
+      color: var(--primary);
+      cursor: pointer;
+      margin-top: -4px;
+    }
+
+    .fb-list-area { flex: 1; min-width: 0; }
+
+    .fb-list-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .fb-list-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .feedback-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .feedback-card {
+      background: var(--surface);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .feedback-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .feedback-tags { display: flex; align-items: center; gap: 10px; }
+
+    .emotion-tag {
+      height: 22px;
+      padding: 0 8px;
+      border-radius: var(--radius-badge);
+      font-size: 12px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+    }
+    .emotion-tag.negative { background: var(--error-light); color: var(--error); }
+    .emotion-tag.neutral { background: #F3F4F6; color: var(--text-secondary); }
+    .emotion-tag.positive { background: var(--success-light); color: var(--success); }
+
+    .topic-tag {
+      height: 22px;
+      padding: 0 10px;
+      background: var(--primary-ghost);
+      color: var(--primary);
+      border-radius: var(--radius-badge);
+      font-size: 12px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+    }
+
+    .feedback-date {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .feedback-quote {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-primary);
+    }
+
+    .feedback-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .feedback-detail {
+      color: var(--primary);
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .fb-batch-bar {
+      margin-top: 16px;
+      background: var(--surface);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .fb-batch-info {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       Page: 洞察看板
+    ═══════════════════════════════════════════════════════════════ */
+
+    .ai-banner {
+      background: var(--surface);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .ai-banner-text {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: #374151;
+    }
+
+    .ai-banner-icon {
+      width: 18px;
+      height: 18px;
+      color: var(--primary);
+    }
+
+    .ai-banner-tag {
+      height: 22px;
+      padding: 0 8px;
+      background: var(--primary-ghost);
+      color: var(--primary);
+      border-radius: var(--radius-badge);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .kpi-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .kpi-card {
+      flex: 1;
+      background: var(--surface);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .kpi-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .kpi-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .kpi-value.blue { color: var(--primary); }
+    .kpi-value.green { color: var(--success); }
+
+    .kpi-sub {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: auto;
+    }
+
+    .insights-layout {
+      display: flex;
+      gap: 18px;
+    }
+
+    .topic-list {
+      width: 328px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .topic-list-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      padding: 0 4px;
+    }
+
+    .topic-card {
+      background: var(--surface);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+    .topic-card:hover { border-color: var(--border-strong); }
+    .topic-card.active {
+      background: var(--primary-ghost);
+      border-color: var(--primary);
+    }
+
+    .topic-card-left { display: flex; align-items: flex-start; gap: 10px; }
+
+    .priority-badge {
+      width: 26px;
+      height: 18px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .priority-badge.p0 { background: #FEE2E2; color: #B91C1C; }
+    .priority-badge.p1 { background: #FFEDD5; color: #C2410C; }
+    .priority-badge.p2 { background: #FEF3C7; color: #B45309; }
+    .priority-badge.p3 { background: #E5E7EB; color: #4B5563; }
+
+    .topic-card-info { display: flex; flex-direction: column; gap: 2px; }
+    .topic-card-title { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+    .topic-card-meta { font-size: 12px; color: var(--text-secondary); }
+
+    .topic-card-trend {
+      font-size: 16px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .topic-card-trend.up { color: var(--error); }
+    .topic-card-trend.down { color: var(--success); }
+
+    .detail-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .detail-card {
+      background: var(--surface);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .detail-header-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .detail-header-meta {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .evidence-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .evidence-item {
+      background: var(--bg);
+      border-radius: var(--radius-btn);
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .evidence-quote {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-primary);
+      position: relative;
+      padding-left: 18px;
+    }
+    .evidence-quote::before {
+      content: """;
+      position: absolute;
+      left: 0;
+      top: -4px;
+      font-size: 24px;
+      color: var(--border-strong);
+      font-family: Georgia, serif;
+      line-height: 1;
+    }
+
+    .evidence-source {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .ai-conclusion {
+      background: var(--primary-ghost);
+      border: 1px solid var(--primary-soft);
+      border-radius: var(--radius-btn);
+      padding: 14px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .ai-conclusion-icon {
+      width: 20px;
+      height: 20px;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .ai-conclusion-text {
+      font-size: 13px;
+      line-height: 1.7;
+      color: #374151;
+    }
+
+    .chart-area {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .chart-area-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .chart-svg {
+      width: 100%;
+      height: 180px;
+    }
+
+    .detail-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .agent-section {
+      background: var(--surface);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    .agent-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .agent-section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .agent-section-count {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .agent-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .agent-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-radius: var(--radius-btn);
+      background: var(--bg);
+    }
+
+    .agent-card-left { display: flex; align-items: center; gap: 12px; }
+
+    .agent-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--primary-ghost);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .agent-info { display: flex; flex-direction: column; gap: 2px; }
+    .agent-name { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+    .agent-desc { font-size: 12px; color: var(--text-secondary); }
+
+    .agent-status {
+      height: 22px;
+      padding: 0 8px;
+      border-radius: var(--radius-badge);
+      font-size: 12px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .agent-status.done { background: var(--success-light); color: var(--success); }
+    .agent-status.progress { background: var(--primary-light); color: var(--primary); }
+    .agent-status.wait { background: #F3F4F6; color: var(--text-secondary); }
+
+    /* ═══════════════════════════════════════════════════════════════
+       Page: 机会工作区
+    ═══════════════════════════════════════════════════════════════ */
+
+    .opp-layout {
+      display: flex;
+      gap: 18px;
+    }
+
+    .opp-list-col {
+      width: 328px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .opp-list-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      padding: 0 4px;
+    }
+
+    .opp-card {
+      background: var(--surface);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+    .opp-card:hover { border-color: var(--border-strong); }
+    .opp-card.active {
+      background: var(--primary-ghost);
+      border-color: var(--primary);
+    }
+
+    .opp-card-title { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+    .opp-card-source { font-size: 12px; color: var(--text-secondary); }
+
+    .opp-card-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 2px;
+    }
+
+    .opp-card-priority {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .opp-card-status {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+    .opp-card-status.active { color: var(--primary); }
+
+    .opp-new-btn {
+      height: 44px;
+      border: 1px solid var(--primary);
+      border-radius: var(--radius-btn);
+      color: var(--primary);
+      font-size: 14px;
+      font-weight: 500;
+      background: var(--surface);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .opp-detail-col { flex: 1; min-width: 0; }
+
+    .opp-detail-card {
+      background: var(--surface);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .opp-detail-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .opp-detail-meta {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .opp-detail-link {
+      font-size: 13px;
+      color: var(--primary);
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .opp-block-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .opp-block-text {
+      font-size: 13px;
+      line-height: 1.7;
+      color: #374151;
+    }
+
+    .opp-ai-btns {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .opp-ai-btn {
+      height: 34px;
+      padding: 0 14px;
+      border: 1px solid var(--primary);
+      border-radius: var(--radius-btn);
+      background: var(--surface);
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .opp-prd-editor {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      padding: 16px;
+      background: var(--surface);
+    }
+
+    .opp-prd-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .opp-prd-content {
+      width: 100%;
+      min-height: 220px;
+      border: none;
+      outline: none;
+      font-family: inherit;
+      font-size: 13px;
+      line-height: 1.8;
+      color: #374151;
+      resize: vertical;
+      background: transparent;
+    }
+
+    .opp-score-panel {
+      background: var(--primary-ghost);
+      border: 1px solid var(--primary-soft);
+      border-radius: var(--radius-btn);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .opp-score-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--primary);
+    }
+
+    .opp-score-formula {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .opp-score-note {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .opp-detail-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 4px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       Page: 上线效果仪表盘
+    ═══════════════════════════════════════════════════════════════ */
+
+    .dash-kpi-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .dash-kpi-card {
+      flex: 1;
+      background: var(--surface);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      min-height: 110px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .dash-kpi-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .dash-kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1.2;
+    }
+    .dash-kpi-value.green { color: var(--success); }
+
+    .dash-kpi-sub {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: auto;
+    }
+
+    .trend-panel {
+      background: var(--surface);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+
+    .trend-panel-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .dash-two-col {
+      display: flex;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .dash-col-panel {
+      flex: 1;
+      background: var(--surface);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .dash-col-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .funnel-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .funnel-label {
+      width: 90px;
+      font-size: 12px;
+      color: #374151;
+      flex-shrink: 0;
+    }
+
+    .funnel-bars {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .funnel-bar {
+      height: 10px;
+      border-radius: 5px;
+      background: var(--border);
+    }
+    .funnel-bar.before { background: var(--border-strong); opacity: .6; }
+    .funnel-bar.after { background: var(--primary); }
+    .funnel-bar.negative { background: var(--error); }
+    .funnel-bar.neutral { background: var(--text-muted); }
+    .funnel-bar.positive { background: var(--success); }
+
+    .funnel-value {
+      width: 60px;
+      text-align: right;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--success);
+      flex-shrink: 0;
+    }
+
+    .review-panel {
+      background: var(--primary-ghost);
+      border: 1px solid var(--primary-soft);
+      border-radius: var(--radius-card);
+      padding: 16px;
+      margin-bottom: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .review-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .review-panel-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--primary);
+    }
+
+    .review-panel-link {
+      font-size: 13px;
+      color: var(--primary);
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .review-panel-body {
+      font-size: 13px;
+      line-height: 1.7;
+      color: #374151;
+    }
+
+    .suggest-panel {
+      background: var(--surface);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      margin-bottom: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .suggest-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .suggest-panel-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .suggest-panel-link {
+      font-size: 13px;
+      color: var(--primary);
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .suggest-panel-body {
+      font-size: 13px;
+      line-height: 1.8;
+      color: #374151;
+    }
+
+    .dash-actions {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* ─── AI 协同：三层展示法 ─── */
+    .ai-status {
+      display: inline-flex;
+      align-items: center;
+      height: 22px;
+      padding: 0 8px;
+      border-radius: 11px;
+      font-size: 12px;
+      font-weight: 500;
+      margin-left: 8px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .ai-status--idle { background: #F3F4F6; color: var(--text-secondary); }
+    .ai-status--loading { background: var(--primary-light); color: var(--primary); }
+    .ai-status--success { background: var(--success-light); color: var(--success); }
+    .ai-status--partial { background: var(--warning-light); color: #B45309; }
+    .ai-status--failed { background: var(--error-light); color: var(--error); cursor: pointer; }
+
+    .activity-bell {
+      position: relative;
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--text-secondary);
+      border: 1px solid var(--border); background: var(--surface);
+    }
+    .activity-bell:hover { color: var(--primary); border-color: var(--primary); }
+    .activity-count {
+      position: absolute; top: -4px; right: -4px;
+      min-width: 16px; height: 16px; padding: 0 4px;
+      border-radius: 8px; background: var(--error); color: #fff;
+      font-size: 10px; font-weight: 700;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .activity-panel {
+      position: absolute; top: 52px; right: 24px;
+      width: 320px; max-height: 380px; overflow: auto;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; box-shadow: var(--shadow); padding: 12px;
+      display: none; z-index: 200;
+    }
+    .activity-panel.open { display: block; }
+    .activity-head { display:flex; align-items:center; justify-content: space-between; margin-bottom: 10px; }
+    .activity-head-title { font-size: 14px; font-weight: 700; }
+    .activity-head select { font-size: 12px; border: 1px solid var(--border); border-radius: 6px; padding: 2px 4px; }
+    .activity-item { padding: 8px; border-radius: 8px; cursor: pointer; }
+    .activity-item:hover { background: var(--bg); }
+    .activity-main { display:flex; align-items:center; justify-content: space-between; gap: 8px; }
+    .activity-name { font-size: 13px; font-weight: 500; }
+    .activity-pill { font-size: 11px; padding: 1px 7px; border-radius: 10px; white-space: nowrap; }
+    .activity-pill.done { background: var(--success-light); color: var(--success); }
+    .activity-pill.partial { background: var(--warning-light); color: #B45309; }
+    .activity-pill.failed { background: var(--error-light); color: var(--error); }
+    .activity-sub { font-size: 11px; color: var(--text-muted); margin-top: 3px; display:flex; justify-content: space-between; gap: 8px; }
+    .activity-retry { font-size: 11px; color: var(--primary); background: none; border: none; cursor: pointer; padding: 0; }
+    .activity-empty { font-size: 12px; color: var(--text-muted); text-align: center; padding: 20px 0; }
+
+    .agent-drawer {
+      position: fixed; top: 0; right: 0; bottom: 0; width: 380px;
+      background: var(--surface); box-shadow: -4px 0 24px rgba(13,24,41,0.12);
+      transform: translateX(100%); transition: transform .25s ease;
+      z-index: 300; display: flex; flex-direction: column; padding: 18px;
+      border-left: 1px solid var(--border);
+    }
+    .agent-drawer.open { transform: translateX(0); }
+    .agent-drawer-header { display:flex; align-items:center; justify-content: space-between; margin-bottom: 14px; }
+    .agent-drawer-title { font-size: 15px; font-weight: 700; }
+    .agent-drawer-close { cursor: pointer; color: var(--text-secondary); background:none; border:none; font-size: 20px; line-height: 1; }
+    .agent-drawer-body { display:flex; flex-direction: column; gap: 10px; overflow: auto; flex: 1; }
+    .agent-error { display: none; align-items: center; gap: 8px; background: var(--error-light); color: var(--error); border-radius: 8px; padding: 10px 12px; font-size: 13px; margin-bottom: 10px; }
+    .agent-drawer-actions { display:flex; gap: 10px; padding-top: 12px; border-top: 1px solid var(--border); margin-top: 12px; }
+    .agent-drawer-actions .btn { flex: 1; }
+
+    .toast-container { position: fixed; right: 24px; bottom: 24px; display:flex; flex-direction: column; gap: 10px; z-index: 400; }
+    .toast { min-width: 220px; max-width: 340px; padding: 12px 14px; border-radius: 10px; font-size: 13px; color: #fff; opacity: 0; transform: translateY(8px); transition: all .3s; box-shadow: var(--shadow); }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast--info { background: #374151; }
+    .toast--success { background: var(--success); }
+    .toast--error { background: var(--error); }
+  </style>
+</head>
+<body>
+  <div class="scale-wrapper">
+    <div class="app-root">
+
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="brand">
+            <div class="logo-mark"></div>
+            <span class="logo-text">InsightLoop</span>
+          </div>
+          <nav class="topbar-tabs">
+            <button class="tab" data-page="feedback">反馈中心</button>
+            <button class="tab active" data-page="insights">洞察看板</button>
+            <button class="tab" data-page="opportunities">机会工作区</button>
+            <button class="tab" data-page="effects">上线效果</button>
+          </nav>
+        </div>
+        <div class="topbar-right">
+          <div class="project-selector">项目：InsightLoop v1 <span>▾</span></div>
+          <div class="ai-pill"><span class="dot"></span>AI 分析中</div>
+          <div class="activity-bell" id="activity-bell">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span class="activity-count" id="activity-count" style="display:none">0</span>
+          </div>
+          <div class="avatar">苗</div>
+        </div>
+      </header>
+
+      <!-- AI 活动日志（三层展示法 · ③顶栏活动日志） -->
+      <div class="activity-panel" id="activity-panel">
+        <div class="activity-head">
+          <span class="activity-head-title">AI 活动日志</span>
+          <select id="fail-mode" title="模拟异常">
+            <option value="0">正常</option>
+            <option value="timeout">模拟超时失败</option>
+            <option value="badjson">模拟脏JSON</option>
+          </select>
+        </div>
+        <div id="activity-list"></div>
+      </div>
+
+      <!-- Page: 反馈中心 -->
+      <section class="page" id="page-feedback">
+        <div class="page-header">
+          <div class="page-title-block">
+            <h1 class="page-title">反馈中心</h1>
+            <p class="page-subtitle">汇聚多源用户反馈，标记情绪与主题，一键触发多智能体分析</p>
+          </div>
+          <button class="btn btn-outline">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            导出
+          </button>
+        </div>
+
+        <div class="fb-toolbar">
+          <button class="btn btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            导入反馈
+          </button>
+          <div class="fb-search">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="搜索反馈原话、用户、主题…">
+          </div>
+          <button class="chip">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            筛选
+          </button>
+        </div>
+
+        <div class="fb-layout">
+          <aside class="fb-filters card">
+            <div class="filter-group">
+              <div class="filter-label">来源</div>
+              <div class="filter-row"><div class="left"><span class="checkbox checked">✓</span>应用内反馈</div><span class="filter-count">642</span></div>
+              <div class="filter-row"><div class="left"><span class="checkbox checked">✓</span>客服工单</div><span class="filter-count">386</span></div>
+              <div class="filter-row"><div class="left"><span class="checkbox checked">✓</span>应用商店评论</div><span class="filter-count">212</span></div>
+            </div>
+            <div class="filter-group">
+              <div class="filter-label">用户类型</div>
+              <div class="filter-row"><div class="left"><span class="checkbox"></span>免费版</div><span class="filter-count">580</span></div>
+              <div class="filter-row"><div class="left"><span class="checkbox checked">✓</span>付费版</div><span class="filter-count">410</span></div>
+              <div class="filter-row"><div class="left"><span class="checkbox"></span>企业版</div><span class="filter-count">250</span></div>
+            </div>
+            <div class="filter-group">
+              <div class="filter-label">情绪</div>
+              <div class="emotion-toggle">
+                <span class="emotion-pill negative active">负面</span>
+                <span class="emotion-pill neutral">中性</span>
+                <span class="emotion-pill positive">正面</span>
+              </div>
+            </div>
+            <div class="filter-group">
+              <div class="filter-label">主题</div>
+              <div class="filter-row"><div class="left"><span class="checkbox checked">✓</span>导出报表耗时过长</div><span class="filter-count">412</span></div>
+              <div class="filter-row"><div class="left"><span class="checkbox"></span>移动端登录失败</div><span class="filter-count">286</span></div>
+              <div class="filter-row"><div class="left"><span class="checkbox"></span>搜索结果不准确</div><span class="filter-count">218</span></div>
+              <div class="filter-row"><div class="left"><span class="checkbox"></span>批量操作无进度提示</div><span class="filter-count">154</span></div>
+              <div class="filter-row"><div class="left"><span class="checkbox"></span>通知中心加载慢</div><span class="filter-count">98</span></div>
+              <div class="filter-row"><div class="left"><span class="checkbox"></span>深色模式对比度不足</div><span class="filter-count">72</span></div>
+            </div>
+            <div class="filter-group">
+              <div class="filter-label">时间</div>
+              <div class="filter-row"><div class="left"><span class="checkbox"></span>近 7 天</div></div>
+              <div class="filter-row"><div class="left"><span class="checkbox checked">✓</span>近 30 天</div></div>
+              <div class="filter-row"><div class="left"><span class="checkbox"></span>近 90 天</div></div>
+            </div>
+            <div class="filter-reset">清除全部筛选</div>
+          </aside>
+
+          <div class="fb-list-area">
+            <div class="fb-list-header">
+              <span class="fb-list-title">反馈列表</span>
+              <button class="chip">最新优先 <span>▾</span></button>
+            </div>
+            <div class="feedback-cards">
+              <div class="feedback-card">
+                <div class="feedback-card-header">
+                  <div class="feedback-tags">
+                    <span class="emotion-tag negative">负面</span>
+                    <span class="topic-tag">导出报表耗时过长</span>
+                  </div>
+                  <span class="feedback-date">2026-07-21</span>
+                </div>
+                <div class="feedback-quote">每月底导出月度报表要等将近 2 分钟，数据量大时还会超时失败，只能反复重试。</div>
+                <div class="feedback-footer">
+                  <span>来源：应用内反馈</span>
+                  <span class="feedback-detail">查看详情 →</span>
+                </div>
+              </div>
+              <div class="feedback-card">
+                <div class="feedback-card-header">
+                  <div class="feedback-tags">
+                    <span class="emotion-tag negative">负面</span>
+                    <span class="topic-tag">移动端登录偶发失败</span>
+                  </div>
+                  <span class="feedback-date">2026-07-20</span>
+                </div>
+                <div class="feedback-quote">iOS 端登录有时提示网络错误，重试 2-3 次才能成功，很影响日常使用。</div>
+                <div class="feedback-footer">
+                  <span>来源：客服工单</span>
+                  <span class="feedback-detail">查看详情 →</span>
+                </div>
+              </div>
+              <div class="feedback-card">
+                <div class="feedback-card-header">
+                  <div class="feedback-tags">
+                    <span class="emotion-tag neutral">中性</span>
+                    <span class="topic-tag">搜索结果不准确</span>
+                  </div>
+                  <span class="feedback-date">2026-07-18</span>
+                </div>
+                <div class="feedback-quote">搜索“导出”出来的结果里混进了不少不相关文档，得自己慢慢翻找。</div>
+                <div class="feedback-footer">
+                  <span>来源：应用商店评论</span>
+                  <span class="feedback-detail">查看详情 →</span>
+                </div>
+              </div>
+              <div class="feedback-card">
+                <div class="feedback-card-header">
+                  <div class="feedback-tags">
+                    <span class="emotion-tag negative">负面</span>
+                    <span class="topic-tag">批量操作无进度提示</span>
+                  </div>
+                  <span class="feedback-date">2026-07-17</span>
+                </div>
+                <div class="feedback-quote">批量删除 200 条记录时没有任何进度提示，一度以为页面卡死了。</div>
+                <div class="feedback-footer">
+                  <span>来源：应用内反馈</span>
+                  <span class="feedback-detail">查看详情 →</span>
+                </div>
+              </div>
+              <div class="feedback-card">
+                <div class="feedback-card-header">
+                  <div class="feedback-tags">
+                    <span class="emotion-tag positive">正面</span>
+                    <span class="topic-tag">深色模式对比度不足</span>
+                  </div>
+                  <span class="feedback-date">2026-07-15</span>
+                </div>
+                <div class="feedback-quote">深色模式下部分辅助文字看不清，希望提高对比度，更护眼一些。</div>
+                <div class="feedback-footer">
+                  <span>来源：问卷调研</span>
+                  <span class="feedback-detail">查看详情 →</span>
+                </div>
+              </div>
+              <div class="feedback-card">
+                <div class="feedback-card-header">
+                  <div class="feedback-tags">
+                    <span class="emotion-tag negative">负面</span>
+                    <span class="topic-tag">通知中心加载慢</span>
+                  </div>
+                  <span class="feedback-date">2026-07-14</span>
+                </div>
+                <div class="feedback-quote">点开通知中心要转好几秒，红点也经常不消失，容易漏看重要消息。</div>
+                <div class="feedback-footer">
+                  <span>来源：客服工单</span>
+                  <span class="feedback-detail">查看详情 →</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="fb-batch-bar">
+              <span class="fb-batch-info">已选中 6 条反馈 · 触发多智能体分析后将跳转至「洞察看板」</span>
+              <button class="btn btn-primary" data-ai-cap="batch_analyze" data-ai-mode="log">
+                批量 AI 分析 →
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Page: 洞察看板 -->
+      <section class="page active" id="page-insights">
+        <div class="page-header">
+          <div class="page-title-block">
+            <h1 class="page-title">洞察看板</h1>
+            <p class="page-subtitle">基于多源反馈自动聚类出的高频问题、影响范围与情绪趋势</p>
+          </div>
+          <div class="page-actions">
+            <button class="chip">近 30 天 <span>▾</span></button>
+            <button class="btn btn-primary" data-ai-cap="batch_analyze" data-ai-mode="log">重新分析</button>
+          </div>
+        </div>
+
+        <div class="ai-banner">
+          <div class="ai-banner-text">
+            <svg class="ai-banner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            <span>AI 多智能体协同分析中：已聚合 <strong>1,240</strong> 条反馈，聚类出 <strong>6</strong> 个主题，产品策略 Agent 正在评估优先级…</span>
+          </div>
+          <span class="ai-banner-tag">实时</span>
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-label">高频问题</div>
+            <div class="kpi-value">12</div>
+            <div class="kpi-sub">较上周 +3</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">影响用户数</div>
+            <div class="kpi-value blue">1,240</div>
+            <div class="kpi-sub">覆盖 6 个主题</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">负面情绪占比</div>
+            <div class="kpi-value">38%</div>
+            <div class="kpi-sub"><span style="color:var(--success)">↓ 5%</span> 环比向好</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">趋势环比</div>
+            <div class="kpi-value green">+42%</div>
+            <div class="kpi-sub">整体向好</div>
+          </div>
+        </div>
+
+        <div class="insights-layout">
+          <aside class="topic-list">
+            <div class="topic-list-header">
+              <span>问题主题</span>
+              <span>6 个</span>
+            </div>
+            <div class="topic-card active" data-topic="0">
+              <div class="topic-card-left">
+                <span class="priority-badge p0">P0</span>
+                <div class="topic-card-info">
+                  <span class="topic-card-title">导出报表耗时过长</span>
+                  <span class="topic-card-meta">影响 412 位用户</span>
+                </div>
+              </div>
+              <span class="topic-card-trend up">↑</span>
+            </div>
+            <div class="topic-card" data-topic="1">
+              <div class="topic-card-left">
+                <span class="priority-badge p1">P1</span>
+                <div class="topic-card-info">
+                  <span class="topic-card-title">移动端登录偶发失败</span>
+                  <span class="topic-card-meta">影响 286 位用户</span>
+                </div>
+              </div>
+              <span class="topic-card-trend up">↑</span>
+            </div>
+            <div class="topic-card" data-topic="2">
+              <div class="topic-card-left">
+                <span class="priority-badge p1">P1</span>
+                <div class="topic-card-info">
+                  <span class="topic-card-title">搜索结果不准确</span>
+                  <span class="topic-card-meta">影响 218 位用户</span>
+                </div>
+              </div>
+              <span class="topic-card-trend">→</span>
+            </div>
+            <div class="topic-card" data-topic="3">
+              <div class="topic-card-left">
+                <span class="priority-badge p2">P2</span>
+                <div class="topic-card-info">
+                  <span class="topic-card-title">批量操作无进度提示</span>
+                  <span class="topic-card-meta">影响 154 位用户</span>
+                </div>
+              </div>
+              <span class="topic-card-trend up">↑</span>
+            </div>
+            <div class="topic-card" data-topic="4">
+              <div class="topic-card-left">
+                <span class="priority-badge p2">P2</span>
+                <div class="topic-card-info">
+                  <span class="topic-card-title">通知中心加载慢</span>
+                  <span class="topic-card-meta">影响 98 位用户</span>
+                </div>
+              </div>
+              <span class="topic-card-trend down">↓</span>
+            </div>
+            <div class="topic-card" data-topic="5">
+              <div class="topic-card-left">
+                <span class="priority-badge p3">P3</span>
+                <div class="topic-card-info">
+                  <span class="topic-card-title">深色模式对比度不足</span>
+                  <span class="topic-card-meta">影响 72 位用户</span>
+                </div>
+              </div>
+              <span class="topic-card-trend">→</span>
+            </div>
+          </aside>
+
+          <div class="detail-panel">
+            <div class="detail-card">
+              <div>
+                <div class="detail-header-title">导出报表耗时过长</div>
+                <div class="detail-header-meta">P0 严重 · 影响 412 位用户 · 负面情绪占比 41% · 趋势 ↑</div>
+              </div>
+
+              <div>
+                <div class="section-title">用户原话与证据</div>
+                <div class="evidence-list">
+                  <div class="evidence-item">
+                    <div class="evidence-quote">每月底导出月度报表要等将近 2 分钟，数据量大时还会超时失败，只能反复重试。</div>
+                    <div class="evidence-source">应用内反馈 · 2026-07-21 · 用户 #U8821</div>
+                  </div>
+                  <div class="evidence-item">
+                    <div class="evidence-quote">导出的 Excel 字段顺序和页面展示不一致，财务同事每次都要手动调整，很浪费时间。</div>
+                    <div class="evidence-source">客服工单 · 2026-07-18 · 工单 #T2043</div>
+                  </div>
+                  <div class="evidence-item">
+                    <div class="evidence-quote">希望支持按条件筛选后导出，而不是每次都导出全量再自己删减。</div>
+                    <div class="evidence-source">应用商店评论 · 2026-07-15 · iOS 端</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ai-conclusion">
+                <svg class="ai-conclusion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                <div class="ai-conclusion-text">
+                  <strong>AI 结论</strong><br>
+                  该主题主因是「报表查询未做分页与缓存」，在月度峰值并发下触发数据库慢查询与超时。建议优先做服务端缓存 + 异步导出，预计可将导出耗时从 ~120s 降至 ~5s，覆盖 412 位受影响用户。
+                </div>
+              </div>
+
+              <div class="chart-area">
+                <div class="chart-area-title">近 30 天反馈量与负面情绪趋势</div>
+                <svg class="chart-svg" viewBox="0 0 800 180" preserveAspectRatio="none">
+                  <line x1="40" y1="150" x2="760" y2="150" stroke="#E5E7EB" stroke-width="1"/>
+                  <line x1="40" y1="100" x2="760" y2="100" stroke="#F4F6F9" stroke-width="1"/>
+                  <line x1="40" y1="50" x2="760" y2="50" stroke="#F4F6F9" stroke-width="1"/>
+                  <polygon points="40,130 180,125 320,118 460,105 600,90 760,72 760,150 40,150" fill="#1D5DD9" fill-opacity="0.08"/>
+                  <polyline points="40,138 160,132 300,128 440,120 580,108 760,95" fill="none" stroke="#F59E0B" stroke-width="2" stroke-dasharray="5,4"/>
+                  <polyline points="40,130 180,125 320,118 460,105 600,90 760,72" fill="none" stroke="#1D5DD9" stroke-width="2.5"/>
+                  <circle cx="40" cy="130" r="3" fill="#1D5DD9"/>
+                  <circle cx="760" cy="72" r="3" fill="#1D5DD9"/>
+                  <text x="40" y="170" font-size="11" fill="#9CA3AF">06-26</text>
+                  <text x="720" y="170" font-size="11" fill="#9CA3AF">07-26</text>
+                </svg>
+              </div>
+
+              <div class="detail-actions">
+                <button class="btn btn-outline">查看证据</button>
+                <button class="btn btn-outline" data-ai-drawer="batch_analyze">AI 分析过程</button>
+                <button class="btn btn-primary">转为机会</button>
+              </div>
+            </div>
+
+            <div class="agent-section">
+              <div class="agent-section-header">
+                <span class="agent-section-title">AI 分析过程 · 多智能体追溯</span>
+                <span class="agent-section-count">5 个 Agent 协同</span>
+              </div>
+              <div class="agent-list">
+                <div class="agent-card">
+                  <div class="agent-card-left">
+                    <div class="agent-icon">用</div>
+                    <div class="agent-info">
+                      <span class="agent-name">用户研究 Agent</span>
+                      <span class="agent-desc">聚类 412 条反馈，提炼主诉「导出慢 / 超时」</span>
+                    </div>
+                  </div>
+                  <span class="agent-status done"><span>●</span> 已完成</span>
+                </div>
+                <div class="agent-card">
+                  <div class="agent-card-left">
+                    <div class="agent-icon">数</div>
+                    <div class="agent-info">
+                      <span class="agent-name">数据分析 Agent</span>
+                      <span class="agent-desc">导出耗时 P95≈118s，超时率 6.3%，峰值集中在月末</span>
+                    </div>
+                  </div>
+                  <span class="agent-status done"><span>●</span> 已完成</span>
+                </div>
+                <div class="agent-card">
+                  <div class="agent-card-left">
+                    <div class="agent-icon">产</div>
+                    <div class="agent-info">
+                      <span class="agent-name">产品策略 Agent</span>
+                      <span class="agent-desc">评估优先级为 P0，建议归入「性能优化」机会</span>
+                    </div>
+                  </div>
+                  <span class="agent-status progress"><span>●</span> 进行中</span>
+                </div>
+                <div class="agent-card">
+                  <div class="agent-card-left">
+                    <div class="agent-icon">技</div>
+                    <div class="agent-info">
+                      <span class="agent-name">技术评估 Agent</span>
+                      <span class="agent-desc">待产品策略确认后评估缓存 / 异步导出方案</span>
+                    </div>
+                  </div>
+                  <span class="agent-status wait"><span>●</span> 排队中</span>
+                </div>
+                <div class="agent-card">
+                  <div class="agent-card-left">
+                    <div class="agent-icon">协</div>
+                    <div class="agent-info">
+                      <span class="agent-name">协调 Agent</span>
+                      <span class="agent-desc">汇总结论并生成可转为机会的草案</span>
+                    </div>
+                  </div>
+                  <span class="agent-status done"><span>●</span> 已完成</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Page: 机会工作区 -->
+      <section class="page" id="page-opportunities">
+        <div class="page-header">
+          <div class="page-title-block">
+            <h1 class="page-title">机会工作区</h1>
+            <p class="page-subtitle">将高价值洞察转化为可验证的产品机会 · 共 5 个机会 · 2 个推进中</p>
+          </div>
+          <button class="chip">排序：优先级 <span>▾</span></button>
+        </div>
+
+        <div class="opp-layout">
+          <aside class="opp-list-col">
+            <div class="opp-list-title">机会列表 · 5</div>
+            <div class="opp-card active" data-opp="0">
+              <div class="opp-card-title">导出报表异步化（流式 + 进度）</div>
+              <div class="opp-card-source">来自洞察 · 导出报表耗时过长</div>
+              <div class="opp-card-bottom">
+                <span class="opp-card-priority">优先级 8.6</span>
+                <span class="opp-card-status active">评估中</span>
+              </div>
+            </div>
+            <div class="opp-card" data-opp="1">
+              <div class="opp-card-title">移动端登录失败自愈与重试</div>
+              <div class="opp-card-source">来自洞察 · 移动端登录偶发失败</div>
+              <div class="opp-card-bottom">
+                <span class="opp-card-priority">优先级 8.2</span>
+                <span class="opp-card-status">待排期</span>
+              </div>
+            </div>
+            <div class="opp-card" data-opp="2">
+              <div class="opp-card-title">搜索语义重排 + 相关性加权</div>
+              <div class="opp-card-source">来自洞察 · 搜索结果不准确</div>
+              <div class="opp-card-bottom">
+                <span class="opp-card-priority">优先级 7.5</span>
+                <span class="opp-card-status active">评估中</span>
+              </div>
+            </div>
+            <div class="opp-card" data-opp="3">
+              <div class="opp-card-title">批量操作实时进度条</div>
+              <div class="opp-card-source">来自洞察 · 批量操作无进度提示</div>
+              <div class="opp-card-bottom">
+                <span class="opp-card-priority">优先级 6.8</span>
+                <span class="opp-card-status">草稿</span>
+              </div>
+            </div>
+            <div class="opp-card" data-opp="4">
+              <div class="opp-card-title">通知中心预加载缓存</div>
+              <div class="opp-card-source">来自洞察 · 通知中心加载慢</div>
+              <div class="opp-card-bottom">
+                <span class="opp-card-priority">优先级 6.2</span>
+                <span class="opp-card-status">草稿</span>
+              </div>
+            </div>
+            <button class="opp-new-btn">＋ 新建机会</button>
+          </aside>
+
+          <div class="opp-detail-col">
+            <div class="opp-detail-card">
+              <div>
+                <div class="opp-detail-name">导出报表异步化（流式 + 进度）</div>
+                <div class="opp-detail-meta">优先级 8.6 · 状态 评估中 · 来源洞察：导出报表耗时过长</div>
+                <div class="opp-detail-link">查看来源洞察 ▸</div>
+              </div>
+
+              <div>
+                <div class="opp-block-label">机会描述</div>
+                <div class="opp-block-text">用户在导出大报表时面临最长 40s 的同步阻塞，期间界面无任何进度反馈，易被误判为失败而重复点击，进一步加剧服务负载与用户流失。</div>
+              </div>
+
+              <div>
+                <div class="opp-block-label">用户故事</div>
+                <div class="opp-block-text">作为运营人员，我希望在导出报表时能看到实时进度并支持中途取消，以便准确掌控等待时间、避免重复操作。</div>
+              </div>
+
+              <div class="opp-ai-btns">
+                <button class="opp-ai-btn" data-ai-cap="generate_prd" data-ai-target="#opp-prd-content" data-ai-mode="textarea">AI 生成 PRD</button>
+                <button class="opp-ai-btn" data-ai-cap="gen_acceptance" data-ai-target="#opp-prd-content" data-ai-mode="textarea">生成验收标准</button>
+                <button class="opp-ai-btn" data-ai-cap="gen_tracking" data-ai-target="#opp-prd-content" data-ai-mode="textarea">生成埋点方案</button>
+                <button class="opp-ai-btn" data-ai-cap="decompose_tasks" data-ai-target="#opp-prd-content" data-ai-mode="textarea">拆解为任务</button>
+              </div>
+
+              <div class="opp-prd-editor">
+                <div class="opp-prd-title">PRD 草稿（可编辑）</div>
+                <textarea class="opp-prd-content" id="opp-prd-content"># 问题定义
+当前大报表导出为同步阻塞，最长等待 40s，期间无进度反馈，用户误判失败后重复点击，加剧负载。
+
+# 用户故事
+作为运营人员，我希望导出时看到实时进度并可中途取消，以便掌控等待。
+
+# 方案概述
+改为流式生成 + SSE 进度推送；前端分块渲染；支持取消与断点续传。
+
+# 范围
+Web 端报表中心；首期覆盖 3 类核心报表。
+
+# 验收标准
+进度可见；可取消；失败可重试；P95 < 8s。
+
+# 埋点方案
+export_start / export_progress / export_cancel / export_success。
+
+# 任务拆解
+[前端] 进度条组件；[后端] 流式接口；[测试] 压测脚本。</textarea>
+              </div>
+
+              <div class="opp-score-panel">
+                <div class="opp-score-title">AI 优先级评分（影响 × 价值 × 证据 ÷ 成本）</div>
+                <div class="opp-score-formula">影响 9.0　×　价值 8.5　×　证据 9.2　÷　成本 8.8　=　8.6</div>
+                <div class="opp-score-note">基于 412 条相关反馈与 18% 流失数据估算，评分可溯源至原始证据。</div>
+              </div>
+
+              <div class="opp-detail-actions">
+                <button class="btn btn-outline">导出 PRD</button>
+                <button class="btn btn-primary">推进上线</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Page: 上线效果仪表盘 -->
+      <section class="page" id="page-effects">
+        <div class="page-header">
+          <div class="page-title-block">
+            <h1 class="page-title">上线效果仪表盘</h1>
+            <p class="page-subtitle">验证产品迭代闭环的实际收益 · 当前迭代：v1.3 导出异步化 · 对比迭代前 / 后</p>
+          </div>
+          <div class="page-actions">
+            <button class="chip">迭代：v1.3 <span>▾</span></button>
+            <button class="chip">对比：上线后 <span>▾</span></button>
+          </div>
+        </div>
+
+        <div class="dash-kpi-row">
+          <div class="dash-kpi-card">
+            <div class="dash-kpi-label">目标完成率</div>
+            <div class="dash-kpi-value">87%</div>
+            <div class="dash-kpi-sub">12 / 14 目标达成 · 较 v1.2 +19pt</div>
+          </div>
+          <div class="dash-kpi-card">
+            <div class="dash-kpi-label">核心指标对比（环比上线前）</div>
+            <div class="dash-kpi-value">留存 +12.4%　·　转化 +8.1%</div>
+            <div class="dash-kpi-sub">7 日 / 30 日核心指标同步改善</div>
+          </div>
+          <div class="dash-kpi-card">
+            <div class="dash-kpi-label">相关主题反馈变化</div>
+            <div class="dash-kpi-value green">负面 ↓ 34%　·　满意 ↑ 21%</div>
+            <div class="dash-kpi-sub">导出报表主题负反馈显著下降</div>
+          </div>
+        </div>
+
+        <div class="trend-panel">
+          <div class="trend-panel-title">核心指标趋势 · 上线前 ▱ vs 上线后 ▰</div>
+          <svg class="chart-svg" viewBox="0 0 1000 200" preserveAspectRatio="none">
+            <line x1="40" y1="170" x2="960" y2="170" stroke="#E5E7EB" stroke-width="1"/>
+            <line x1="40" y1="120" x2="960" y2="120" stroke="#F4F6F9" stroke-width="1"/>
+            <line x1="40" y1="70" x2="960" y2="70" stroke="#F4F6F9" stroke-width="1"/>
+            <polygon points="40,158 240,140 440,118 640,95 840,72 960,55 960,170 40,170" fill="#1D5DD9" fill-opacity="0.10"/>
+            <polyline points="40,155 240,152 440,154 640,150 840,153 960,148" fill="none" stroke="#9CA3AF" stroke-width="2.5" stroke-dasharray="6,5"/>
+            <polyline points="40,158 240,140 440,118 640,95 840,72 960,55" fill="none" stroke="#1D5DD9" stroke-width="3"/>
+            <circle cx="40" cy="158" r="4" fill="#9CA3AF"/>
+            <circle cx="960" cy="55" r="4" fill="#1D5DD9"/>
+            <text x="40" y="192" font-size="12" fill="#9CA3AF">迭代前</text>
+            <text x="900" y="192" font-size="12" fill="#1D5DD9">迭代后</text>
+          </svg>
+        </div>
+
+        <div class="dash-two-col">
+          <div class="dash-col-panel">
+            <div class="dash-col-title">转化漏斗对比（上线前 / 后）</div>
+            <div class="funnel-row">
+              <div class="funnel-label">访问 → 注册</div>
+              <div class="funnel-bars">
+                <div class="funnel-bar before" style="width:62%"></div>
+                <div class="funnel-bar after" style="width:68%"></div>
+              </div>
+              <div class="funnel-value">68% ▲</div>
+            </div>
+            <div class="funnel-row">
+              <div class="funnel-label">注册 → 试用</div>
+              <div class="funnel-bars">
+                <div class="funnel-bar before" style="width:38%"></div>
+                <div class="funnel-bar after" style="width:45%"></div>
+              </div>
+              <div class="funnel-value">45% ▲</div>
+            </div>
+            <div class="funnel-row">
+              <div class="funnel-label">试用 → 导出</div>
+              <div class="funnel-bars">
+                <div class="funnel-bar before" style="width:24%"></div>
+                <div class="funnel-bar after" style="width:41%"></div>
+              </div>
+              <div class="funnel-value">41% ▲</div>
+            </div>
+            <div class="funnel-row">
+              <div class="funnel-label">导出 → 留存</div>
+              <div class="funnel-bars">
+                <div class="funnel-bar before" style="width:55%"></div>
+                <div class="funnel-bar after" style="width:63%"></div>
+              </div>
+              <div class="funnel-value">63% ▲</div>
+            </div>
+          </div>
+
+          <div class="dash-col-panel">
+            <div class="dash-col-title">用户情绪变化（上线前 / 后）</div>
+            <div class="funnel-row">
+              <div class="funnel-label">负面反馈</div>
+              <div class="funnel-bars">
+                <div class="funnel-bar before" style="width:38%"></div>
+                <div class="funnel-bar negative" style="width:25%"></div>
+              </div>
+              <div class="funnel-value">25% ↓</div>
+            </div>
+            <div class="funnel-row">
+              <div class="funnel-label">中性反馈</div>
+              <div class="funnel-bars">
+                <div class="funnel-bar before" style="width:34%"></div>
+                <div class="funnel-bar neutral" style="width:33%"></div>
+              </div>
+              <div class="funnel-value">33% →</div>
+            </div>
+            <div class="funnel-row">
+              <div class="funnel-label">正面反馈</div>
+              <div class="funnel-bars">
+                <div class="funnel-bar before" style="width:28%"></div>
+                <div class="funnel-bar positive" style="width:42%"></div>
+              </div>
+              <div class="funnel-value">42% ↑</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="review-panel">
+          <div class="review-panel-header">
+            <span class="review-panel-title">AI 复盘结论</span>
+            <span class="review-panel-link" data-ai-cap="ai_review" data-ai-target="#review-body" data-ai-mode="panel">查看复盘 ▸</span>
+          </div>
+          <div class="review-panel-body" id="review-body">
+            v1.3 导出报表异步化上线后核心目标全面达成：报表导出 P95 由 40s 降至 7.8s，重复点击率下降 71%，相关主题负反馈下降 34%。「试用 → 导出」转化提升最显著（+17pt），验证「进度可见 + 可取消」假设成立。建议将异步化模式复制至「批量操作」「通知预加载」等同类阻塞场景。
+          </div>
+        </div>
+
+        <div class="suggest-panel">
+          <div class="suggest-panel-header">
+            <span class="suggest-panel-title">下轮优化建议</span>
+            <span class="suggest-panel-link" data-ai-cap="ai_suggest" data-ai-target="#suggest-body" data-ai-mode="panel">下轮建议 ▸</span>
+          </div>
+          <div class="suggest-panel-body" id="suggest-body">
+            ① 批量操作进度条（优先级 6.8）：复用导出异步化组件，预计再降 12% 重复操作。<br>
+            ② 通知中心预加载缓存（优先级 6.2）：降低首屏白屏，提升满意度。<br>
+            ③ 搜索语义重排（优先级 7.5）：承接正面情绪上升带来的新用户，巩固留存。
+          </div>
+        </div>
+
+        <div class="dash-actions">
+          <button class="btn btn-outline">导出报告</button>
+          <button class="btn btn-primary">返回机会 →</button>
+        </div>
+      </section>
+
+      <!-- Agent 追溯抽屉（三层展示法 · ②Agent 追溯抽屉） -->
+      <aside class="agent-drawer" id="agent-drawer">
+        <div class="agent-drawer-header">
+          <span class="agent-drawer-title" id="agent-drawer-title">多智能体追溯</span>
+          <button class="agent-drawer-close" id="agent-drawer-close">×</button>
+        </div>
+        <div class="agent-error" id="agent-drawer-error">
+          <span>⚠</span><span class="agent-error-text">生成失败</span>
+        </div>
+        <div class="agent-drawer-body" id="agent-drawer-body"></div>
+        <div class="agent-drawer-actions">
+          <button class="btn btn-outline" id="agent-drawer-retry">重试</button>
+          <button class="btn btn-primary" id="agent-drawer-regen">重新生成</button>
+        </div>
+      </aside>
+
+      <!-- Toast 容器 -->
+      <div class="toast-container" id="toast-container"></div>
+
+    </div>
+  </div>
+
+  <script>
+    // Viewport scaling to fit 1440px design canvas
+    function updateScale() {
+      const scale = window.innerWidth / 1440;
+      document.documentElement.style.setProperty('--scale', scale);
+    }
+    updateScale();
+    window.addEventListener('resize', updateScale);
+
+    // Tab switching
+    const tabs = document.querySelectorAll('.tab');
+    const pages = document.querySelectorAll('.page');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const pageId = tab.dataset.page;
+        tabs.forEach(t => t.classList.remove('active'));
+        pages.forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('page-' + pageId).classList.add('active');
+      });
+    });
+
+    // Topic card selection in 洞察看板
+    document.querySelectorAll('.topic-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.topic-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+      });
+    });
+
+    // Opportunity card selection in 机会工作区
+    document.querySelectorAll('.opp-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.opp-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+      });
+    });
+
+    // Emotion pills toggle in 反馈中心
+    document.querySelectorAll('.emotion-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        pill.classList.toggle('active');
+      });
+    });
+
+    // Checkbox toggles in 反馈中心 filters
+    document.querySelectorAll('.checkbox').forEach(box => {
+      box.addEventListener('click', () => {
+        box.classList.toggle('checked');
+        box.textContent = box.classList.contains('checked') ? '✓' : '';
+      });
+    });
+  </script>
+  <script type="module" src="ai-integration.js"></script>
+</body>
+</html>
