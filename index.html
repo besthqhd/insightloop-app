@@ -1346,6 +1346,52 @@
     .toast--info { background: #374151; }
     .toast--success { background: var(--success); }
     .toast--error { background: var(--error); }
+
+    /* ─── 下拉菜单（▾ 类控件） ─── */
+    .dropdown-menu {
+      position: fixed;
+      z-index: 500;
+      min-width: 150px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .dropdown-item {
+      font-size: 13px;
+      color: var(--text-primary);
+      padding: 8px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .dropdown-item:hover { background: var(--bg); color: var(--primary); }
+    .caret { font-size: 11px; opacity: .7; }
+
+    /* ─── 通用弹窗 ─── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(13, 24, 41, 0.45);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 600;
+    }
+    .modal {
+      width: 460px; max-width: 90vw; max-height: 80vh; overflow: auto;
+      background: var(--surface); border-radius: 14px; box-shadow: var(--shadow);
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px; border-bottom: 1px solid var(--border);
+      font-size: 15px; font-weight: 700;
+    }
+    .modal-close { background: none; border: none; font-size: 22px; line-height: 1; cursor: pointer; color: var(--text-secondary); }
+    .modal-body { padding: 18px; }
+
+    /* ─── 反馈中心筛选面板可收起 ─── */
+    .fb-filters.collapsed { display: none; }
   </style>
 </head>
 <body>
@@ -2128,5 +2174,106 @@ export_start / export_progress / export_cancel / export_success。
     });
   </script>
   <script type="module" src="ai-integration.js"></script>
+  <script>
+  /* 死按钮补齐：让每个可点击元素点击后都有真实结果（导航 / 展开 / 弹窗 / 提示）
+     与 ai-integration.js 互不干扰（本段只处理无 data-ai-cap 的元素）。 */
+  (function () {
+    const $ = (s, r = document) => r.querySelector(s);
+    const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+    function on(el, ev, fn) { if (!el) return; el.addEventListener(ev, (e) => { try { fn(e); } catch (err) { console.error(err); } }); }
+    function switchTab(page) { const t = $(`.tab[data-page="${page}"]`); if (t) t.click(); }
+    function byText(pageId, txt) {
+      return $$(
+        `#${pageId} button, #${pageId} .chip, #${pageId} .opp-detail-link, #${pageId} .feedback-detail`
+      ).find(b => b.textContent.includes(txt));
+    }
+    function toast(msg) {
+      const box = $('#toast-container'); if (!box) return;
+      const t = document.createElement('div'); t.className = 'toast toast--info'; t.textContent = msg;
+      box.appendChild(t); requestAnimationFrame(() => t.classList.add('show'));
+      setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 2600);
+    }
+    function makeDropdown(trigger, options) {
+      if (!trigger) return; let menu = null;
+      const close = () => { if (menu) { menu.remove(); menu = null; } document.removeEventListener('click', outside); };
+      const outside = (e) => { if (menu && !menu.contains(e.target) && e.target !== trigger && !trigger.contains(e.target)) close(); };
+      on(trigger, 'click', (e) => {
+        e.stopPropagation();
+        if (menu) { close(); return; }
+        menu = document.createElement('div'); menu.className = 'dropdown-menu';
+        options.forEach(opt => {
+          const it = document.createElement('div'); it.className = 'dropdown-item'; it.textContent = opt;
+          on(it, 'click', (ev) => { ev.stopPropagation(); trigger.innerHTML = opt + ' <span class="caret">▾</span>'; toast('已选择：' + opt); close(); });
+          menu.appendChild(it);
+        });
+        const r = trigger.getBoundingClientRect();
+        menu.style.top = (r.bottom + 4) + 'px'; menu.style.left = r.left + 'px';
+        document.body.appendChild(menu); document.addEventListener('click', outside);
+      });
+    }
+    function showModal(title, html) {
+      let ov = $('#generic-modal'); if (ov) ov.remove();
+      ov = document.createElement('div'); ov.className = 'modal-overlay'; ov.id = 'generic-modal';
+      ov.innerHTML = `<div class="modal"><div class="modal-header"><span>${title}</span><button class="modal-close">×</button></div><div class="modal-body">${html}</div></div>`;
+      on(ov.querySelector('.modal-close'), 'click', () => ov.remove());
+      on(ov, 'click', (e) => { if (e.target === ov) ov.remove(); });
+      document.body.appendChild(ov);
+    }
+    function download(name, text) {
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/markdown' }));
+      a.download = name; a.click(); toast('已导出 ' + name);
+    }
+
+    /* ── Topbar ── */
+    makeDropdown($('.project-selector'), ['InsightLoop v1', 'InsightLoop v2（内测）', '+ 新建项目']);
+
+    /* ── 反馈中心 ── */
+    on(byText('page-feedback', '导出'), 'click', () => toast('反馈列表已导出（CSV）· 原型'));
+    on(byText('page-feedback', '导入反馈'), 'click', () => toast('导入反馈：请选择文件（原型）'));
+    on(byText('page-feedback', '筛选'), 'click', () => {
+      const f = $('#page-feedback .fb-filters');
+      if (f) { f.classList.toggle('collapsed'); toast(f.classList.contains('collapsed') ? '已收起筛选面板' : '已展开筛选面板'); }
+    });
+    makeDropdown(byText('page-feedback', '最新优先'), ['最新优先', '最早优先', '相关度最高']);
+    on($('.filter-reset'), 'click', () => {
+      $$('#page-feedback .checkbox.checked').forEach(c => { c.classList.remove('checked'); c.textContent = ''; });
+      $$('#page-feedback .emotion-pill.active').forEach(p => p.classList.remove('active'));
+      toast('已清除全部筛选');
+    });
+    $$('#page-feedback .feedback-detail').forEach(d => on(d, 'click', () => {
+      const card = d.closest('.feedback-card');
+      const q = card ? card.querySelector('.feedback-quote').textContent : '';
+      const src = card ? card.querySelector('.feedback-footer span').textContent : '';
+      showModal('反馈详情', `<p style="font-size:13px;line-height:1.7;color:#374151">${q}</p><p style="font-size:12px;color:#9CA3AF;margin-top:8px">${src}</p>`);
+    }));
+
+    /* ── 洞察看板 ── */
+    makeDropdown(byText('page-insights', '近 30 天'), ['近 7 天', '近 30 天', '近 90 天']);
+    on(byText('page-insights', '查看证据'), 'click', () => {
+      const el = $('#page-insights .evidence-list'); showModal('用户原话与证据', el ? el.outerHTML : '（无）');
+    });
+    on(byText('page-insights', '转为机会'), 'click', () => { switchTab('opportunities'); toast('已转入「机会工作区」'); });
+
+    /* ── 机会工作区 ── */
+    makeDropdown(byText('page-opportunities', '排序'), ['优先级', '最近更新', '影响用户数']);
+    on($('.opp-new-btn'), 'click', () => {
+      const col = $('.opp-list-col'); const n = document.createElement('div');
+      n.className = 'opp-card';
+      n.innerHTML = `<div class="opp-card-title">新建机会（草稿）</div><div class="opp-card-source">手动创建</div><div class="opp-card-bottom"><span class="opp-card-priority">优先级 --</span><span class="opp-card-status">草稿</span></div>`;
+      col.insertBefore(n, $('.opp-new-btn'));
+      $$('.opp-card').forEach(c => c.classList.remove('active')); n.classList.add('active');
+      toast('已新建机会（草稿）');
+    });
+    on($('.opp-detail-link'), 'click', () => { switchTab('insights'); toast('已跳转来源洞察'); });
+    on(byText('page-opportunities', '导出 PRD'), 'click', () => { const ta = $('#opp-prd-content'); download('PRD_导出报表异步化.md', ta ? ta.value : ''); });
+    on(byText('page-opportunities', '推进上线'), 'click', () => { switchTab('effects'); toast('机会已推进，查看上线效果'); });
+
+    /* ── 上线效果 ── */
+    makeDropdown(byText('page-effects', '迭代'), ['v1.3 导出异步化', 'v1.2', 'v1.1']);
+    makeDropdown(byText('page-effects', '对比'), ['上线后', '上线前', '环比变化']);
+    on(byText('page-effects', '导出报告'), 'click', () => download('上线效果报告_v1.3.md', 'InsightLoop v1.3 上线效果报告\n目标完成率 87%\n留存 +12.4% · 转化 +8.1%\n相关主题负面 ↓34%'));
+    on(byText('page-effects', '返回机会'), 'click', () => { switchTab('opportunities'); toast('已返回机会工作区'); });
+  })();
+  </script>
 </body>
 </html>
