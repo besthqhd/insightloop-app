@@ -284,7 +284,34 @@ export async function callModel(capability, params, opts = {}) {
  * - 版本历史：保留最近 N 次，可回退
  * - 可编辑草稿：用户改动后单独保存，与“模型结果”分离
  */
-const historyStore = new Map(); // capability+key -> [{ts, data, status}]
+const historyStore = new Map(); // capability+key -> [{ts, data, status, seed}]
+
+/* ====================== 版本历史持久化 ======================
+ * 让「重新生成 / 版本对比」的结果跨会话保留（刷新不丢），
+ * 存于 localStorage，与 AI 密钥互不干扰。仅存结构化的版本数组，体积很小。
+ */
+const HISTORY_PERSIST_KEY = 'insightloop_history_v1';
+
+function loadPersistedHistory() {
+  try {
+    const raw = localStorage.getItem(HISTORY_PERSIST_KEY);
+    if (!raw) return;
+    const obj = JSON.parse(raw);
+    if (obj && typeof obj === 'object') {
+      for (const k in obj) {
+        if (Array.isArray(obj[k])) historyStore.set(k, obj[k]);
+      }
+    }
+  } catch { /* 忽略损坏数据，走内存态 */ }
+}
+
+function persistHistory() {
+  try {
+    const obj = {};
+    for (const [k, v] of historyStore.entries()) obj[k] = v;
+    localStorage.setItem(HISTORY_PERSIST_KEY, JSON.stringify(obj));
+  } catch { /* 配额/隐私模式下静默失败，不影响主流程 */ }
+}
 
 export async function regenerate(capability, params, opts = {}) {
   const { variationSeed = Date.now(), adjustConstraints = {}, keepVersions = 5, key = capability } = opts;
@@ -296,8 +323,12 @@ export async function regenerate(capability, params, opts = {}) {
   const list = historyStore.get(key) || [];
   list.push({ ts: Date.now(), data: result.data, status: result.status, seed: variationSeed });
   historyStore.set(key, list.slice(-keepVersions));
+  persistHistory(); // 任一能力生成后立即落盘
   return result;
 }
+
+// 模块加载即回填历史（必须在首次 getHistory 之前）
+loadPersistedHistory();
 
 export function getHistory(key) { return historyStore.get(key) || []; }
 

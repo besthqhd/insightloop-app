@@ -178,6 +178,41 @@ let drawerCap = null;
 const capTarget = {};   // capability -> 目标选择器，供“采纳版本”使用
 const humanState = {};  // cap -> { adopted: bool, feedback: 'up'|'down'|null } 人工确认/反馈
 const resultBars = {};  // cap -> 结果操作条 DOM（采纳/点赞点踩/版本对比）
+const editsState = {};  // cap -> 人工修改后的面板 HTML（双击编辑持久化）
+
+/* ====================== 本地持久化（刷新不丢） ======================
+ * 把「人工确认/反馈 + 双击编辑内容 + 活动日志」存进 localStorage，
+ * 刷新或重开页面后原样还原，让 demo 呈现真实工作台的连续性。
+ * 与 AI 密钥（insightloop_ai_config）互不干扰，也不进仓库。
+ */
+const STATE_PERSIST_KEY = 'insightloop_human_v1';
+
+function persistLocalState() {
+  try {
+    localStorage.setItem(STATE_PERSIST_KEY, JSON.stringify({
+      human: humanState,
+      edits: editsState,
+      activities: activities.map(a => ({ ts: a.ts, cap: a.cap, status: a.status, requestId: a.requestId })),
+    }));
+  } catch { /* 配额/隐私模式静默失败 */ }
+}
+
+function loadLocalState() {
+  try {
+    const raw = localStorage.getItem(STATE_PERSIST_KEY);
+    if (!raw) return;
+    const obj = JSON.parse(raw);
+    if (obj.human) Object.assign(humanState, obj.human);
+    if (obj.edits) Object.assign(editsState, obj.edits);
+    if (Array.isArray(obj.activities)) {
+      activities.length = 0;
+      obj.activities.forEach(a => activities.push({
+        ts: a.ts ? new Date(a.ts) : new Date(),
+        cap: a.cap, status: a.status, requestId: a.requestId,
+      }));
+    }
+  } catch { /* 损坏数据忽略 */ }
+}
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -208,6 +243,7 @@ function setInlineStatus(cap, state, text) {
 function pushActivity(cap, status, requestId) {
   activities.unshift({ ts: new Date(), cap, status, requestId });
   renderActivity();
+  persistLocalState();
 }
 function renderActivity() {
   const panel = $('#activity-list');
@@ -296,6 +332,9 @@ function toast(text, type = 'info') {
 function renderResult(cap, result, targetSel) {
   const data = result.data || {};
   const target = targetSel ? $(targetSel) : null;
+
+  // AI 重新生成 / 采纳版本会覆盖面板内容，旧的人工编辑缓存作废，避免刷新后错盖
+  if (editsState[cap]) { delete editsState[cap]; persistLocalState(); }
 
   // 机会工作区 4 个按钮：写入/追加到 PRD 编辑器
   if (cap === CAPABILITY.GENERATE_PRD && target) {
@@ -473,6 +512,7 @@ function toggleAdopt(cap) {
   if (st.adopted) setInlineStatus(cap, 'adopted', '已采纳');
   else setInlineStatus(cap, getHistory(cap).length ? 'success' : 'idle', getHistory(cap).length ? '已生成' : '待生成');
   pushActivity(cap, st.adopted ? 'adopted' : 'unadopted', '人工');
+  persistLocalState();
   toast(st.adopted ? `已确认采纳「${LABELS[cap] || cap}」` : '已取消采纳', 'success');
 }
 
@@ -487,6 +527,7 @@ function toggleFeedback(cap, dir) {
   }
   const a = st.feedback === 'up' ? 'feedback_up' : st.feedback === 'down' ? 'feedback_down' : 'feedback_none';
   pushActivity(cap, a, '人工');
+  persistLocalState();
   toast(st.feedback === 'up' ? '已点赞，感谢反馈' : st.feedback === 'down' ? '已反馈「没用」，将用于优化' : '已取消反馈', 'info');
 }
 
@@ -625,15 +666,54 @@ function exitEdit(el, cap) {
   el.classList.remove('editing');
   if (el.innerHTML !== el.dataset.original) {
     el.dataset.manuallyEdited = '1';
+    editsState[cap] = el.innerHTML; // 持久化：记录人工修改后内容
     pushActivity(cap, 'edited', '人工');
+    persistLocalState();
     toast('已保存人工修改', 'success');
   } else {
     delete el.dataset.manuallyEdited;
+    delete editsState[cap];
+    persistLocalState();
+  }
+}
+
+/* 还原双击编辑：把持久化的面板内容写回，并标注「已人工修改」 */
+function restoreEdits() {
+  for (const cap in editsState) {
+    const el = $(`[data-editable][data-edit-cap="${cap}"]`);
+    if (!el) continue;
+    el.innerHTML = editsState[cap];
+    el.dataset.manuallyEdited = '1';
+    el.classList.add('edited');
+  }
+}
+
+/* 还原人工确认/反馈：重建结果操作条并点亮状态，跨会话保留「人在回路」签核 */
+function restoreHuman() {
+  for (const cap in humanState) {
+    const st = humanState[cap];
+    if (!st || (!st.adopted && !st.feedback)) continue;
+    ensureResultBar(cap);
+    const bar = resultBars[cap];
+    if (bar) {
+      if (st.adopted) {
+        const b = bar.querySelector('.rb-adopt');
+        b.classList.add('on'); b.textContent = '✓ 已采纳';
+      }
+      if (st.feedback) {
+        bar.querySelector('.rb-up').classList.toggle('on', st.feedback === 'up');
+        bar.querySelector('.rb-down').classList.toggle('on', st.feedback === 'down');
+      }
+    }
+    if (st.adopted) setInlineStatus(cap, 'adopted', '已采纳');
   }
 }
 
 /* ============================ 6. 初始化绑定 ============================ */
 function init() {
+  // 先回填 localStorage 中的人工态 / 编辑内容 / 活动日志
+  loadLocalState();
+
   // 绑定所有 [data-ai-cap] 触发元素
   $$('[data-ai-cap]').forEach(btn => {
     btn.addEventListener('click', () => runAI(btn.dataset.aiCap));
@@ -693,6 +773,9 @@ function init() {
   const failSel = $('#fail-mode');
   failSel && failSel.addEventListener('change', () => { FAIL_MODE = failSel.value; });
 
+  // 还原持久化内容（顺序：编辑内容 → 人工态 → 活动日志）
+  restoreEdits();
+  restoreHuman();
   renderActivity();
   initInlineEdit();
 }

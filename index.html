@@ -1580,6 +1580,10 @@
               <input type="password" id="ai-key" placeholder="sk-...">
             </label>
             <p class="ai-set-hint">密钥仅保存在本机浏览器（localStorage），不上传、不进仓库；部署到 GitHub Pages 后他人也看不到你的 key。</p>
+            <div class="ai-set-row" style="flex-direction:row;align-items:center;justify-content:space-between;gap:10px">
+              <span class="ai-set-tip">本地已保存的 编辑 / 采纳 / 反馈 / 版本历史 会跨会话保留</span>
+              <button type="button" class="btn-ghost" id="ai-set-clear" style="white-space:nowrap">清空本地记录</button>
+            </div>
             <div class="ai-set-actions">
               <button class="btn-primary" id="ai-set-save">保存</button>
               <button class="btn-ghost" id="ai-set-cancel">取消</button>
@@ -2572,6 +2576,7 @@ export_start / export_progress / export_cancel / export_success。
       const baseEl = document.getElementById('ai-base');
       const modelEl = document.getElementById('ai-model');
       const keyEl = document.getElementById('ai-key');
+      const clearBtn = document.getElementById('ai-set-clear');
 
       function miniToast(msg) {
         const t = document.createElement('div');
@@ -2604,6 +2609,14 @@ export_start / export_progress / export_cancel / export_success。
         localStorage.setItem('insightloop_use_real', useReal.checked ? '1' : '0');
         close();
         miniToast(useReal.checked ? '已切换到真实模型，点击任意 AI 按钮即可测试' : '已保存，当前仍使用演示模型(mock)');
+      });
+
+      clearBtn.addEventListener('click', () => {
+        if (!confirm('确定清空本地保存的「AI 编辑 / 采纳 / 反馈 / 版本历史」吗？\n此操作不可撤销，AI 密钥不受影响。')) return;
+        localStorage.removeItem('insightloop_history_v1');
+        localStorage.removeItem('insightloop_human_v1');
+        miniToast('本地记录已清空，即将刷新…');
+        setTimeout(() => location.reload(), 600);
       });
     })();
   </script>
