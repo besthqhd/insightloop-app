@@ -1465,6 +1465,26 @@
     .modal-overlay.mode-single #ver-col-b { display: none; }
     .modal-overlay.mode-single .ver-sel { display: none; }
 
+    /* ─── 反馈 AI 分析弹窗（PM 视角结构化抽取） ─── */
+    #fb-ai-modal .modal { width: 560px; max-width: 94vw; }
+    .fb-ai-quote { background: #F8F9FB; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
+      font-size: 13px; line-height: 1.6; color: #374151; margin-bottom: 12px; }
+    .fb-ai-row { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px dashed #EEF2F7; }
+    .fb-ai-k { flex: 0 0 84px; color: var(--text-muted); font-size: 13px; font-weight: 600; }
+    .fb-ai-v { flex: 1; color: var(--ink); font-size: 13px; line-height: 1.6; word-break: break-word; }
+    .fb-ai-v.pending { color: #B45309; background: #FEF3C7; border-radius: 6px; padding: 1px 8px; display: inline-block; width: fit-content; }
+    .fb-ai-conf { font-size: 12px; padding: 2px 10px; border-radius: 999px; font-weight: 700; }
+    .fb-ai-conf.high { background: #E7F6EF; color: #0E9F6E; }
+    .fb-ai-conf.mid { background: #FEF3C7; color: #B45309; }
+    .fb-ai-conf.low { background: #FEE2E2; color: #DC2626; }
+    .fb-ai-notes { margin-top: 10px; font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+    .fb-ai-source { margin-top: 8px; font-size: 11px; color: #9CA3AF; }
+    .fb-ai-fail { color: #B45309; background: #FEF3C7; border: 1px solid #FCD34D; border-radius: 8px; padding: 12px; font-size: 13px; line-height: 1.7; }
+    .fb-ai-btn { font-size: 11px; padding: 3px 9px; border: 1px solid var(--primary-soft); color: var(--primary);
+      background: #EEF2FF; border-radius: 6px; cursor: pointer; font-family: inherit; font-weight: 600; }
+    .fb-ai-btn:hover { background: var(--primary); color: #fff; }
+    .fb-card-actions { display: inline-flex; align-items: center; gap: 10px; }
+
     /* ─── 双击编辑：让 AI 结论 / 复盘面板可被人工修正 ─── */
     .editable { position: relative; cursor: text; border-radius: 6px; transition: background .15s; }
     .editable::after {
@@ -2288,6 +2308,21 @@ export_start / export_progress / export_cancel / export_success。
         </div>
       </div>
 
+      <!-- 反馈 AI 分析弹窗（PM 视角结构化抽取） -->
+      <div class="modal-overlay" id="fb-ai-modal">
+        <div class="modal">
+          <div class="modal-header">
+            <span class="modal-title">反馈 AI 分析 · 产品经理视角</span>
+            <button class="agent-drawer-close modal-close">×</button>
+          </div>
+          <div class="modal-body" id="fb-ai-body"></div>
+          <div class="modal-footer">
+            <button class="btn btn-outline" id="fb-ai-human">人工处理</button>
+            <button class="btn btn-primary" id="fb-ai-retry">重试</button>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -2613,7 +2648,7 @@ export_start / export_progress / export_cancel / export_success。
       });
     })();
   </script>
-  <script type="module" src="ai-integration.js?v=1.7"></script>
+  <script type="module" src="ai-integration.js?v=1.8"></script>
   <script>
   /* 死按钮补齐：让每个可点击元素点击后都有真实结果（导航 / 展开 / 弹窗 / 提示）
      与 ai-integration.js 互不干扰（本段只处理无 data-ai-cap 的元素）。 */
@@ -2712,7 +2747,7 @@ export_start / export_progress / export_cancel / export_success。
       if (!list.length) { fbContainer.innerHTML = ''; if (fbEmpty) fbEmpty.style.display = 'block'; return; }
       if (fbEmpty) fbEmpty.style.display = 'none';
       fbContainer.innerHTML = list.map(f => `
-        <div class="feedback-card">
+        <div class="feedback-card" data-fb-id="${f.id}">
           <div class="feedback-card-header">
             <div class="feedback-tags">
               <span class="emotion-tag ${f.emotion === '负面' ? 'negative' : f.emotion === '中性' ? 'neutral' : 'positive'}">${f.emotion}</span>
@@ -2723,7 +2758,10 @@ export_start / export_progress / export_cancel / export_success。
           <div class="feedback-quote">${f.quote}</div>
           <div class="feedback-footer">
             <span>来源：${f.source} · ${f.userType} · ${f.user}</span>
-            <span class="feedback-detail">查看详情 →</span>
+            <span class="fb-card-actions">
+              <button class="fb-ai-btn" data-ai-cap="analyze_feedback">AI 分析</button>
+              <span class="feedback-detail">查看详情 →</span>
+            </span>
           </div>
         </div>`).join('');
     }
@@ -2865,6 +2903,7 @@ export_start / export_progress / export_cancel / export_success。
     });
     // 查看详情（事件委托，整张卡片可点）
     $('#feedback-cards') && $('#feedback-cards').addEventListener('click', (e) => {
+      if (e.target.closest('.fb-ai-btn')) return; // AI 分析按钮由独立事件处理，避免与查看详情冲突
       const card = e.target.closest('.feedback-card'); if (!card) return;
       const q = card.querySelector('.feedback-quote').textContent;
       const src = card.querySelector('.feedback-footer span').textContent;

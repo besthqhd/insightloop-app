@@ -17,6 +17,7 @@
 // 与设计稿中四处 AI 入口一一对应
 export const CAPABILITY = {
   BATCH_ANALYZE: 'batch_analyze',        // 反馈中心：批量 AI 分析
+  ANALYZE_FEEDBACK: 'analyze_feedback',  // 反馈中心：单条反馈智能体分类（PM 视角）
   GENERATE_PRD: 'generate_prd',          // 机会工作区：AI 生成 PRD
   GEN_ACCEPTANCE: 'gen_acceptance',      // 机会工作区：生成验收标准
   GEN_TRACKING: 'gen_tracking',          // 机会工作区：生成埋点方案
@@ -31,6 +32,19 @@ export const CAPABILITY = {
  * 多余字段被忽略，缺失/非法字段由 validate() 兜底或标记为 partial。
  */
 export const SCHEMAS = {
+  /* 单条反馈 PM 视角结构化抽取：任何信息不足字段一律填 '待确认'，严禁编造 */
+  [CAPABILITY.ANALYZE_FEEDBACK]: {
+    required: ['problem_source', 'user_type', 'user_emotion', 'feedback_time', 'feedback_content'],
+    fields: {
+      problem_source: 'string',   // 问题来源模块/功能，信息不足填 '待确认'
+      user_type: 'string',        // 用户类型/角色，信息不足填 '待确认'
+      user_emotion: 'enum(positive|neutral|negative|angry|待确认)',
+      feedback_time: 'string',    // 反馈时间线索，无线索填 '待确认'
+      feedback_content: 'string', // 凝练后的用户真实诉求/问题
+      confidence: 'enum(high|medium|low)', // 模型对整体判断的把握度
+      notes: 'string',            // 说明哪些字段因信息不足标为待确认及原因
+    },
+  },
   [CAPABILITY.BATCH_ANALYZE]: {
     required: ['summary', 'themes', 'suggested_opportunities'],
     fields: {
@@ -150,6 +164,29 @@ export function buildSystemPrompt(capability) {
   const fieldLines = Object.entries(schema.fields)
     .map(([k, v]) => `  - "${k}": ${v}`)
     .join('\n');
+
+  // 单条反馈分类：使用 PM 视角专用提示词，强制「信息不足即待确认，绝不编造」
+  if (capability === CAPABILITY.ANALYZE_FEEDBACK) {
+    return [
+      '你是一名资深产品经理，正在处理用户反馈。请基于下面给出的单条反馈文本，严格按契约识别并结构化抽取以下维度：',
+      '  - problem_source（问题来源）：反馈指向的产品模块 / 功能 / 链路，例如「导出报表」「搜索」「移动端登录」。若文本无法判断，填 "待确认"，不要猜测。',
+      '  - user_type（用户类型）：例如「免费个人用户」「企业管理员」「开发者」。信息不足填 "待确认"。',
+      '  - user_emotion（用户情绪）：positive / neutral / negative / angry。无法判断填 "待确认"。',
+      '  - feedback_time（反馈时间）：若文本含时间线索（如「昨天 / 3月 / 上周」）尽量还原为相对日期；无线索填 "待确认"。',
+      '  - feedback_content（反馈内容）：用一句话凝练用户真实诉求 / 问题，保留关键事实，不展开。',
+      '  - confidence：你对以上整体判断的把握度 high / medium / low。',
+      '  - notes：说明哪些字段因信息不足标记为「待确认」以及原因。',
+      '',
+      '【硬性约束】',
+      '1. 严禁自行编造任何信息；任何不确定的字段一律填 "待确认"。',
+      '2. 你必须且只能输出一个合法 JSON 对象，不要输出任何解释性文字，不要用 markdown 代码块包裹。',
+      '3. 输出 JSON 必须严格满足以下字段契约（缺失必填字段或类型错误将被视为失败）：',
+      fieldLines,
+      `   必填字段：${schema.required.join(', ')}。`,
+      '   枚举约束必须严格遵守（user_emotion / confidence 取值见字段定义）。',
+    ].join('\n');
+  }
+
   return [
     '你是 InsightLoop 的产品智能体。你必须且只能输出一个合法 JSON 对象，不要输出任何解释性文字，不要用 markdown 代码块包裹。',
     `当前能力：${capability}。`,

@@ -10,11 +10,12 @@
  * 依赖：ai-contract.js 导出的 CAPABILITY / callModel / regenerate / getHistory
  */
 
-import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel } from './ai-contract.js?v=1.5';
+import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel } from './ai-contract.js?v=1.8';
 
 /* ============================ 能力中文标签 ============================ */
 const LABELS = {
   [CAPABILITY.BATCH_ANALYZE]: '批量 AI 分析',
+  [CAPABILITY.ANALYZE_FEEDBACK]: '反馈 AI 分析',
   [CAPABILITY.GENERATE_PRD]: 'AI 生成 PRD',
   [CAPABILITY.GEN_ACCEPTANCE]: '生成验收标准',
   [CAPABILITY.GEN_TRACKING]: '生成埋点方案',
@@ -122,6 +123,23 @@ const MOCK = {
     ],
     context_iteration: 'v1.3',
   }),
+  /* 单条反馈 PM 视角分类：原型阶段不接真实模型，按「能判断才填、不能判断一律待确认」演示 */
+  [CAPABILITY.ANALYZE_FEEDBACK]: (ctx) => {
+    const txt = (ctx && ctx.context && ctx.context.artifacts && ctx.context.artifacts[0] && ctx.context.artifacts[0].feedback_text) || '';
+    const angry = /(垃圾|太差|愤怒|投诉|退款|骗|傻|滚)/i.test(txt);
+    const neg = /(慢|崩溃|卡|报错|失败|烦|差|bug|错误|无法|不能|打不开|超时|等不及|白屏)/i.test(txt);
+    const emotion = angry ? 'angry' : neg ? 'negative' : '待确认';
+    const hasTime = /(昨天|今天|上周|上周|3月|最近|周一|早上|晚上|月初|月底|前天)/.test(txt);
+    return {
+      problem_source: '待确认',
+      user_type: '待确认',
+      user_emotion: emotion,
+      feedback_time: hasTime ? '待确认（文本含时间线索，需结合上下文还原）' : '待确认',
+      feedback_content: txt.slice(0, 80) || '（空反馈）',
+      confidence: 'low',
+      notes: '原型 mock：未接入真实模型；problem_source / user_type / feedback_time 常规标为「待确认」，情绪与内容基于关键词粗判。',
+    };
+  },
 };
 
 /* 确定性伪随机：同一种子产生同一序列，保证「同一次重新生成」结果可复现 */
@@ -174,6 +192,7 @@ function agentFlow() {
 
 /* ============================ 3. 三层展示法：状态管理 ============================ */
 const activities = []; // {ts, cap, status, requestId}
+const inFlight = new Set(); // 防重复提交：同一能力正在请求时忽略再次点击
 let drawerCap = null;
 const capTarget = {};   // capability -> 目标选择器，供“采纳版本”使用
 const humanState = {};  // cap -> { adopted: bool, feedback: 'up'|'down'|null } 人工确认/反馈
@@ -231,8 +250,8 @@ function ensureStatusBadge(trigger) {
   }
   return badge;
 }
-function setInlineStatus(cap, state, text) {
-  const trigger = $(`[data-ai-cap="${cap}"]`);
+function setInlineStatus(cap, state, text, triggerEl) {
+  const trigger = triggerEl || $(`[data-ai-cap="${cap}"]`);
   if (!trigger) return;
   const badge = ensureStatusBadge(trigger);
   badge.className = `ai-status ai-status--${state}`;
@@ -372,25 +391,38 @@ function renderResult(cap, result, targetSel) {
 
 /* ============================ 5. 统一触发入口 ============================ */
 async function runAI(cap, opts = {}) {
-  const trigger = $(`[data-ai-cap="${cap}"]`);
-  const targetSel = trigger && trigger.dataset.aiTarget;
-  const mode = trigger && trigger.dataset.aiMode; // log | panel | textarea
+  // 防重复提交：同一能力正在生成时，忽略本次点击，避免并发请求与重复提交
+  if (inFlight.has(cap)) {
+    toast(`「${LABELS[cap] || cap}」正在生成中，请稍候…`, 'info');
+    return;
+  }
+  const triggerEl = opts.trigger || $(`[data-ai-cap="${cap}"]`);
+  const targetSel = triggerEl && triggerEl.dataset.aiTarget;
+  const mode = triggerEl && triggerEl.dataset.aiMode; // log | panel | textarea
   if (targetSel) capTarget[cap] = targetSel;       // 记录目标，供“采纳版本”使用
   drawerCap = cap;
 
   const seed = opts.seed || Date.now();
 
   // 按钮 loading 态
-  if (trigger && trigger.tagName === 'BUTTON') {
-    trigger.disabled = true;
-    trigger.dataset.label = trigger.textContent;
-    trigger.textContent = '生成中…';
+  if (triggerEl && triggerEl.tagName === 'BUTTON') {
+    triggerEl.disabled = true;
+    triggerEl.dataset.label = triggerEl.textContent;
+    triggerEl.textContent = '生成中…';
   }
-  setInlineStatus(cap, 'loading', '生成中');
+  setInlineStatus(cap, 'loading', '生成中', triggerEl);
   toast(`正在${LABELS[cap] || cap}…`);
 
+  // 单条反馈分析：把该条反馈原文作为强类型上下文传入，模型据此抽取
+  let artifacts = [{ insight: cap, sample: 'mock-artifact' }];
+  if (cap === CAPABILITY.ANALYZE_FEEDBACK) {
+    const card = triggerEl && triggerEl.closest('.feedback-card');
+    const quote = card ? (card.querySelector('.feedback-quote')?.textContent || '') : '';
+    artifacts = [{ feedback_text: quote }];
+  }
+
   const params = {
-    artifacts: [{ insight: cap, sample: 'mock-artifact' }],
+    artifacts,
     userInstruction: opts.instruction || '',
     constraints: { tone: '专业', detail: '高', _seed: seed },
     history: [],
@@ -398,6 +430,7 @@ async function runAI(cap, opts = {}) {
 
   const forceFail = FAIL_MODE && String(FAIL_MODE) !== '0';
   const modelFn = forceFail ? mockModel : (useRealModel() ? callRealModel : mockModel);
+  inFlight.add(cap);
   try {
     const result = await regenerate(cap, params, {
       requestModel: modelFn,
@@ -409,7 +442,9 @@ async function runAI(cap, opts = {}) {
 
     // 渲染结果
     if (result.status !== 'failed' && targetSel) renderResult(cap, result, targetSel);
-    if (cap === CAPABILITY.BATCH_ANALYZE && result.status !== 'failed') {
+    if (cap === CAPABILITY.ANALYZE_FEEDBACK) {
+      renderFeedbackAnalysis(result, triggerEl);
+    } else if (cap === CAPABILITY.BATCH_ANALYZE && result.status !== 'failed') {
       toast('分析完成 · 聚类出 6 个主题，已跳转洞察看板', 'success');
       const insightsTab = $('.tab[data-page="insights"]');
       insightsTab && insightsTab.click();
@@ -417,9 +452,9 @@ async function runAI(cap, opts = {}) {
     }
 
     // 内联状态
-    if (result.status === 'success') setInlineStatus(cap, 'success', '已生成');
-    else if (result.status === 'partial') setInlineStatus(cap, 'partial', '部分生成');
-    else setInlineStatus(cap, 'failed', '生成失败');
+    if (result.status === 'success') setInlineStatus(cap, 'success', '已生成', triggerEl);
+    else if (result.status === 'partial') setInlineStatus(cap, 'partial', '部分生成', triggerEl);
+    else setInlineStatus(cap, 'failed', '生成失败', triggerEl);
 
     // 活动日志 + 抽屉
     if (result.status === 'failed') openDrawer(cap); // 演示：失败也展开追溯抽屉并展示错误兜底
@@ -438,15 +473,108 @@ async function runAI(cap, opts = {}) {
       toast(`${LABELS[cap] || cap}完成`, 'success');
     }
   } catch (err) {
-    setInlineStatus(cap, 'failed', '生成失败');
+    setInlineStatus(cap, 'failed', '生成失败', triggerEl);
     pushActivity(cap, 'failed', 'err');
     toast('生成异常：' + (err.message || err), 'error');
   } finally {
-    if (trigger && trigger.tagName === 'BUTTON') {
-      trigger.disabled = false;
-      trigger.textContent = trigger.dataset.label || trigger.textContent;
+    inFlight.delete(cap);
+    if (triggerEl && triggerEl.tagName === 'BUTTON') {
+      triggerEl.disabled = false;
+      triggerEl.textContent = triggerEl.dataset.label || triggerEl.textContent;
     }
   }
+}
+
+/* ============================ 5.4 反馈 AI 分析弹窗（PM 视角结构化抽取） ============================ */
+const MANUAL_FB_KEY = 'insightloop_fb_manual_v1';
+function loadManualFb() {
+  try { return JSON.parse(localStorage.getItem(MANUAL_FB_KEY) || '{}'); } catch { return {}; }
+}
+function saveManualFb(obj) {
+  try { localStorage.setItem(MANUAL_FB_KEY, JSON.stringify(obj)); } catch {}
+}
+
+/* 把单条分析结果渲染进 #fb-ai-modal；失败/无法识别时引导人工处理 */
+function renderFeedbackAnalysis(result, triggerEl) {
+  const modal = $('#fb-ai-modal');
+  if (!modal) return;
+  const body = $('#fb-ai-body');
+  if (!body) return;
+  const card = triggerEl && triggerEl.closest('.feedback-card');
+  const fbId = card ? (card.dataset.fbId || '') : '';
+  const quote = card ? (card.querySelector('.feedback-quote')?.textContent || '') : '';
+
+  // 优先展示人工已填写结果（人工处理入口填的）
+  const manual = fbId ? loadManualFb()[fbId] : null;
+  const d = manual || (result && result.data) || {};
+  const source = manual ? '人工填写' : (result ? result.status : 'unknown');
+
+  if (result && result.status === 'failed' && !manual) {
+    body.innerHTML =
+      '<div class="fb-ai-fail">⚠️ 模型未能完成分析：' + (result.error?.message || '生成失败') +
+      '<br>你可以点击下方「人工处理」手动补全这条反馈的结构化信息。</div>';
+  } else {
+    const row = (label, val) => {
+      const pend = String(val).trim() === '待确认' || /待确认/.test(String(val));
+      return '<div class="fb-ai-row"><span class="fb-ai-k">' + label + '</span>' +
+        '<span class="fb-ai-v' + (pend ? ' pending' : '') + '">' + escapeHtml(String(val || '—')) + '</span></div>';
+    };
+    const conf = d.confidence || '—';
+    const confCls = conf === 'high' ? 'high' : conf === 'medium' ? 'mid' : 'low';
+    body.innerHTML =
+      '<div class="fb-ai-quote">' + escapeHtml(quote || '（无原文）') + '</div>' +
+      row('问题来源', d.problem_source) +
+      row('用户类型', d.user_type) +
+      row('用户情绪', d.user_emotion) +
+      row('反馈时间', d.feedback_time) +
+      row('反馈内容', d.feedback_content) +
+      '<div class="fb-ai-row"><span class="fb-ai-k">把握度</span><span class="fb-ai-conf ' + confCls + '">' + conf + '</span></div>' +
+      (d.notes ? '<div class="fb-ai-notes">备注：' + escapeHtml(d.notes) + '</div>' : '') +
+      '<div class="fb-ai-source">数据来源：' + escapeHtml(source) + '</div>';
+  }
+
+  // 绑定弹窗底部按钮（每次重建后重新绑定）
+  const retry = $('#fb-ai-retry');
+  const human = $('#fb-ai-human');
+  const closeBtn = modal.querySelector('.modal-close');
+  if (closeBtn) closeBtn.onclick = () => modal.classList.remove('open');
+  if (retry) retry.onclick = () => { modal.classList.remove('open'); runAI(CAPABILITY.ANALYZE_FEEDBACK, { trigger: triggerEl }); };
+  if (human) human.onclick = () => openFeedbackHumanModal(fbId, d, triggerEl);
+
+  modal.classList.add('open');
+}
+
+/* 人工处理入口：模型无法识别 / 用户不满意时，由人工补全结构化字段 */
+function openFeedbackHumanModal(fbId, preset, triggerEl) {
+  const p = preset || {};
+  const html =
+    '<div class="modal-form-row"><label>问题来源</label><input type="text" id="fbh-source" value="' + escapeHtml(p.problem_source || '') + '" placeholder="如：导出报表 / 搜索（未知填 待确认）"></div>' +
+    '<div class="modal-form-row"><label>用户类型</label><input type="text" id="fbh-type" value="' + escapeHtml(p.user_type || '') + '" placeholder="如：付费版 / 企业版（未知填 待确认）"></div>' +
+    '<div class="modal-form-row"><label>用户情绪</label><input type="text" id="fbh-emotion" value="' + escapeHtml(p.user_emotion || '') + '" placeholder="positive / neutral / negative / angry / 待确认"></div>' +
+    '<div class="modal-form-row"><label>反馈时间</label><input type="text" id="fbh-time" value="' + escapeHtml(p.feedback_time || '') + '" placeholder="相对日期或 待确认"></div>' +
+    '<div class="modal-form-row"><label>反馈内容</label><textarea id="fbh-content" placeholder="一句话凝练用户真实诉求">' + escapeHtml(p.feedback_content || '') + '</textarea></div>' +
+    '<div class="modal-actions"><button class="btn-ghost" id="fbh-cancel">取消</button><button class="btn-primary" id="fbh-save">保存为人工填写</button></div>';
+  showModal('人工处理 · 补全反馈信息', html);
+  $('#fbh-cancel').onclick = () => { const m = $('#generic-modal'); if (m) m.remove(); };
+  $('#fbh-save').onclick = () => {
+    const val = {
+      problem_source: $('#fbh-source').value.trim() || '待确认',
+      user_type: $('#fbh-type').value.trim() || '待确认',
+      user_emotion: $('#fbh-emotion').value.trim() || '待确认',
+      feedback_time: $('#fbh-time').value.trim() || '待确认',
+      feedback_content: $('#fbh-content').value.trim() || '（人工填写，无内容）',
+      confidence: 'high',
+      notes: '由人工在「人工处理」入口补全，覆盖模型结果。',
+    };
+    if (fbId) { const all = loadManualFb(); all[fbId] = val; saveManualFb(all); }
+    const m = $('#generic-modal'); if (m) m.remove();
+    renderFeedbackAnalysis({ status: 'success', data: val }, triggerEl);
+    toast('已保存人工填写结果', 'success');
+  };
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 /* ============================ 5.5 生成内容版本对比（亮点功能） ============================
@@ -724,9 +852,9 @@ function init() {
   // 先回填 localStorage 中的人工态 / 编辑内容 / 活动日志
   loadLocalState();
 
-  // 绑定所有 [data-ai-cap] 触发元素
+  // 绑定所有 [data-ai-cap] 触发元素（把按钮本身作为 trigger 传入，便于分析单条反馈）
   $$('[data-ai-cap]').forEach(btn => {
-    btn.addEventListener('click', () => runAI(btn.dataset.aiCap));
+    btn.addEventListener('click', (e) => { e.stopPropagation(); runAI(btn.dataset.aiCap, { trigger: btn }); });
   });
 
   // 绑定「查看 Agent 追溯」类按钮（仅打开抽屉，不重新调用）
