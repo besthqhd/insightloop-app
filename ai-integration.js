@@ -389,10 +389,12 @@ async function runAI(cap, opts = {}) {
     history: [],
   };
 
+  const forceFail = FAIL_MODE && String(FAIL_MODE) !== '0';
+  const modelFn = forceFail ? mockModel : (useRealModel() ? callRealModel : mockModel);
   try {
     const result = await regenerate(cap, params, {
-      requestModel: useRealModel() ? callRealModel : mockModel,
-      fallbackModel: useRealModel() ? callRealModel : mockModel,
+      requestModel: modelFn,
+      fallbackModel: modelFn,
       key: cap,
       variationSeed: seed,
       adjustConstraints: opts.adjust || {},
@@ -413,6 +415,7 @@ async function runAI(cap, opts = {}) {
     else setInlineStatus(cap, 'failed', '生成失败');
 
     // 活动日志 + 抽屉
+    if (result.status === 'failed') openDrawer(cap); // 演示：失败也展开追溯抽屉并展示错误兜底
     pushActivity(cap, result.status, result.request_id);
     if (drawerCap === cap) {
       if (result.status === 'failed') showDrawerError(result.error?.message || '生成失败');
@@ -772,6 +775,14 @@ function init() {
   // 模拟异常下拉
   const failSel = $('#fail-mode');
   failSel && failSel.addEventListener('change', () => { FAIL_MODE = failSel.value; });
+  // 一键演示容错：强制脏JSON 异常并触发批量分析，现场展示三层兜底
+  const demoBtn = $('#fail-demo-btn');
+  demoBtn && demoBtn.addEventListener('click', () => {
+    FAIL_MODE = 'badjson';
+    if (failSel) failSel.value = 'badjson';
+    toast('已模拟「脏JSON」异常，正在触发批量分析以演示三层容错兜底…', 'info');
+    runAI(CAPABILITY.BATCH_ANALYZE);
+  });
 
   // 还原持久化内容（顺序：编辑内容 → 人工态 → 活动日志）
   restoreEdits();

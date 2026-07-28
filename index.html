@@ -1522,6 +1522,30 @@
       color: #475569; font-size: 13px; cursor: pointer;
     }
     .activity-pill.edited { background: #E7F6EF; color: var(--success); }
+
+    /* ── 判断依据透明面板（human-in-the-loop 卖点） ── */
+    .reason-panel { margin-top: 10px; }
+    .reason-toggle { font-size: 12px; color: var(--primary); background: #EEF3FE; border: 1px solid #D8E3FA; border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+    .reason-toggle:hover { background: #E2ECFD; }
+    .reason-body { margin-top: 8px; padding: 12px 14px; background: #F8FAFD; border: 1px solid #E5ECF7; border-radius: 8px; }
+    .reason-chain { display: flex; flex-direction: column; gap: 12px; }
+    .reason-step { display: flex; gap: 10px; align-items: flex-start; }
+    .reason-tag { flex: 0 0 auto; font-size: 12px; font-weight: 600; color: #fff; background: var(--primary); border-radius: 6px; padding: 3px 8px; white-space: nowrap; margin-top: 2px; }
+    .reason-ev { margin: 0; padding-left: 18px; }
+    .reason-ev li { font-size: 12.5px; color: #374151; line-height: 1.7; margin-bottom: 4px; }
+    .reason-src { display: block; font-size: 11px; color: #9CA3AF; margin-top: 2px; }
+    .reason-text { font-size: 12.5px; color: #374151; line-height: 1.7; }
+    .reason-text b { color: var(--primary); }
+    .reason-bars { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+    .rbar { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #374151; }
+    .rbar span { flex: 0 0 64px; }
+    .rbar i { display: block; height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--primary), #5B9BFF); }
+
+    /* ── 失败演练说明 + 一键演示 ── */
+    .fail-demo { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; background: #FFF7ED; border: 1px solid #FED7AA; border-radius: 8px; margin-bottom: 10px; }
+    .fail-demo-tip { font-size: 11.5px; color: #9A3412; line-height: 1.6; }
+    #fail-demo-btn { align-self: flex-start; background: #EA580C; color: #fff; border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; cursor: pointer; }
+    #fail-demo-btn:hover { background: #C2410C; }
   </style>
 </head>
 <body>
@@ -1602,6 +1626,10 @@
             <option value="badjson">模拟脏JSON</option>
           </select>
         </div>
+        <div class="fail-demo">
+          <span class="fail-demo-tip">切换失败模式后点任意 AI 按钮，可现场观察「状态徽标 → 多智能体追溯 → 活动日志」三层容错兜底。</span>
+          <button type="button" id="fail-demo-btn">▶ 一键演示容错</button>
+        </div>
         <div id="activity-list"></div>
       </div>
 
@@ -1625,7 +1653,7 @@
           </button>
           <div class="fb-search">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" placeholder="搜索反馈原话、用户、主题…">
+            <input type="text" id="fb-search-input" placeholder="搜索反馈原话、用户、主题…">
           </div>
           <button class="chip">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
@@ -1637,38 +1665,39 @@
           <aside class="fb-filters card">
             <div class="filter-group">
               <div class="filter-label">来源</div>
-              <div class="filter-row"><div class="left"><span class="checkbox checked">✓</span>应用内反馈</div><span class="filter-count">642</span></div>
-              <div class="filter-row"><div class="left"><span class="checkbox checked">✓</span>客服工单</div><span class="filter-count">386</span></div>
-              <div class="filter-row"><div class="left"><span class="checkbox checked">✓</span>应用商店评论</div><span class="filter-count">212</span></div>
+              <div class="filter-row" data-group="source" data-value="应用内反馈"><div class="left"><span class="checkbox checked">✓</span>应用内反馈</div><span class="filter-count">642</span></div>
+              <div class="filter-row" data-group="source" data-value="客服工单"><div class="left"><span class="checkbox checked">✓</span>客服工单</div><span class="filter-count">386</span></div>
+              <div class="filter-row" data-group="source" data-value="应用商店评论"><div class="left"><span class="checkbox checked">✓</span>应用商店评论</div><span class="filter-count">212</span></div>
+              <div class="filter-row" data-group="source" data-value="问卷调研"><div class="left"><span class="checkbox checked">✓</span>问卷调研</div><span class="filter-count">120</span></div>
             </div>
             <div class="filter-group">
               <div class="filter-label">用户类型</div>
-              <div class="filter-row"><div class="left"><span class="checkbox"></span>免费版</div><span class="filter-count">580</span></div>
-              <div class="filter-row"><div class="left"><span class="checkbox checked">✓</span>付费版</div><span class="filter-count">410</span></div>
-              <div class="filter-row"><div class="left"><span class="checkbox"></span>企业版</div><span class="filter-count">250</span></div>
+              <div class="filter-row" data-group="userType" data-value="免费版"><div class="left"><span class="checkbox checked">✓</span>免费版</div><span class="filter-count">580</span></div>
+              <div class="filter-row" data-group="userType" data-value="付费版"><div class="left"><span class="checkbox checked">✓</span>付费版</div><span class="filter-count">410</span></div>
+              <div class="filter-row" data-group="userType" data-value="企业版"><div class="left"><span class="checkbox checked">✓</span>企业版</div><span class="filter-count">250</span></div>
             </div>
             <div class="filter-group">
               <div class="filter-label">情绪</div>
               <div class="emotion-toggle">
-                <span class="emotion-pill negative active">负面</span>
-                <span class="emotion-pill neutral">中性</span>
-                <span class="emotion-pill positive">正面</span>
+                <span class="emotion-pill negative active" data-value="负面">负面</span>
+                <span class="emotion-pill neutral active" data-value="中性">中性</span>
+                <span class="emotion-pill positive active" data-value="正面">正面</span>
               </div>
             </div>
             <div class="filter-group">
               <div class="filter-label">主题</div>
-              <div class="filter-row"><div class="left"><span class="checkbox checked">✓</span>导出报表耗时过长</div><span class="filter-count">412</span></div>
-              <div class="filter-row"><div class="left"><span class="checkbox"></span>移动端登录失败</div><span class="filter-count">286</span></div>
-              <div class="filter-row"><div class="left"><span class="checkbox"></span>搜索结果不准确</div><span class="filter-count">218</span></div>
-              <div class="filter-row"><div class="left"><span class="checkbox"></span>批量操作无进度提示</div><span class="filter-count">154</span></div>
-              <div class="filter-row"><div class="left"><span class="checkbox"></span>通知中心加载慢</div><span class="filter-count">98</span></div>
-              <div class="filter-row"><div class="left"><span class="checkbox"></span>深色模式对比度不足</div><span class="filter-count">72</span></div>
+              <div class="filter-row" data-group="topic" data-value="导出报表耗时过长"><div class="left"><span class="checkbox checked">✓</span>导出报表耗时过长</div><span class="filter-count">412</span></div>
+              <div class="filter-row" data-group="topic" data-value="移动端登录偶发失败"><div class="left"><span class="checkbox checked">✓</span>移动端登录偶发失败</div><span class="filter-count">286</span></div>
+              <div class="filter-row" data-group="topic" data-value="搜索结果不准确"><div class="left"><span class="checkbox checked">✓</span>搜索结果不准确</div><span class="filter-count">218</span></div>
+              <div class="filter-row" data-group="topic" data-value="批量操作无进度提示"><div class="left"><span class="checkbox checked">✓</span>批量操作无进度提示</div><span class="filter-count">154</span></div>
+              <div class="filter-row" data-group="topic" data-value="通知中心加载慢"><div class="left"><span class="checkbox checked">✓</span>通知中心加载慢</div><span class="filter-count">98</span></div>
+              <div class="filter-row" data-group="topic" data-value="深色模式对比度不足"><div class="left"><span class="checkbox checked">✓</span>深色模式对比度不足</div><span class="filter-count">72</span></div>
             </div>
             <div class="filter-group">
               <div class="filter-label">时间</div>
-              <div class="filter-row"><div class="left"><span class="checkbox"></span>近 7 天</div></div>
-              <div class="filter-row"><div class="left"><span class="checkbox checked">✓</span>近 30 天</div></div>
-              <div class="filter-row"><div class="left"><span class="checkbox"></span>近 90 天</div></div>
+              <div class="filter-row" data-group="time" data-value="7"><div class="left"><span class="checkbox checked">✓</span>近 7 天</div></div>
+              <div class="filter-row" data-group="time" data-value="30"><div class="left"><span class="checkbox checked">✓</span>近 30 天</div></div>
+              <div class="filter-row" data-group="time" data-value="90"><div class="left"><span class="checkbox checked">✓</span>近 90 天</div></div>
             </div>
             <div class="filter-reset">清除全部筛选</div>
           </aside>
@@ -1678,91 +1707,10 @@
               <span class="fb-list-title">反馈列表</span>
               <button class="chip">最新优先 <span>▾</span></button>
             </div>
-            <div class="feedback-cards">
-              <div class="feedback-card">
-                <div class="feedback-card-header">
-                  <div class="feedback-tags">
-                    <span class="emotion-tag negative">负面</span>
-                    <span class="topic-tag">导出报表耗时过长</span>
-                  </div>
-                  <span class="feedback-date">2026-07-21</span>
-                </div>
-                <div class="feedback-quote">每月底导出月度报表要等将近 2 分钟，数据量大时还会超时失败，只能反复重试。</div>
-                <div class="feedback-footer">
-                  <span>来源：应用内反馈</span>
-                  <span class="feedback-detail">查看详情 →</span>
-                </div>
-              </div>
-              <div class="feedback-card">
-                <div class="feedback-card-header">
-                  <div class="feedback-tags">
-                    <span class="emotion-tag negative">负面</span>
-                    <span class="topic-tag">移动端登录偶发失败</span>
-                  </div>
-                  <span class="feedback-date">2026-07-20</span>
-                </div>
-                <div class="feedback-quote">iOS 端登录有时提示网络错误，重试 2-3 次才能成功，很影响日常使用。</div>
-                <div class="feedback-footer">
-                  <span>来源：客服工单</span>
-                  <span class="feedback-detail">查看详情 →</span>
-                </div>
-              </div>
-              <div class="feedback-card">
-                <div class="feedback-card-header">
-                  <div class="feedback-tags">
-                    <span class="emotion-tag neutral">中性</span>
-                    <span class="topic-tag">搜索结果不准确</span>
-                  </div>
-                  <span class="feedback-date">2026-07-18</span>
-                </div>
-                <div class="feedback-quote">搜索“导出”出来的结果里混进了不少不相关文档，得自己慢慢翻找。</div>
-                <div class="feedback-footer">
-                  <span>来源：应用商店评论</span>
-                  <span class="feedback-detail">查看详情 →</span>
-                </div>
-              </div>
-              <div class="feedback-card">
-                <div class="feedback-card-header">
-                  <div class="feedback-tags">
-                    <span class="emotion-tag negative">负面</span>
-                    <span class="topic-tag">批量操作无进度提示</span>
-                  </div>
-                  <span class="feedback-date">2026-07-17</span>
-                </div>
-                <div class="feedback-quote">批量删除 200 条记录时没有任何进度提示，一度以为页面卡死了。</div>
-                <div class="feedback-footer">
-                  <span>来源：应用内反馈</span>
-                  <span class="feedback-detail">查看详情 →</span>
-                </div>
-              </div>
-              <div class="feedback-card">
-                <div class="feedback-card-header">
-                  <div class="feedback-tags">
-                    <span class="emotion-tag positive">正面</span>
-                    <span class="topic-tag">深色模式对比度不足</span>
-                  </div>
-                  <span class="feedback-date">2026-07-15</span>
-                </div>
-                <div class="feedback-quote">深色模式下部分辅助文字看不清，希望提高对比度，更护眼一些。</div>
-                <div class="feedback-footer">
-                  <span>来源：问卷调研</span>
-                  <span class="feedback-detail">查看详情 →</span>
-                </div>
-              </div>
-              <div class="feedback-card">
-                <div class="feedback-card-header">
-                  <div class="feedback-tags">
-                    <span class="emotion-tag negative">负面</span>
-                    <span class="topic-tag">通知中心加载慢</span>
-                  </div>
-                  <span class="feedback-date">2026-07-14</span>
-                </div>
-                <div class="feedback-quote">点开通知中心要转好几秒，红点也经常不消失，容易漏看重要消息。</div>
-                <div class="feedback-footer">
-                  <span>来源：客服工单</span>
-                  <span class="feedback-detail">查看详情 →</span>
-                </div>
-              </div>
+            <div class="feedback-cards" id="feedback-cards"></div>
+            <div class="fb-empty" id="fb-empty" style="display:none">
+              <div class="fb-empty-ico">🔍</div>
+              没有匹配的反馈，试试调整筛选条件或搜索词。
             </div>
 
             <div class="fb-batch-bar">
@@ -1918,6 +1866,7 @@
                   <strong>AI 结论</strong><br>
                   该主题主因是「报表查询未做分页与缓存」，在月度峰值并发下触发数据库慢查询与超时。建议优先做服务端缓存 + 异步导出，预计可将导出耗时从 ~120s 降至 ~5s，覆盖 412 位受影响用户。
                 </div>
+                <div class="reason-panel" id="topic-reason"></div>
               </div>
 
               <div class="chart-area">
@@ -2114,6 +2063,7 @@ export_start / export_progress / export_cancel / export_success。
                 <div class="opp-score-title">AI 优先级评分（影响 × 价值 × 证据 ÷ 成本）</div>
                 <div class="opp-score-formula">影响 9.0　×　价值 8.5　×　证据 9.2　÷　成本 8.8　=　8.6</div>
                 <div class="opp-score-note">基于 412 条相关反馈与 18% 流失数据估算，评分可溯源至原始证据。</div>
+                <div class="reason-panel" id="opp-reason"></div>
               </div>
 
               <div class="opp-detail-actions">
@@ -2508,6 +2458,19 @@ export_start / export_progress / export_cancel / export_success。
       ).join('');
       const concl = p.querySelector('.ai-conclusion-text');
       concl.innerHTML = '<strong>AI 结论</strong><br>' + t.conclusion;
+      const reason = p.querySelector('#topic-reason');
+      if (reason) {
+        const chain = t.evidence.map((e, i) => '<li><b>证据' + (i + 1) + '</b>：' + e.q + '<span class="reason-src">' + e.s + '</span></li>').join('');
+        const cause = (t.conclusion.match(/主因是「([^」]+)」/) || [])[1] || '';
+        reason.innerHTML = '<button class="reason-toggle" type="button">▸ 展开判断依据（为何这么判断）</button>' +
+          '<div class="reason-body" style="display:none"><div class="reason-chain">' +
+          '<div class="reason-step"><span class="reason-tag">① 证据链</span><ul class="reason-ev">' + chain + '</ul></div>' +
+          '<div class="reason-step"><span class="reason-tag">② 归因</span><div class="reason-text">' + (cause ? '主因是「' + cause + '」' : t.conclusion) + '</div></div>' +
+          '<div class="reason-step"><span class="reason-tag">③ 优先级判定</span><div class="reason-text">' + t.meta + '</div></div>' +
+          '</div></div>';
+        const tog = reason.querySelector('.reason-toggle');
+        tog.addEventListener('click', () => { const b = reason.querySelector('.reason-body'); const open = b.style.display !== 'none'; b.style.display = open ? 'none' : 'block'; tog.textContent = (open ? '▸' : '▾') + ' 展开判断依据（为何这么判断）'; });
+      }
       p.querySelector('.chart-svg').innerHTML = topicChartSVG(t.line, t.neg);
     }
 
@@ -2526,6 +2489,22 @@ export_start / export_progress / export_cancel / export_success。
       card.querySelector('.opp-score-formula').textContent =
         '影响 ' + o.score.i + '　×　价值 ' + o.score.v + '　×　证据 ' + o.score.e + '　÷　成本 ' + o.score.c + '　=　' + o.pri;
       card.querySelector('.opp-score-note').textContent = o.note;
+      const ors = card.querySelector('#opp-reason');
+      if (ors) {
+        ors.innerHTML = '<button class="reason-toggle" type="button">▸ 展开判断依据（评分怎么算的）</button>' +
+          '<div class="reason-body" style="display:none"><div class="reason-chain">' +
+          '<div class="reason-step"><span class="reason-tag">四维分解</span><div class="reason-bars">' +
+          '<div class="rbar"><span>影响 ' + o.score.i + '</span><i style="width:' + (o.score.i * 10) + '%"></i></div>' +
+          '<div class="rbar"><span>价值 ' + o.score.v + '</span><i style="width:' + (o.score.v * 10) + '%"></i></div>' +
+          '<div class="rbar"><span>证据 ' + o.score.e + '</span><i style="width:' + (o.score.e * 10) + '%"></i></div>' +
+          '<div class="rbar"><span>成本 ' + o.score.c + '</span><i style="width:' + (o.score.c * 10) + '%"></i></div>' +
+          '</div></div>' +
+          '<div class="reason-step"><span class="reason-tag">优先级公式</span><div class="reason-text">影响 ' + o.score.i + ' × 价值 ' + o.score.v + ' × 证据 ' + o.score.e + ' ÷ 成本 ' + o.score.c + ' = <b>' + o.pri + '</b></div></div>' +
+          '<div class="reason-step"><span class="reason-tag">可溯源</span><div class="reason-text">' + o.note + '</div></div>' +
+          '</div></div>';
+        const tog = ors.querySelector('.reason-toggle');
+        tog.addEventListener('click', () => { const b = ors.querySelector('.reason-body'); const open = b.style.display !== 'none'; b.style.display = open ? 'none' : 'block'; tog.textContent = (open ? '▸' : '▾') + ' 展开判断依据（评分怎么算的）'; });
+      }
     }
 
     // Topic card selection in 洞察看板（active 态 + 右侧详情联动）
@@ -2550,20 +2529,7 @@ export_start / export_progress / export_cancel / export_success。
     selectTopic(0);
     selectOpp(0);
 
-    // Emotion pills toggle in 反馈中心
-    document.querySelectorAll('.emotion-pill').forEach(pill => {
-      pill.addEventListener('click', () => {
-        pill.classList.toggle('active');
-      });
-    });
-
-    // Checkbox toggles in 反馈中心 filters
-    document.querySelectorAll('.checkbox').forEach(box => {
-      box.addEventListener('click', () => {
-        box.classList.toggle('checked');
-        box.textContent = box.classList.contains('checked') ? '✓' : '';
-      });
-    });
+    // 情绪/筛选的 checkbox·emotion-pill 交互已下沉到下方「反馈中心」数据驱动块统一处理（含实时过滤），此处不再重复绑定。
 
     /* AI 模型设置：密钥仅存本机 localStorage，不入库、不进仓库 */
     (function () {
@@ -2640,7 +2606,7 @@ export_start / export_progress / export_cancel / export_success。
       box.appendChild(t); requestAnimationFrame(() => t.classList.add('show'));
       setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 2600);
     }
-    function makeDropdown(trigger, options) {
+    function makeDropdown(trigger, options, onSelect) {
       if (!trigger) return; let menu = null;
       const close = () => { if (menu) { menu.remove(); menu = null; } document.removeEventListener('click', outside); };
       const outside = (e) => { if (menu && !menu.contains(e.target) && e.target !== trigger && !trigger.contains(e.target)) close(); };
@@ -2650,7 +2616,7 @@ export_start / export_progress / export_cancel / export_success。
         menu = document.createElement('div'); menu.className = 'dropdown-menu';
         options.forEach(opt => {
           const it = document.createElement('div'); it.className = 'dropdown-item'; it.textContent = opt;
-          on(it, 'click', (ev) => { ev.stopPropagation(); trigger.innerHTML = opt + ' <span class="caret">▾</span>'; toast('已选择：' + opt); close(); });
+          on(it, 'click', (ev) => { ev.stopPropagation(); trigger.innerHTML = opt + ' <span class="caret">▾</span>'; if (onSelect) onSelect(opt); else toast('已选择：' + opt); close(); });
           menu.appendChild(it);
         });
         const r = trigger.getBoundingClientRect();
@@ -2674,25 +2640,92 @@ export_start / export_progress / export_cancel / export_success。
     /* ── Topbar ── */
     makeDropdown($('.project-selector'), ['InsightLoop v1', 'InsightLoop v2（内测）', '+ 新建项目']);
 
-    /* ── 反馈中心 ── */
+    /* ── 反馈中心：数据驱动 + 实时搜索/筛选（修复死按钮） ── */
+    const FEEDBACKS = [
+      { id:1, quote:'每月底导出月度报表要等将近 2 分钟，数据量大时还会超时失败，只能反复重试。', source:'应用内反馈', topic:'导出报表耗时过长', emotion:'负面', date:'2026-07-21', user:'#U8821', userType:'付费版' },
+      { id:2, quote:'iOS 端登录有时提示网络错误，重试 2-3 次才能成功，很影响日常使用。', source:'客服工单', topic:'移动端登录偶发失败', emotion:'负面', date:'2026-07-20', user:'#U7730', userType:'免费版' },
+      { id:3, quote:'搜索“导出”出来的结果里混进了不少不相关文档，得自己慢慢翻找。', source:'应用商店评论', topic:'搜索结果不准确', emotion:'中性', date:'2026-07-18', user:'#U4408', userType:'付费版' },
+      { id:4, quote:'批量删除 200 条记录时没有任何进度提示，一度以为页面卡死了。', source:'应用内反馈', topic:'批量操作无进度提示', emotion:'负面', date:'2026-07-17', user:'#U5207', userType:'企业版' },
+      { id:5, quote:'深色模式下部分辅助文字看不清，希望提高对比度，更护眼一些。', source:'问卷调研', topic:'深色模式对比度不足', emotion:'正面', date:'2026-07-15', user:'#U3902', userType:'免费版' },
+      { id:6, quote:'点开通知中心要转好几秒，红点也经常不消失，容易漏看重要消息。', source:'客服工单', topic:'通知中心加载慢', emotion:'负面', date:'2026-07-14', user:'#U6155', userType:'付费版' },
+    ];
+    const fbContainer = document.getElementById('feedback-cards');
+    const fbEmpty = document.getElementById('fb-empty');
+    const fbSearch = document.getElementById('fb-search-input');
+    const fbToday = new Date('2026-07-28');
+    const fbDays = (ds) => Math.floor((fbToday - new Date(ds)) / 86400000);
+    const fbSel = (group) => $$('#page-feedback .filter-row[data-group="' + group + '"]').filter(r => r.querySelector('.checkbox').classList.contains('checked')).map(r => r.dataset.value);
+    const fbEmo = () => $$('#page-feedback .emotion-pill.active').map(p => p.dataset.value);
+
+    function fbApply() {
+      const kw = (fbSearch.value || '').trim().toLowerCase();
+      const src = fbSel('source'), typ = fbSel('userType'), top = fbSel('topic'), tms = fbSel('time').map(Number), emo = fbEmo();
+      const list = FEEDBACKS.filter(f => {
+        if (kw && !(f.quote.toLowerCase().includes(kw) || f.user.toLowerCase().includes(kw) || f.topic.toLowerCase().includes(kw) || f.source.toLowerCase().includes(kw))) return false;
+        if (src.length && !src.includes(f.source)) return false;
+        if (typ.length && !typ.includes(f.userType)) return false;
+        if (top.length && !top.includes(f.topic)) return false;
+        if (emo.length && !emo.includes(f.emotion)) return false;
+        if (tms.length && !tms.some(t => fbDays(f.date) <= t)) return false;
+        return true;
+      });
+      fbRender(list);
+      const info = $('.fb-batch-info');
+      if (info) info.textContent = `已选中 ${list.length} 条反馈 · 触发多智能体分析后将跳转至「洞察看板」`;
+    }
+    function fbRender(list) {
+      if (!list.length) { fbContainer.innerHTML = ''; fbEmpty.style.display = 'block'; return; }
+      fbEmpty.style.display = 'none';
+      fbContainer.innerHTML = list.map(f => `
+        <div class="feedback-card">
+          <div class="feedback-card-header">
+            <div class="feedback-tags">
+              <span class="emotion-tag ${f.emotion === '负面' ? 'negative' : f.emotion === '中性' ? 'neutral' : 'positive'}">${f.emotion}</span>
+              <span class="topic-tag">${f.topic}</span>
+            </div>
+            <span class="feedback-date">${f.date}</span>
+          </div>
+          <div class="feedback-quote">${f.quote}</div>
+          <div class="feedback-footer">
+            <span>来源：${f.source} · ${f.userType} · ${f.user}</span>
+            <span class="feedback-detail">查看详情 →</span>
+          </div>
+        </div>`).join('');
+    }
+    // 默认全选（保证初始显示全部反馈）
+    $$('#page-feedback .filter-row .checkbox').forEach(c => { if (!c.classList.contains('checked')) { c.classList.add('checked'); c.textContent = '✓'; } });
+    $$('#page-feedback .emotion-pill').forEach(p => p.classList.add('active'));
+    fbRender(FEEDBACKS);
+    // 搜索（实时）
+    fbSearch && fbSearch.addEventListener('input', fbApply);
+    // 筛选 toggle → 实时重算
+    $$('#page-feedback .filter-row .checkbox').forEach(c => c.addEventListener('click', () => { c.classList.toggle('checked'); c.textContent = c.classList.contains('checked') ? '✓' : ''; fbApply(); }));
+    $$('#page-feedback .emotion-pill').forEach(p => p.addEventListener('click', () => { p.classList.toggle('active'); fbApply(); }));
+    // 排序（最新优先 / 最早优先）
+    makeDropdown(byText('page-feedback', '最新优先'), ['最新优先', '最早优先', '相关度最高'], (opt) => {
+      if (opt === '最新优先') FEEDBACKS.sort((a, b) => new Date(b.date) - new Date(a.date));
+      else if (opt === '最早优先') FEEDBACKS.sort((a, b) => new Date(a.date) - new Date(b.date));
+      fbApply(); toast('已排序：' + opt);
+    });
+    // 导出 / 导入 / 收起筛选（保留既有交互）
     on(byText('page-feedback', '导出'), 'click', () => toast('反馈列表已导出（CSV）· 原型'));
     on(byText('page-feedback', '导入反馈'), 'click', () => toast('导入反馈：请选择文件（原型）'));
-    on(byText('page-feedback', '筛选'), 'click', () => {
-      const f = $('#page-feedback .fb-filters');
-      if (f) { f.classList.toggle('collapsed'); toast(f.classList.contains('collapsed') ? '已收起筛选面板' : '已展开筛选面板'); }
-    });
-    makeDropdown(byText('page-feedback', '最新优先'), ['最新优先', '最早优先', '相关度最高']);
+    on(byText('page-feedback', '筛选'), 'click', () => { const f = $('#page-feedback .fb-filters'); if (f) { f.classList.toggle('collapsed'); toast(f.classList.contains('collapsed') ? '已收起筛选面板' : '已展开筛选面板'); } });
+    // 重置
     on($('.filter-reset'), 'click', () => {
-      $$('#page-feedback .checkbox.checked').forEach(c => { c.classList.remove('checked'); c.textContent = ''; });
-      $$('#page-feedback .emotion-pill.active').forEach(p => p.classList.remove('active'));
-      toast('已清除全部筛选');
+      $$('#page-feedback .filter-row').forEach(r => { const c = r.querySelector('.checkbox'); c.classList.add('checked'); c.textContent = '✓'; });
+      $$('#page-feedback .emotion-pill').forEach(p => p.classList.add('active'));
+      if (fbSearch) fbSearch.value = '';
+      fbApply(); toast('已清除全部筛选');
     });
-    $$('#page-feedback .feedback-detail').forEach(d => on(d, 'click', () => {
+    // 查看详情（事件委托，适配动态渲染）
+    $('#feedback-cards') && $('#feedback-cards').addEventListener('click', (e) => {
+      const d = e.target.closest('.feedback-detail'); if (!d) return;
       const card = d.closest('.feedback-card');
-      const q = card ? card.querySelector('.feedback-quote').textContent : '';
-      const src = card ? card.querySelector('.feedback-footer span').textContent : '';
+      const q = card.querySelector('.feedback-quote').textContent;
+      const src = card.querySelector('.feedback-footer span').textContent;
       showModal('反馈详情', `<p style="font-size:13px;line-height:1.7;color:#374151">${q}</p><p style="font-size:12px;color:#9CA3AF;margin-top:8px">${src}</p>`);
-    }));
+    });
 
     /* ── 洞察看板 ── */
     makeDropdown(byText('page-insights', '近 30 天'), ['近 7 天', '近 30 天', '近 90 天']);
