@@ -10,7 +10,7 @@
  * 依赖：ai-contract.js 导出的 CAPABILITY / callModel / regenerate / getHistory
  */
 
-import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel } from './ai-contract.js';
+import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel } from './ai-contract.js?v=1.5';
 
 /* ============================ 能力中文标签 ============================ */
 const LABELS = {

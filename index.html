@@ -1546,6 +1546,18 @@
     .fail-demo-tip { font-size: 11.5px; color: #9A3412; line-height: 1.6; }
     #fail-demo-btn { align-self: flex-start; background: #EA580C; color: #fff; border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; cursor: pointer; }
     #fail-demo-btn:hover { background: #C2410C; }
+
+    /* ── 通用弹窗表单（机会草稿编辑 / 导入格式说明） ── */
+    .modal-form-row { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; font-size: 13px; color: #475569; }
+    .modal-form-row label { font-weight: 600; color: #1E293B; }
+    .modal-form-row input[type="text"], .modal-form-row input[type="number"], .modal-form-row textarea, .modal-form-row select {
+      padding: 8px 10px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 13px; font-family: inherit; background: #fff;
+    }
+    .modal-form-row input:focus, .modal-form-row textarea:focus, .modal-form-row select:focus { outline: none; border-color: var(--primary); }
+    .modal-form-row textarea { min-height: 80px; resize: vertical; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
+    .import-template { background: #F8FAFC; border: 1px dashed #CBD5E1; border-radius: 8px; padding: 10px; font-size: 12px; color: #475569; line-height: 1.6; margin-bottom: 12px; }
+    .import-template code { background: #E2E8F0; padding: 1px 4px; border-radius: 4px; font-family: monospace; }
   </style>
 </head>
 <body>
@@ -1651,6 +1663,7 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             导入反馈
           </button>
+          <button class="chip" id="fb-template-btn">导入模板</button>
           <input type="file" id="fb-import-input" accept=".csv,.txt,.json" style="display:none">
           <div class="fb-search">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -2599,7 +2612,7 @@ export_start / export_progress / export_cancel / export_success。
       });
     })();
   </script>
-  <script type="module" src="ai-integration.js?v=1.4"></script>
+  <script type="module" src="ai-integration.js?v=1.5"></script>
   <script>
   /* 死按钮补齐：让每个可点击元素点击后都有真实结果（导航 / 展开 / 弹窗 / 提示）
      与 ai-integration.js 互不干扰（本段只处理无 data-ai-cap 的元素）。 */
@@ -2741,15 +2754,102 @@ export_start / export_progress / export_cancel / export_success。
       const csv = '\ufeff' + rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
       download('反馈列表_' + fbLast.length + '条.csv', csv);
     });
-    // 导入
+    // 导入：支持 CSV / JSON，按导出时的格式解析并追加到列表
     const fbImportInput = $('#fb-import-input');
     on($('#fb-import-btn'), 'click', () => { if (fbImportInput) fbImportInput.click(); });
     fbImportInput && fbImportInput.addEventListener('change', () => {
       const f = fbImportInput.files && fbImportInput.files[0];
       if (!f) return;
-      toast('已选择文件：' + f.name + '（原型演示，暂未解析内容）');
-      fbImportInput.value = '';
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const rows = parseFeedbackFile(reader.result, f.name);
+          if (!rows.length) { showImportFormatHelp('解析后未找到有效反馈数据，请检查格式。'); return; }
+          rows.forEach(r => FEEDBACKS.push({ id: Date.now() + Math.random(), ...r }));
+          fbApply();
+          toast('成功导入 ' + rows.length + ' 条反馈');
+        } catch (e) {
+          showImportFormatHelp('导入失败：' + e.message);
+        }
+        fbImportInput.value = '';
+      };
+      reader.readAsText(f);
     });
+    on($('#fb-template-btn'), 'click', () => downloadImportTemplate());
+
+    function parseCSV(text) {
+      const lines = text.trim().split(/\r?\n/).filter(l => l.trim());
+      if (!lines.length) return [];
+      const headers = parseCSVLine(lines[0]).map(h => h.trim().replace(/^\uFEFF/, ''));
+      const rows = [];
+      for (let i = 1; i < lines.length; i++) {
+        const vals = parseCSVLine(lines[i]);
+        const row = {};
+        headers.forEach((h, idx) => row[h] = (vals[idx] || '').trim());
+        rows.push(row);
+      }
+      return rows;
+    }
+    function parseCSVLine(line) {
+      const out = []; let cur = ''; let inQ = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i], next = line[i + 1];
+        if (inQ) {
+          if (ch === '"' && next === '"') { cur += '"'; i++; }
+          else if (ch === '"') inQ = false;
+          else cur += ch;
+        } else {
+          if (ch === ',') { out.push(cur); cur = ''; }
+          else if (ch === '"') inQ = true;
+          else cur += ch;
+        }
+      }
+      out.push(cur);
+      return out;
+    }
+    function parseFeedbackFile(text, name) {
+      let rows = [];
+      const ext = (name.split('.').pop() || '').toLowerCase();
+      if (ext === 'json') {
+        const j = JSON.parse(text);
+        rows = Array.isArray(j) ? j : (j.feedbacks || []);
+      } else {
+        rows = parseCSV(text);
+      }
+      const keyMap = { 'date': 'date', '日期': 'date', 'emotion': 'emotion', '情绪': 'emotion', 'topic': 'topic', '主题': 'topic', 'source': 'source', '来源': 'source', 'userType': 'userType', '用户类型': 'userType', 'user': 'user', '用户': 'user', 'quote': 'quote', '原话': 'quote' };
+      return rows.map(r => {
+        const out = {};
+        for (const k in r) { const mk = keyMap[k]; if (mk) out[mk] = r[k]; }
+        if (!out.date) out.date = '2026-07-28';
+        if (!out.emotion) out.emotion = '中性';
+        if (!out.topic) out.topic = '未分类';
+        if (!out.source) out.source = '导入';
+        if (!out.userType) out.userType = '未知';
+        if (!out.user) out.user = '#U' + Math.floor(1000 + Math.random() * 9000);
+        if (!out.quote) out.quote = '';
+        return out;
+      }).filter(r => r.quote);
+    }
+    function downloadImportTemplate() {
+      const header = '日期,情绪,主题,来源,用户类型,用户,原话';
+      const sample = '2026-07-28,负面,导出报表耗时过长,应用内反馈,付费版,#U9999,"每月底导出月度报表要等将近 2 分钟，数据量大时还会超时失败。"';
+      const csv = '\uFEFF' + header + '\n' + sample + '\n';
+      download('反馈导入模板.csv', csv);
+    }
+    function showImportFormatHelp(msg) {
+      const html =
+        '<div style="color:#B45309;font-size:13px;margin-bottom:10px">' + msg + '</div>' +
+        '<div class="import-template">' +
+          '<b>支持的格式</b><br>' +
+          '1. <b>CSV</b>（推荐）：第一行为表头，字段顺序不限，字段名支持中文或英文。<br>' +
+          '必需字段：<code>原话 / quote</code>；可选字段：<code>日期/date</code>、<code>情绪/emotion</code>、<code>主题/topic</code>、<code>来源/source</code>、<code>用户类型/userType</code>、<code>用户/user</code>。<br>' +
+          '示例行：<code>2026-07-28,负面,导出报表耗时过长,应用内反馈,付费版,#U9999,"xxx"</code><br><br>' +
+          '2. <b>JSON</b>：对象数组 <code>[{ "quote":"...", "topic":"..." }]</code> 或 <code>{ "feedbacks": [...] }</code>。' +
+        '</div>' +
+        '<div class="modal-actions"><button class="btn-ghost" onclick="document.getElementById(\'generic-modal\').remove()">关闭</button><button class="btn-primary" id="dl-template-inside">下载 CSV 模板</button></div>';
+      showModal('导入格式说明', html);
+      $('#dl-template-inside') && $('#dl-template-inside').addEventListener('click', downloadImportTemplate);
+    }
     // 筛选面板展开/收起
     on($('#fb-filter-toggle'), 'click', () => {
       const f = $('#page-feedback .fb-filters');
@@ -2824,7 +2924,7 @@ export_start / export_progress / export_cancel / export_success。
       card.classList.add('active');
       const idx = card.dataset.opp;
       if (idx !== undefined) selectOpp(+idx);
-      else toast('草稿机会暂无详情，请补充信息');
+      else editOppDraft(card); // 草稿机会：点击即编辑
     });
     makeDropdown($('#opp-sort-btn'), ['优先级', '最近更新', '影响用户数'], (opt) => sortOpp(opt));
     on($('.opp-new-btn'), 'click', () => {
@@ -2835,8 +2935,60 @@ export_start / export_progress / export_cancel / export_success。
       const btn = col.querySelector('.opp-new-btn');
       col.insertBefore(n, btn);
       $$('.opp-card').forEach(c => c.classList.remove('active')); n.classList.add('active');
-      toast('已新建机会（草稿）');
+      editOppDraft(n); // 新建后直接打开编辑弹窗
     });
+
+    // 草稿机会编辑弹窗
+    function editOppDraft(card) {
+      const title = (card.querySelector('.opp-card-title')?.textContent || '').replace(/^新建机会（草稿）$/, '');
+      const source = (card.querySelector('.opp-card-source')?.textContent || '').replace(/^手动创建$/, '');
+      const priText = card.querySelector('.opp-card-priority')?.textContent || '';
+      const priority = parseFloat(priText.replace(/[^0-9.]/g, '')) || '';
+      const desc = card.dataset.desc || '';
+      const story = card.dataset.story || '';
+      const prd = card.dataset.prd || '';
+      const html =
+        '<div class="modal-form-row"><label>机会标题</label><input type="text" id="opp-edit-title" value="' + escapeHtml(title || '新建机会（草稿）') + '"></div>' +
+        '<div class="modal-form-row"><label>来源 / 背景</label><input type="text" id="opp-edit-source" value="' + escapeHtml(source || '手动创建') + '"></div>' +
+        '<div class="modal-form-row"><label>优先级（数字）</label><input type="number" id="opp-edit-priority" value="' + priority + '" step="0.1" placeholder="如 7.5"></div>' +
+        '<div class="modal-form-row"><label>机会描述</label><textarea id="opp-edit-desc" placeholder="用户遇到了什么问题…">' + escapeHtml(desc) + '</textarea></div>' +
+        '<div class="modal-form-row"><label>用户故事</label><textarea id="opp-edit-story" placeholder="作为…我希望…以便…">' + escapeHtml(story) + '</textarea></div>' +
+        '<div class="modal-form-row"><label>PRD / 方案草稿</label><textarea id="opp-edit-prd" placeholder="# 问题定义\n\n# 用户故事\n\n# 方案概述">' + escapeHtml(prd) + '</textarea></div>' +
+        '<div class="modal-actions"><button class="btn-ghost" id="opp-edit-cancel">取消</button><button class="btn-primary" id="opp-edit-save">保存</button></div>';
+      showModal('编辑机会（草稿）', html);
+      const close = () => { const m = $('#generic-modal'); if (m) m.remove(); };
+      $('#opp-edit-cancel').addEventListener('click', close);
+      $('#opp-edit-save').addEventListener('click', () => {
+        const t = $('#opp-edit-title').value.trim() || '新建机会（草稿）';
+        const s = $('#opp-edit-source').value.trim() || '手动创建';
+        const p = $('#opp-edit-priority').value.trim();
+        const d = $('#opp-edit-desc').value.trim();
+        const st = $('#opp-edit-story').value.trim();
+        const pr = $('#opp-edit-prd').value.trim();
+        card.querySelector('.opp-card-title').textContent = t;
+        card.querySelector('.opp-card-source').textContent = s;
+        card.querySelector('.opp-card-priority').textContent = '优先级 ' + (p || '--');
+        card.querySelector('.opp-card-status').textContent = '已编辑';
+        card.dataset.desc = d; card.dataset.story = st; card.dataset.prd = pr;
+        // 如果当前草稿正被展示在右侧面板，也同步刷新右侧面板
+        if (card.classList.contains('active')) {
+          const pEl = document.getElementById('page-opportunities');
+          if (pEl) {
+            pEl.querySelector('.opp-detail-name').textContent = t;
+            pEl.querySelector('.opp-detail-meta').textContent = '优先级 ' + (p || '--') + ' · 状态 已编辑 · 来源：' + s;
+            const blocks = pEl.querySelectorAll('.opp-block-text');
+            if (blocks[0]) blocks[0].textContent = d || '（暂无描述）';
+            if (blocks[1]) blocks[1].textContent = st || '（暂无用户故事）';
+            const ta = document.getElementById('opp-prd-content');
+            if (ta) ta.value = pr || '';
+          }
+        }
+        close(); toast('草稿机会已保存');
+      });
+    }
+    function escapeHtml(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
     on($('.opp-detail-link'), 'click', () => { switchTab('insights'); toast('已跳转来源洞察'); });
     on($('#opp-export-prd-btn'), 'click', () => { const ta = $('#opp-prd-content'); download('PRD_导出报表异步化.md', ta ? ta.value : ''); });
     on($('#opp-launch-btn'), 'click', () => { switchTab('effects'); toast('机会已推进，查看上线效果'); });

@@ -390,7 +390,7 @@ export function setUseRealModel(on) {
   localStorage.setItem('insightloop_use_real', on ? '1' : '0');
 }
 
-async function callRealModel(systemPrompt, context, { signal } = {}) {
+export async function callRealModel(systemPrompt, context, { signal } = {}) {
   const cfg = getModelConfig();
   if (!cfg || !cfg.apiKey) {
     throw new Error('NO_API_KEY: 请在「⚙ AI 设置」中填写 API Key');
