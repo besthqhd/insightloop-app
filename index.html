@@ -1392,6 +1392,53 @@
 
     /* ─── 反馈中心筛选面板可收起 ─── */
     .fb-filters.collapsed { display: none; }
+
+    /* ─── AI 生成后内联「版本对比」按钮 ─── */
+    .ai-ver-btn {
+      margin-left: 8px; padding: 4px 10px; border: 1px solid var(--border);
+      background: #fff; color: var(--primary); border-radius: 8px; font-size: 12px;
+      cursor: pointer; font-family: inherit; font-weight: 600;
+    }
+    .ai-ver-btn:hover { background: #EEF2FF; }
+
+    /* ─── 版本对比弹窗 ─── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(13,24,41,.45); display: none;
+      align-items: center; justify-content: center; z-index: 80; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #fff; border-radius: 14px; width: 880px; max-width: 92vw; max-height: 86vh;
+      display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(13,24,41,.25); overflow: hidden; }
+    .modal-header { display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; border-bottom: 1px solid var(--border); }
+    .modal-title { font-size: 16px; font-weight: 700; color: var(--ink); }
+    .modal-toolbar { display: flex; align-items: center; gap: 14px; padding: 12px 20px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .seg-btn { border: 0; background: #fff; padding: 6px 14px; font-size: 13px; cursor: pointer; color: var(--text-muted); font-family: inherit; }
+    .seg-btn.active { background: var(--primary); color: #fff; font-weight: 600; }
+    .modal-hint { font-size: 12px; color: var(--text-muted); }
+    .version-body { display: flex; gap: 16px; padding: 16px 20px; min-height: 360px; flex: 1; overflow: hidden; }
+    .ver-list-wrap { width: 260px; flex: none; overflow-y: auto; border-right: 1px solid var(--border); padding-right: 12px; }
+    .ver-list { display: flex; flex-direction: column; gap: 8px; }
+    .ver-item { display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; background: #fff; }
+    .ver-item:hover { border-color: var(--primary); }
+    .ver-item.active { border-color: var(--primary); background: #EEF2FF; }
+    .ver-item-main { display: flex; flex-direction: column; gap: 2px; }
+    .ver-no { font-size: 13px; font-weight: 700; color: var(--ink); }
+    .ver-meta { font-size: 11px; color: var(--text-muted); }
+    .ver-preview-wrap { flex: 1; display: flex; gap: 16px; min-width: 0; }
+    .ver-col { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .ver-col-head { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+    .ver-col-tag { width: 20px; height: 20px; border-radius: 6px; background: var(--primary); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; }
+    .ver-sel { font-size: 12px; padding: 3px 6px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; display: none; }
+    .ver-preview { flex: 1; margin: 0; background: #F8F9FB; border: 1px solid var(--border); border-radius: 8px;
+      padding: 12px; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 12px; line-height: 1.6; color: #1f2937;
+      white-space: pre-wrap; word-break: break-word; overflow-y: auto; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--border); }
+    .modal-overlay.mode-compare .ver-list-wrap { display: none; }
+    .modal-overlay.mode-compare .ver-sel { display: inline-block; }
+    .modal-overlay.mode-compare #ver-col-b { display: flex; }
+    .modal-overlay.mode-single #ver-col-b { display: none; }
+    .modal-overlay.mode-single .ver-sel { display: none; }
   </style>
 </head>
 <body>
@@ -2109,12 +2156,51 @@ export_start / export_progress / export_cancel / export_success。
         <div class="agent-drawer-body" id="agent-drawer-body"></div>
         <div class="agent-drawer-actions">
           <button class="btn btn-outline" id="agent-drawer-retry">重试</button>
+          <button class="btn btn-outline" id="agent-drawer-versions">版本对比</button>
           <button class="btn btn-primary" id="agent-drawer-regen">重新生成</button>
         </div>
       </aside>
 
       <!-- Toast 容器 -->
       <div class="toast-container" id="toast-container"></div>
+
+      <!-- 版本对比弹窗 -->
+      <div class="modal-overlay" id="version-modal">
+        <div class="modal">
+          <div class="modal-header">
+            <span class="modal-title">生成内容版本对比</span>
+            <button class="agent-drawer-close" id="ver-close">×</button>
+          </div>
+          <div class="modal-toolbar">
+            <div class="seg">
+              <button class="seg-btn active" data-mode="single">单版本</button>
+              <button class="seg-btn" data-mode="compare">对比</button>
+            </div>
+            <span class="modal-hint">每个 AI 能力独立保留最近 5 个版本（按重新生成采样），可对比并采纳最优</span>
+          </div>
+          <div class="version-body">
+            <div class="ver-list-wrap">
+              <div class="ver-list" id="ver-list"></div>
+            </div>
+            <div class="ver-preview-wrap">
+              <div class="ver-col" id="ver-col-a">
+                <div class="ver-col-head"><span class="ver-col-tag">A</span> 版本预览 <span id="ver-a-label"></span>
+                  <select class="ver-sel" id="ver-sel-a"></select></div>
+                <pre class="ver-preview" id="ver-preview-a"></pre>
+              </div>
+              <div class="ver-col" id="ver-col-b">
+                <div class="ver-col-head"><span class="ver-col-tag">B</span> 对比版本 <span id="ver-b-label"></span>
+                  <select class="ver-sel" id="ver-sel-b"></select></div>
+                <pre class="ver-preview" id="ver-preview-b"></pre>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-outline" id="ver-close-2">关闭</button>
+            <button class="btn btn-primary" id="ver-adopt">采纳此版本</button>
+          </div>
+        </div>
+      </div>
 
     </div>
   </div>

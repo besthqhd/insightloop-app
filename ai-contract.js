@@ -294,7 +294,7 @@ export async function regenerate(capability, params, opts = {}) {
   };
   const result = await callModel(capability, mergedParams, opts);
   const list = historyStore.get(key) || [];
-  list.push({ ts: Date.now(), data: result.data, status: result.status });
+  list.push({ ts: Date.now(), data: result.data, status: result.status, seed: variationSeed });
   historyStore.set(key, list.slice(-keepVersions));
   return result;
 }

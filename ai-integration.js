@@ -10,7 +10,7 @@
  * 依赖：ai-contract.js 导出的 CAPABILITY / callModel / regenerate / getHistory
  */
 
-import { CAPABILITY, callModel, regenerate } from './ai-contract.js';
+import { CAPABILITY, callModel, regenerate, getHistory } from './ai-contract.js';
 
 /* ============================ 能力中文标签 ============================ */
 const LABELS = {
@@ -124,12 +124,39 @@ const MOCK = {
   }),
 };
 
-async function mockModel(capability) {
+/* 确定性伪随机：同一种子产生同一序列，保证「同一次重新生成」结果可复现 */
+function seededRand(seed) {
+  let s = (seed >>> 0) || 1;
+  return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296;
+}
+
+/* 确定性扰动：让“重新生成”产出可对比的差异版本（演示用；真实模型由采样温度自然产生差异）。
+ * 只扰动数值字段，保持字符串/枚举不变，避免破坏 schema 校验。 */
+function jitter(obj, seed) {
+  if (seed == null) return obj;
+  const rnd = seededRand(seed);
+  const walk = (v) => {
+    if (typeof v === 'number') {
+      const f = 1 + (rnd() * 2 - 1) * 0.12;
+      const out = v * f;
+      return Math.abs(out) >= 100 ? Math.round(out) : Math.round(out * 100) / 100;
+    }
+    if (Array.isArray(v)) return v.map(walk);
+    if (v && typeof v === 'object') { const o = {}; for (const k in v) o[k] = walk(v[k]); return o; }
+    return v;
+  };
+  return walk(obj);
+}
+
+async function mockModel(sysPrompt, ctx, opts) {
   if (FAIL_MODE === 'timeout') throw new Error('TIMEOUT');
   if (FAIL_MODE === 'badjson') return '模型本次未能结构化输出：\n导出太慢了用户都很烦，建议赶紧改。';
-  const gen = MOCK[capability] || (() => ({ note: 'ok' }));
+  // callModel 以 (sysPrompt, ctx, opts) 调用；capability 在 ctx 中
+  const cap = (ctx && ctx.capability) || CAPABILITY.GENERATE_PRD;
+  const gen = MOCK[cap] || (() => ({ note: 'ok' }));
+  const seed = (ctx && ctx.context && ctx.context.constraints && ctx.context.constraints._seed) || Date.now();
   // 返回“原始字符串”，让 callModel 走 repairJson → validate 完整链路
-  return JSON.stringify(gen());
+  return JSON.stringify(jitter(gen(), seed));
 }
 
 /* ============================ 2. 多 Agent 追溯流 ============================
@@ -148,6 +175,7 @@ function agentFlow() {
 /* ============================ 3. 三层展示法：状态管理 ============================ */
 const activities = []; // {ts, cap, status, requestId}
 let drawerCap = null;
+const capTarget = {};   // capability -> 目标选择器，供“采纳版本”使用
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -290,6 +318,10 @@ async function runAI(cap, opts = {}) {
   const trigger = $(`[data-ai-cap="${cap}"]`);
   const targetSel = trigger && trigger.dataset.aiTarget;
   const mode = trigger && trigger.dataset.aiMode; // log | panel | textarea
+  if (targetSel) capTarget[cap] = targetSel;       // 记录目标，供“采纳版本”使用
+  drawerCap = cap;
+
+  const seed = opts.seed || Date.now();
 
   // 按钮 loading 态
   if (trigger && trigger.tagName === 'BUTTON') {
@@ -303,7 +335,7 @@ async function runAI(cap, opts = {}) {
   const params = {
     artifacts: [{ insight: cap, sample: 'mock-artifact' }],
     userInstruction: opts.instruction || '',
-    constraints: { tone: '专业', detail: '高', _seed: opts.seed || Date.now() },
+    constraints: { tone: '专业', detail: '高', _seed: seed },
     history: [],
   };
 
@@ -312,6 +344,7 @@ async function runAI(cap, opts = {}) {
       requestModel: mockModel,
       fallbackModel: mockModel,
       key: cap,
+      variationSeed: seed,
       adjustConstraints: opts.adjust || {},
     });
 
@@ -336,6 +369,9 @@ async function runAI(cap, opts = {}) {
       else $('#agent-drawer-error').style.display = 'none';
     }
 
+    // 生成成功后露出“版本对比”入口
+    if (result.status !== 'failed') showVersionButton(cap);
+
     if (result.status === 'failed') {
       toast(result.error?.message || '生成失败，可重试', 'error');
     } else {
@@ -351,6 +387,136 @@ async function runAI(cap, opts = {}) {
       trigger.textContent = trigger.dataset.label || trigger.textContent;
     }
   }
+}
+
+/* ============================ 5.5 生成内容版本对比（亮点功能） ============================
+ * 每个 AI 能力在 regenerate 时都会留存带 seed 的版本（ai-contract.historyStore）。
+ * 这里把它们接出来：列表 / 单版本预览 / 双版本对比 / 采纳最优，体现“AI 重生 + 人在回路”。
+ */
+
+/* 把版本数据格式化为纯文本，用于对比预览（<pre>）与“采纳”回填 */
+function formatVersionText(cap, d) {
+  if (!d) return '（无内容）';
+  if (cap === CAPABILITY.GENERATE_PRD)
+    return `# 问题定义\n${d.problem}\n\n# 用户故事\n${d.user_story}\n\n# 方案概述\n${d.solution}\n\n# 范围\n${d.scope}\n\n# 验收标准\n${d.acceptance_criteria.map((c, i) => `${i + 1}. ${c}`).join('\n')}\n\n# 埋点方案\n${d.tracking_plan.map(e => `- ${e}`).join('\n')}\n\n# 任务拆解\n${d.task_breakdown.map(t => `- [${t.role}] ${t.task} · 预估 ${t.estimate_days}d`).join('\n')}`;
+  if (cap === CAPABILITY.GEN_ACCEPTANCE)
+    return `# 验收标准（${d.format}）\n` + d.criteria.map(c => `- [${c.id}] ${c.given} → 当${c.when} → 则${c.then}（${c.priority}）`).join('\n');
+  if (cap === CAPABILITY.GEN_TRACKING)
+    return `# 埋点方案（${d.sampling}）\n` + d.events.map(e => `- ${e.name}：触发[${e.trigger}] 属性[${e.properties.join(', ')}] 目的：${e.purpose}`).join('\n');
+  if (cap === CAPABILITY.DECOMPOSE_TASKS)
+    return `# 任务拆解（共 ${d.total_estimate_days}d）\n` + d.tasks.map(t => `- [${t.role}] ${t.task} · 预估 ${t.estimate_days}d` + (t.depends_on && t.depends_on.length ? ` · 依赖 ${t.depends_on.join(',')}` : '')).join('\n');
+  if (cap === CAPABILITY.AI_REVIEW)
+    return `${d.headline}\n目标达成 ${d.goal_achievement.completed}/${d.goal_achievement.total}　假设验证：${d.hypothesis_validated ? '成立' : '未成立'}\n指标变化：` + d.metric_deltas.map(m => `${m.name} ${m.before}${m.unit}→${m.after}${m.unit}（${m.delta_pct > 0 ? '+' : ''}${m.delta_pct}%）`).join('；') + `\n建议：` + d.recommendations.map(r => `① ${r}`).join('；');
+  if (cap === CAPABILITY.AI_SUGGEST)
+    return d.suggestions.map((s, i) => `${'①②③'[i] || (i + 1)} ${s.title}（优先级 ${s.priority}）：${s.rationale}　[关联：${s.related_opportunity}]`).join('\n');
+  if (cap === CAPABILITY.AI_SCORE)
+    return `评分 ${d.score}（影响 ${d.breakdown.impact} / 价值 ${d.breakdown.value} / 证据 ${d.breakdown.evidence} / 成本 ${d.breakdown.cost}）\n${d.rationale}\n证据：${d.sources.join(', ')}`;
+  if (cap === CAPABILITY.BATCH_ANALYZE)
+    return `摘要：${d.summary}\n主题：\n` + d.themes.map(t => `- ${t.name}（${t.count} 条 · ${t.severity} · ${t.sentiment}）证据：${(t.evidence_ids || []).join(',')}`).join('\n') + `\n机会建议：` + (d.suggested_opportunities || []).map(o => `- ${o.title}（优先级 ${o.priority}）${o.rationale}`).join('\n');
+  return JSON.stringify(d, null, 2);
+}
+
+/* 触发元素旁的内联“版本对比”按钮（生成成功后露出） */
+function showVersionButton(cap) {
+  const trigger = $(`[data-ai-cap="${cap}"]`);
+  if (!trigger) return;
+  let btn = trigger.parentElement.querySelector(':scope > .ai-ver-btn');
+  if (!btn) {
+    btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'ai-ver-btn';
+    trigger.insertAdjacentElement('afterend', btn);
+  }
+  const n = getHistory(cap).length;
+  btn.textContent = `版本对比 (${n})`;
+  btn.onclick = () => openVersionModal(cap);
+}
+
+let verState = { cap: null, mode: 'single', selA: 0, selB: 1 };
+
+function openVersionModal(cap) {
+  const hist = getHistory(cap);
+  verState = { cap, mode: 'single', selA: Math.max(0, hist.length - 1), selB: Math.max(0, hist.length - 2) };
+  const modal = $('#version-modal');
+  if (!modal) return;
+  modal.classList.add('open', 'mode-single');
+  modal.classList.remove('mode-compare');
+  $$('.seg-btn').forEach(x => x.classList.toggle('active', x.dataset.mode === 'single'));
+  renderVersionList();
+}
+
+function closeVersionModal() { const m = $('#version-modal'); if (m) m.classList.remove('open'); }
+
+function renderVersionList() {
+  const cap = verState.cap;
+  const hist = getHistory(cap);
+  const listEl = $('#ver-list');
+  if (!listEl) return;
+  if (!hist.length) {
+    listEl.innerHTML = '<div class="activity-empty">暂无版本，先点击 AI 生成 / 重新生成</div>';
+    renderPreview();
+    return;
+  }
+  listEl.innerHTML = hist.map((v, i) => {
+    const no = hist.length - i;
+    const active = verState.mode === 'single' && verState.selA === i;
+    const st = v.status === 'success' ? ['done', '已生成'] : v.status === 'partial' ? ['partial', '部分'] : ['failed', '失败'];
+    return `<div class="ver-item ${active ? 'active' : ''}" data-i="${i}">
+      <div class="ver-item-main"><span class="ver-no">v${no}</span>
+        <span class="ver-meta">seed #${String(v.seed || '').slice(-4)} · ${fmtTime(new Date(v.ts))}</span></div>
+      <span class="activity-pill ${st[0]}">${st[1]}</span>
+    </div>`;
+  }).join('');
+  $$('#ver-list .ver-item').forEach(el => el.addEventListener('click', () => {
+    verState.selA = +el.dataset.i;
+    renderVersionList();
+  }));
+  renderPreview();
+}
+
+function fillCompareSelects() {
+  const hist = getHistory(verState.cap);
+  const optsHtml = hist.map((v, i) => `<option value="${i}">v${hist.length - i} · seed #${String(v.seed || '').slice(-4)}</option>`).join('');
+  const sa = $('#ver-sel-a'), sb = $('#ver-sel-b');
+  if (sa) { sa.innerHTML = optsHtml; sa.value = String(verState.selA); }
+  if (sb) { sb.innerHTML = optsHtml; sb.value = String(verState.selB); }
+}
+
+function renderPreview() {
+  const cap = verState.cap;
+  const hist = getHistory(cap);
+  const a = hist[verState.selA];
+  const pa = $('#ver-preview-a');
+  if (pa && a) pa.textContent = formatVersionText(cap, a.data);
+  const labelA = $('#ver-a-label'); if (labelA && a) labelA.textContent = `v${hist.length - verState.selA}`;
+  if (verState.mode === 'compare') {
+    const b = hist[verState.selB];
+    const pb = $('#ver-preview-b');
+    if (pb) pb.textContent = b ? formatVersionText(cap, b.data) : '';
+    const labelB = $('#ver-b-label'); if (labelB && b) labelB.textContent = `v${hist.length - verState.selB}`;
+  }
+  const adopt = $('#ver-adopt');
+  if (adopt) adopt.disabled = !a || verState.mode === 'compare';
+}
+
+function adoptVersion() {
+  const cap = verState.cap;
+  const hist = getHistory(cap);
+  const v = hist[verState.selA];
+  if (!v) return;
+  const targetSel = capTarget[cap];
+  const target = targetSel ? $(targetSel) : null;
+  if (target) {
+    if (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT') {
+      target.value = formatVersionText(cap, v.data);
+    } else {
+      renderResult(cap, { data: v.data }, targetSel); // 面板类复用渲染
+    }
+    toast(`已采纳 v${hist.length - verState.selA}`, 'success');
+  } else {
+    toast('该能力无编辑区，仅可查看对比', 'info');
+  }
+  closeVersionModal();
 }
 
 /* ============================ 6. 初始化绑定 ============================ */
@@ -387,6 +553,28 @@ function init() {
     $('#agent-drawer-error').style.display = 'none';
     if (drawerCap) runAI(drawerCap);
   });
+  // 抽屉内「版本对比」入口
+  $('#agent-drawer-versions') && $('#agent-drawer-versions').addEventListener('click', () => {
+    if (drawerCap) openVersionModal(drawerCap);
+  });
+
+  /* ── 版本对比弹窗控制 ── */
+  $('#ver-close') && $('#ver-close').addEventListener('click', closeVersionModal);
+  $('#ver-close-2') && $('#ver-close-2').addEventListener('click', closeVersionModal);
+  $('#ver-adopt') && $('#ver-adopt').addEventListener('click', adoptVersion);
+  $$('.seg-btn').forEach(b => b.addEventListener('click', () => {
+    const m = b.dataset.mode;
+    const modal = $('#version-modal');
+    modal.classList.toggle('mode-single', m === 'single');
+    modal.classList.toggle('mode-compare', m === 'compare');
+    $$('.seg-btn').forEach(x => x.classList.toggle('active', x === b));
+    verState.mode = m;
+    if (m === 'compare') fillCompareSelects();
+    const adopt = $('#ver-adopt'); if (adopt) adopt.disabled = (m === 'compare');
+    renderPreview();
+  }));
+  const sa = $('#ver-sel-a'); sa && sa.addEventListener('change', e => { verState.selA = +e.target.value; renderPreview(); });
+  const sb = $('#ver-sel-b'); sb && sb.addEventListener('change', e => { verState.selB = +e.target.value; renderPreview(); });
 
   // 模拟异常下拉
   const failSel = $('#fail-mode');
