@@ -353,13 +353,20 @@ function renderResult(cap, result, targetSel) {
     target.value += block;
   } else if (cap === CAPABILITY.AI_REVIEW && target) {
     target.removeAttribute('data-manually-edited');
-    target.innerHTML = `<b>${data.headline}</b>　目标达成 ${data.goal_achievement.completed}/${data.goal_achievement.total}　假设验证：${data.hypothesis_validated ? '成立' : '未成立'}<br>` +
-      '指标变化：' + data.metric_deltas.map(m => `${m.name} ${m.before}${m.unit}→${m.after}${m.unit}（${m.delta_pct > 0 ? '+' : ''}${m.delta_pct}%）`).join('；') +
-      '<br>建议：' + data.recommendations.map(r => `① ${r}`).join('；');
+    const ga = data.goal_achievement || {};
+    const headline = data.headline || 'AI 复盘结论';
+    const completed = ga.completed != null ? ga.completed : '?';
+    const total = ga.total != null ? ga.total : '?';
+    const deltas = Array.isArray(data.metric_deltas) ? data.metric_deltas : [];
+    const recs = Array.isArray(data.recommendations) ? data.recommendations : [];
+    target.innerHTML = '<b>' + headline + '</b>　目标达成 ' + completed + '/' + total + '　假设验证：' + (data.hypothesis_validated ? '成立' : '未成立') + '<br>' +
+      '指标变化：' + deltas.map(m => (m.name || '') + ' ' + (m.before != null ? m.before : '?') + (m.unit || '') + '→' + (m.after != null ? m.after : '?') + (m.unit || '') + '（' + (m.delta_pct > 0 ? '+' : '') + (m.delta_pct != null ? m.delta_pct : '?') + '%）').join('；') +
+      '<br>建议：' + recs.map(r => '① ' + r).join('；');
   } else if (cap === CAPABILITY.AI_SUGGEST && target) {
     target.removeAttribute('data-manually-edited');
-    target.innerHTML = data.suggestions.map((s, i) =>
-      `${'①②③'[i] || (i + 1)} ${s.title}（优先级 ${s.priority}）：${s.rationale}　[关联：${s.related_opportunity}]`).join('<br>');
+    const sugs = Array.isArray(data.suggestions) ? data.suggestions : [];
+    target.innerHTML = sugs.map((s, i) =>
+      ('①②③'[i] || (i + 1)) + ' ' + (s.title || '') + '（优先级 ' + (s.priority != null ? s.priority : '?') + '）：' + (s.rationale || '') + '　[关联：' + (s.related_opportunity || '') + ']').join('<br>');
   }
 }
 

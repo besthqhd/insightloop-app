@@ -1640,7 +1640,7 @@
             <h1 class="page-title">反馈中心</h1>
             <p class="page-subtitle">汇聚多源用户反馈，标记情绪与主题，一键触发多智能体分析</p>
           </div>
-          <button class="btn btn-outline">
+          <button class="btn btn-outline" id="fb-export-btn">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             导出
           </button>
@@ -1656,7 +1656,7 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="text" id="fb-search-input" placeholder="搜索反馈原话、用户、主题…">
           </div>
-          <button class="chip">
+          <button class="chip" id="fb-filter-toggle">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
             筛选
           </button>
@@ -1700,13 +1700,13 @@
               <div class="filter-row" data-group="time" data-value="30"><div class="left"><span class="checkbox checked">✓</span>近 30 天</div></div>
               <div class="filter-row" data-group="time" data-value="90"><div class="left"><span class="checkbox checked">✓</span>近 90 天</div></div>
             </div>
-            <div class="filter-reset">清除全部筛选</div>
+            <div class="filter-reset" id="fb-reset-btn">清除全部筛选</div>
           </aside>
 
           <div class="fb-list-area">
             <div class="fb-list-header">
               <span class="fb-list-title">反馈列表</span>
-              <button class="chip">最新优先 <span>▾</span></button>
+              <button class="chip" id="fb-sort-btn">最新优先 <span>▾</span></button>
             </div>
             <div class="feedback-cards" id="feedback-cards"></div>
             <div class="fb-empty" id="fb-empty" style="display:none">
@@ -1732,7 +1732,7 @@
             <p class="page-subtitle">基于多源反馈自动聚类出的高频问题、影响范围与情绪趋势</p>
           </div>
           <div class="page-actions">
-            <button class="chip">近 30 天 <span>▾</span></button>
+            <button class="chip" id="insight-range-btn">近 30 天 <span>▾</span></button>
             <button class="btn btn-primary" data-ai-cap="batch_analyze" data-ai-mode="log">重新分析</button>
           </div>
         </div>
@@ -1887,9 +1887,9 @@
               </div>
 
               <div class="detail-actions">
-                <button class="btn btn-outline">查看证据</button>
+                <button class="btn btn-outline" id="insight-evidence-btn">查看证据</button>
                 <button class="btn btn-outline" data-ai-drawer="batch_analyze">AI 分析过程</button>
-                <button class="btn btn-primary">转为机会</button>
+                <button class="btn btn-primary" id="insight-to-opp-btn">转为机会</button>
               </div>
             </div>
 
@@ -1962,7 +1962,7 @@
             <h1 class="page-title">机会工作区</h1>
             <p class="page-subtitle">将高价值洞察转化为可验证的产品机会 · 共 5 个机会 · 2 个推进中</p>
           </div>
-          <button class="chip">排序：优先级 <span>▾</span></button>
+          <button class="chip" id="opp-sort-btn">排序：优先级 <span>▾</span></button>
         </div>
 
         <div class="opp-layout">
@@ -2068,8 +2068,8 @@ export_start / export_progress / export_cancel / export_success。
               </div>
 
               <div class="opp-detail-actions">
-                <button class="btn btn-outline">导出 PRD</button>
-                <button class="btn btn-primary">推进上线</button>
+                <button class="btn btn-outline" id="opp-export-prd-btn">导出 PRD</button>
+                <button class="btn btn-primary" id="opp-launch-btn">推进上线</button>
               </div>
             </div>
           </div>
@@ -2084,8 +2084,8 @@ export_start / export_progress / export_cancel / export_success。
             <p class="page-subtitle">验证产品迭代闭环的实际收益 · 当前迭代：v1.3 导出异步化 · 对比迭代前 / 后</p>
           </div>
           <div class="page-actions">
-            <button class="chip">迭代：v1.3 <span>▾</span></button>
-            <button class="chip">对比：上线后 <span>▾</span></button>
+            <button class="chip" id="effects-iter-btn">迭代：v1.3 <span>▾</span></button>
+            <button class="chip" id="effects-compare-btn">对比：上线后 <span>▾</span></button>
           </div>
         </div>
 
@@ -2212,8 +2212,8 @@ export_start / export_progress / export_cancel / export_success。
         </div>
 
         <div class="dash-actions">
-          <button class="btn btn-outline">导出报告</button>
-          <button class="btn btn-primary">返回机会 →</button>
+          <button class="btn btn-outline" id="effects-export-btn">导出报告</button>
+          <button class="btn btn-primary" id="effects-back-btn">返回机会 →</button>
         </div>
       </section>
 
@@ -2453,13 +2453,18 @@ export_start / export_progress / export_cancel / export_success。
       if (!t) return;
       if (typeof window !== 'undefined') window.__insightTopic = i;
       const p = document.getElementById('page-insights');
-      p.querySelector('.detail-header-title').textContent = t.title;
-      p.querySelector('.detail-header-meta').textContent = t.meta;
-      p.querySelector('.evidence-list').innerHTML = t.evidence.map(e =>
+      if (!p) return;
+      const title = p.querySelector('.detail-header-title');
+      const meta = p.querySelector('.detail-header-meta');
+      const ev = p.querySelector('.evidence-list');
+      const concl = p.querySelector('.ai-conclusion-text');
+      const chart = p.querySelector('.chart-svg');
+      if (title) title.textContent = t.title;
+      if (meta) meta.textContent = t.meta;
+      if (ev) ev.innerHTML = t.evidence.map(e =>
         '<div class="evidence-item"><div class="evidence-quote">' + e.q + '</div><div class="evidence-source">' + e.s + '</div></div>'
       ).join('');
-      const concl = p.querySelector('.ai-conclusion-text');
-      concl.innerHTML = '<strong>AI 结论</strong><br>' + t.conclusion;
+      if (concl) concl.innerHTML = '<strong>AI 结论</strong><br>' + t.conclusion;
       const reason = p.querySelector('#topic-reason');
       if (reason) {
         const chain = t.evidence.map((e, i) => '<li><b>证据' + (i + 1) + '</b>：' + e.q + '<span class="reason-src">' + e.s + '</span></li>').join('');
@@ -2471,26 +2476,32 @@ export_start / export_progress / export_cancel / export_success。
           '<div class="reason-step"><span class="reason-tag">③ 优先级判定</span><div class="reason-text">' + t.meta + '</div></div>' +
           '</div></div>';
         const tog = reason.querySelector('.reason-toggle');
-        tog.addEventListener('click', () => { const b = reason.querySelector('.reason-body'); const open = b.style.display !== 'none'; b.style.display = open ? 'none' : 'block'; tog.textContent = (open ? '▸' : '▾') + ' 展开判断依据（为何这么判断）'; });
+        if (tog) tog.addEventListener('click', () => { const b = reason.querySelector('.reason-body'); if (!b) return; const open = b.style.display !== 'none'; b.style.display = open ? 'none' : 'block'; tog.textContent = (open ? '▸' : '▾') + ' 展开判断依据（为何这么判断）'; });
       }
-      p.querySelector('.chart-svg').innerHTML = topicChartSVG(t.line, t.neg);
+      if (chart) chart.innerHTML = topicChartSVG(t.line, t.neg);
     }
 
     function selectOpp(i) {
       const o = OPPS[i];
       if (!o) return;
       const p = document.getElementById('page-opportunities');
+      if (!p) return;
       const card = p.querySelector('.opp-detail-card');
-      card.querySelector('.opp-detail-name').textContent = o.name;
-      card.querySelector('.opp-detail-meta').textContent = o.meta;
+      if (!card) return;
+      const name = card.querySelector('.opp-detail-name');
+      const meta = card.querySelector('.opp-detail-meta');
       const blocks = card.querySelectorAll('.opp-block-text');
+      const formula = card.querySelector('.opp-score-formula');
+      const note = card.querySelector('.opp-score-note');
+      if (name) name.textContent = o.name;
+      if (meta) meta.textContent = o.meta;
       if (blocks[0]) blocks[0].textContent = o.desc;
       if (blocks[1]) blocks[1].textContent = o.story;
       const ta = document.getElementById('opp-prd-content');
       if (ta) ta.value = o.prd;
-      card.querySelector('.opp-score-formula').textContent =
+      if (formula) formula.textContent =
         '影响 ' + o.score.i + '　×　价值 ' + o.score.v + '　×　证据 ' + o.score.e + '　÷　成本 ' + o.score.c + '　=　' + o.pri;
-      card.querySelector('.opp-score-note').textContent = o.note;
+      if (note) note.textContent = o.note;
       const ors = card.querySelector('#opp-reason');
       if (ors) {
         ors.innerHTML = '<button class="reason-toggle" type="button">▸ 展开判断依据（评分怎么算的）</button>' +
@@ -2505,7 +2516,7 @@ export_start / export_progress / export_cancel / export_success。
           '<div class="reason-step"><span class="reason-tag">可溯源</span><div class="reason-text">' + o.note + '</div></div>' +
           '</div></div>';
         const tog = ors.querySelector('.reason-toggle');
-        tog.addEventListener('click', () => { const b = ors.querySelector('.reason-body'); const open = b.style.display !== 'none'; b.style.display = open ? 'none' : 'block'; tog.textContent = (open ? '▸' : '▾') + ' 展开判断依据（评分怎么算的）'; });
+        if (tog) tog.addEventListener('click', () => { const b = ors.querySelector('.reason-body'); if (!b) return; const open = b.style.display !== 'none'; b.style.display = open ? 'none' : 'block'; tog.textContent = (open ? '▸' : '▾') + ' 展开判断依据（评分怎么算的）'; });
       }
     }
 
@@ -2647,7 +2658,7 @@ export_start / export_progress / export_cancel / export_success。
       else toast('已切换到「' + opt + '」（原型仅含单项目演示）');
     });
 
-    /* ── 反馈中心：数据驱动 + 实时搜索/筛选（修复死按钮） ── */
+    /* ── 反馈中心：数据驱动 + 实时搜索/筛选 ── */
     const FEEDBACKS = [
       { id:1, quote:'每月底导出月度报表要等将近 2 分钟，数据量大时还会超时失败，只能反复重试。', source:'应用内反馈', topic:'导出报表耗时过长', emotion:'负面', date:'2026-07-21', user:'#U8821', userType:'付费版' },
       { id:2, quote:'iOS 端登录有时提示网络错误，重试 2-3 次才能成功，很影响日常使用。', source:'客服工单', topic:'移动端登录偶发失败', emotion:'负面', date:'2026-07-20', user:'#U7730', userType:'免费版' },
@@ -2656,7 +2667,7 @@ export_start / export_progress / export_cancel / export_success。
       { id:5, quote:'深色模式下部分辅助文字看不清，希望提高对比度，更护眼一些。', source:'问卷调研', topic:'深色模式对比度不足', emotion:'正面', date:'2026-07-15', user:'#U3902', userType:'免费版' },
       { id:6, quote:'点开通知中心要转好几秒，红点也经常不消失，容易漏看重要消息。', source:'客服工单', topic:'通知中心加载慢', emotion:'负面', date:'2026-07-14', user:'#U6155', userType:'付费版' },
     ];
-    let fbLast = FEEDBACKS; // 当前筛选结果（供导出 CSV 使用）
+    let fbLast = FEEDBACKS;
     const fbContainer = document.getElementById('feedback-cards');
     const fbEmpty = document.getElementById('fb-empty');
     const fbSearch = document.getElementById('fb-search-input');
@@ -2666,7 +2677,7 @@ export_start / export_progress / export_cancel / export_success。
     const fbEmo = () => $$('#page-feedback .emotion-pill.active').map(p => p.dataset.value);
 
     function fbApply() {
-      const kw = (fbSearch.value || '').trim().toLowerCase();
+      const kw = (fbSearch && fbSearch.value || '').trim().toLowerCase();
       const src = fbSel('source'), typ = fbSel('userType'), top = fbSel('topic'), tms = fbSel('time').map(Number), emo = fbEmo();
       const list = FEEDBACKS.filter(f => {
         if (kw && !(f.quote.toLowerCase().includes(kw) || f.user.toLowerCase().includes(kw) || f.topic.toLowerCase().includes(kw) || f.source.toLowerCase().includes(kw))) return false;
@@ -2680,11 +2691,12 @@ export_start / export_progress / export_cancel / export_success。
       fbRender(list);
       fbLast = list;
       const info = $('.fb-batch-info');
-      if (info) info.textContent = `已选中 ${list.length} 条反馈 · 触发多智能体分析后将跳转至「洞察看板」`;
+      if (info) info.textContent = '已选中 ' + list.length + ' 条反馈 · 触发多智能体分析后将跳转至「洞察看板」';
     }
     function fbRender(list) {
-      if (!list.length) { fbContainer.innerHTML = ''; fbEmpty.style.display = 'block'; return; }
-      fbEmpty.style.display = 'none';
+      if (!fbContainer) return;
+      if (!list.length) { fbContainer.innerHTML = ''; if (fbEmpty) fbEmpty.style.display = 'block'; return; }
+      if (fbEmpty) fbEmpty.style.display = 'none';
       fbContainer.innerHTML = list.map(f => `
         <div class="feedback-card">
           <div class="feedback-card-header">
@@ -2701,30 +2713,35 @@ export_start / export_progress / export_cancel / export_success。
           </div>
         </div>`).join('');
     }
-    // 默认全选（保证初始显示全部反馈）
+    // 默认全选
     $$('#page-feedback .filter-row .checkbox').forEach(c => { if (!c.classList.contains('checked')) { c.classList.add('checked'); c.textContent = '✓'; } });
     $$('#page-feedback .emotion-pill').forEach(p => p.classList.add('active'));
     fbRender(FEEDBACKS);
-    // 搜索（实时）
+    // 搜索
     fbSearch && fbSearch.addEventListener('input', fbApply);
-    // 筛选 toggle → 实时重算
-    $$('#page-feedback .filter-row .checkbox').forEach(c => c.addEventListener('click', () => { c.classList.toggle('checked'); c.textContent = c.classList.contains('checked') ? '✓' : ''; fbApply(); }));
-    $$('#page-feedback .emotion-pill').forEach(p => p.addEventListener('click', () => { p.classList.toggle('active'); fbApply(); }));
-    // 排序（最新优先 / 最早优先）
-    makeDropdown(byText('page-feedback', '最新优先'), ['最新优先', '最早优先', '相关度最高'], (opt) => {
+    // 筛选：事件委托，避免只绑定初始元素
+    const fbFilterRoot = $('#page-feedback .fb-filters');
+    fbFilterRoot && fbFilterRoot.addEventListener('click', (e) => {
+      const cb = e.target.closest('.checkbox');
+      if (cb) { cb.classList.toggle('checked'); cb.textContent = cb.classList.contains('checked') ? '✓' : ''; fbApply(); return; }
+      const pill = e.target.closest('.emotion-pill');
+      if (pill) { pill.classList.toggle('active'); fbApply(); }
+    });
+    // 排序
+    makeDropdown($('#fb-sort-btn'), ['最新优先', '最早优先', '相关度最高'], (opt) => {
       if (opt === '最新优先') FEEDBACKS.sort((a, b) => new Date(b.date) - new Date(a.date));
       else if (opt === '最早优先') FEEDBACKS.sort((a, b) => new Date(a.date) - new Date(b.date));
       fbApply(); toast('已排序：' + opt);
     });
-    // 导出：按当前筛选结果生成真实 CSV 并下载
-    on(byText('page-feedback', '导出'), 'click', () => {
+    // 导出
+    on($('#fb-export-btn'), 'click', () => {
       const rows = [['日期', '情绪', '主题', '来源', '用户类型', '用户', '原话']].concat(
         fbLast.map(f => [f.date, f.emotion, f.topic, f.source, f.userType, f.user, f.quote])
       );
-      const csv = '﻿' + rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
+      const csv = '\ufeff' + rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
       download('反馈列表_' + fbLast.length + '条.csv', csv);
     });
-    // 导入：唤起真实文件选择框（原型仅演示文件名，不真正解析）
+    // 导入
     const fbImportInput = $('#fb-import-input');
     on($('#fb-import-btn'), 'click', () => { if (fbImportInput) fbImportInput.click(); });
     fbImportInput && fbImportInput.addEventListener('change', () => {
@@ -2733,33 +2750,27 @@ export_start / export_progress / export_cancel / export_success。
       toast('已选择文件：' + f.name + '（原型演示，暂未解析内容）');
       fbImportInput.value = '';
     });
-    on(byText('page-feedback', '筛选'), 'click', () => { const f = $('#page-feedback .fb-filters'); if (f) { f.classList.toggle('collapsed'); toast(f.classList.contains('collapsed') ? '已收起筛选面板' : '已展开筛选面板'); } });
+    // 筛选面板展开/收起
+    on($('#fb-filter-toggle'), 'click', () => {
+      const f = $('#page-feedback .fb-filters');
+      if (f) { f.classList.toggle('collapsed'); toast(f.classList.contains('collapsed') ? '已收起筛选面板' : '已展开筛选面板'); }
+    });
     // 重置
-    on($('.filter-reset'), 'click', () => {
+    on($('#fb-reset-btn'), 'click', () => {
       $$('#page-feedback .filter-row').forEach(r => { const c = r.querySelector('.checkbox'); c.classList.add('checked'); c.textContent = '✓'; });
       $$('#page-feedback .emotion-pill').forEach(p => p.classList.add('active'));
       if (fbSearch) fbSearch.value = '';
       fbApply(); toast('已清除全部筛选');
     });
-    // 查看详情（事件委托，适配动态渲染）
+    // 查看详情（事件委托，整张卡片可点）
     $('#feedback-cards') && $('#feedback-cards').addEventListener('click', (e) => {
-      const d = e.target.closest('.feedback-detail'); if (!d) return;
-      const card = d.closest('.feedback-card');
-      const q = card.querySelector('.feedback-quote').textContent;
-      const src = card.querySelector('.feedback-footer span').textContent;
-      showModal('反馈详情', `<p style="font-size:13px;line-height:1.7;color:#374151">${q}</p><p style="font-size:12px;color:#9CA3AF;margin-top:8px">${src}</p>`);
-    });
-    // 整张卡片点击也能打开详情（与上面的「查看详情」互不冲突）
-    $('#feedback-cards') && $('#feedback-cards').addEventListener('click', (e) => {
-      if (e.target.closest('.feedback-detail')) return;
       const card = e.target.closest('.feedback-card'); if (!card) return;
       const q = card.querySelector('.feedback-quote').textContent;
       const src = card.querySelector('.feedback-footer span').textContent;
-      showModal('反馈详情', `<p style="font-size:13px;line-height:1.7;color:#374151">${q}</p><p style="font-size:12px;color:#9CA3AF;margin-top:8px">${src}</p>`);
+      showModal('反馈详情', '<p style="font-size:13px;line-height:1.7;color:#374151">' + q + '</p><p style="font-size:12px;color:#9CA3AF;margin-top:8px">' + src + '</p>');
     });
 
     /* ── 洞察看板 ── */
-    // 趋势图随时间窗确定性变化（近 7/30/90 天），让下拉真正改变图表
     function pickTopicSeries(t, range) {
       if (range === '7') return {
         line: t.line.map((v, i) => i >= 3 ? Math.max(40, Math.round(v * 1.12)) : v),
@@ -2775,16 +2786,24 @@ export_start / export_progress / export_cancel / export_success。
       const i = (typeof window !== 'undefined' && window.__insightTopic) || 0;
       const t = TOPICS[i]; if (!t) return;
       const p = document.getElementById('page-insights');
-      p.querySelector('.chart-svg').innerHTML = topicChartSVG(pickTopicSeries(t, range).line, pickTopicSeries(t, range).neg);
+      const svg = p && p.querySelector('.chart-svg'); if (svg) svg.innerHTML = topicChartSVG(pickTopicSeries(t, range).line, pickTopicSeries(t, range).neg);
     }
-    makeDropdown(byText('page-insights', '近 30 天'), ['近 7 天', '近 30 天', '近 90 天'], (opt) => {
+    // 主题卡片点击：事件委托，避免动态卡片绑定遗漏
+    const topicListEl = $('.topic-list');
+    topicListEl && topicListEl.addEventListener('click', (e) => {
+      const card = e.target.closest('.topic-card'); if (!card) return;
+      $$('.topic-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      selectTopic(+card.dataset.topic);
+    });
+    makeDropdown($('#insight-range-btn'), ['近 7 天', '近 30 天', '近 90 天'], (opt) => {
       const r = opt.includes('7') ? '7' : opt.includes('90') ? '90' : '30';
       renderTopicRange(r); toast('时间窗：' + opt);
     });
-    on(byText('page-insights', '查看证据'), 'click', () => {
+    on($('#insight-evidence-btn'), 'click', () => {
       const el = $('#page-insights .evidence-list'); showModal('用户原话与证据', el ? el.outerHTML : '（无）');
     });
-    on(byText('page-insights', '转为机会'), 'click', () => { switchTab('opportunities'); toast('已转入「机会工作区」'); });
+    on($('#insight-to-opp-btn'), 'click', () => { switchTab('opportunities'); toast('已转入「机会工作区」'); });
 
     /* ── 机会工作区 ── */
     function priOf(card) { const t = card.querySelector('.opp-card-priority'); return t ? (parseFloat(t.textContent.replace(/[^0-9.]/g, '')) || 0) : 0; }
@@ -2797,21 +2816,32 @@ export_start / export_progress / export_cancel / export_success。
       cards.forEach(c => col.insertBefore(c, btn));
       toast('已按「' + by + '」重排机会卡片');
     }
-    makeDropdown(byText('page-opportunities', '排序'), ['优先级', '最近更新', '影响用户数'], (opt) => sortOpp(opt));
+    // 机会卡片点击：事件委托
+    const oppListEl = $('.opp-list-col');
+    oppListEl && oppListEl.addEventListener('click', (e) => {
+      const card = e.target.closest('.opp-card'); if (!card) return;
+      $$('.opp-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      const idx = card.dataset.opp;
+      if (idx !== undefined) selectOpp(+idx);
+      else toast('草稿机会暂无详情，请补充信息');
+    });
+    makeDropdown($('#opp-sort-btn'), ['优先级', '最近更新', '影响用户数'], (opt) => sortOpp(opt));
     on($('.opp-new-btn'), 'click', () => {
-      const col = $('.opp-list-col'); const n = document.createElement('div');
+      const col = $('.opp-list-col'); if (!col) return;
+      const n = document.createElement('div');
       n.className = 'opp-card';
-      n.innerHTML = `<div class="opp-card-title">新建机会（草稿）</div><div class="opp-card-source">手动创建</div><div class="opp-card-bottom"><span class="opp-card-priority">优先级 --</span><span class="opp-card-status">草稿</span></div>`;
-      col.insertBefore(n, $('.opp-new-btn'));
+      n.innerHTML = '<div class="opp-card-title">新建机会（草稿）</div><div class="opp-card-source">手动创建</div><div class="opp-card-bottom"><span class="opp-card-priority">优先级 --</span><span class="opp-card-status">草稿</span></div>';
+      const btn = col.querySelector('.opp-new-btn');
+      col.insertBefore(n, btn);
       $$('.opp-card').forEach(c => c.classList.remove('active')); n.classList.add('active');
       toast('已新建机会（草稿）');
     });
     on($('.opp-detail-link'), 'click', () => { switchTab('insights'); toast('已跳转来源洞察'); });
-    on(byText('page-opportunities', '导出 PRD'), 'click', () => { const ta = $('#opp-prd-content'); download('PRD_导出报表异步化.md', ta ? ta.value : ''); });
-    on(byText('page-opportunities', '推进上线'), 'click', () => { switchTab('effects'); toast('机会已推进，查看上线效果'); });
+    on($('#opp-export-prd-btn'), 'click', () => { const ta = $('#opp-prd-content'); download('PRD_导出报表异步化.md', ta ? ta.value : ''); });
+    on($('#opp-launch-btn'), 'click', () => { switchTab('effects'); toast('机会已推进，查看上线效果'); });
 
     /* ── 上线效果 ── */
-    // 迭代 / 对比下拉真正驱动仪表盘（KPI + 漏斗 + 情绪），before/after/delta 三态
     const EFFECTS = {
       v13: { name: 'v1.3 导出异步化',
         after:  { c:'87%', cs:'12/14 目标达成 · 较 v1.2 +19pt', m:'留存 +12.4% · 转化 +8.1%', ms:'7/30 日核心指标同步改善', s:'负面 ↓34% · 满意 ↑21%', ss:'导出报表主题负反馈显著下降', funnel:[68,45,41,63], emo:[25,33,42] },
@@ -2832,47 +2862,49 @@ export_start / export_progress / export_cancel / export_success。
       const aw = isDelta ? Math.min(100, Math.max(6, Math.abs(after))) : after;
       const bw = isDelta ? 0 : before;
       const val = isDelta ? ((after >= 0 ? '+' : '') + after + 'pt') : (after + '% ▲');
-      return `<div class="funnel-row"><div class="funnel-label">${label}</div><div class="funnel-bars"><div class="funnel-bar before" style="width:${bw}%"></div><div class="funnel-bar after" style="width:${aw}%"></div></div><div class="funnel-value">${val}</div></div>`;
+      return '<div class="funnel-row"><div class="funnel-label">' + label + '</div><div class="funnel-bars"><div class="funnel-bar before" style="width:' + bw + '%"></div><div class="funnel-bar after" style="width:' + aw + '%"></div></div><div class="funnel-value">' + val + '</div></div>';
     }
     function emoRow(label, before, after, cls, isDelta) {
       const aw = isDelta ? Math.min(100, Math.max(5, Math.abs(after))) : after;
       const bw = isDelta ? 0 : before;
       const val = isDelta ? ((after >= 0 ? '+' : '') + after + 'pt') : (after + '% ' + (after <= before ? '↓' : '↑'));
-      return `<div class="funnel-row"><div class="funnel-label">${label}</div><div class="funnel-bars"><div class="funnel-bar before" style="width:${bw}%"></div><div class="funnel-bar ${cls}" style="width:${aw}%"></div></div><div class="funnel-value">${val}</div></div>`;
+      return '<div class="funnel-row"><div class="funnel-label">' + label + '</div><div class="funnel-bars"><div class="funnel-bar before" style="width:' + bw + '%"></div><div class="funnel-bar ' + cls + '" style="width:' + aw + '%"></div></div><div class="funnel-value">' + val + '</div></div>';
     }
     function renderEffects() {
       const d = EFFECTS[effIter][effMode], b = EFFECTS[effIter].before, isD = effMode === 'delta';
       const kr = document.getElementById('dash-kpi-row');
       if (kr) kr.innerHTML =
-        `<div class="dash-kpi-card"><div class="dash-kpi-label">目标完成率</div><div class="dash-kpi-value ${isD ? 'green' : ''}">${d.c}</div><div class="dash-kpi-sub">${d.cs}</div></div>` +
-        `<div class="dash-kpi-card"><div class="dash-kpi-label">核心指标对比（环比上线前）</div><div class="dash-kpi-value">${d.m}</div><div class="dash-kpi-sub">${d.ms}</div></div>` +
-        `<div class="dash-kpi-card"><div class="dash-kpi-label">相关主题反馈变化</div><div class="dash-kpi-value green">${d.s}</div><div class="dash-kpi-sub">${d.ss}</div></div>`;
+        '<div class="dash-kpi-card"><div class="dash-kpi-label">目标完成率</div><div class="dash-kpi-value ' + (isD ? 'green' : '') + '">' + d.c + '</div><div class="dash-kpi-sub">' + d.cs + '</div></div>' +
+        '<div class="dash-kpi-card"><div class="dash-kpi-label">核心指标对比（环比上线前）</div><div class="dash-kpi-value">' + d.m + '</div><div class="dash-kpi-sub">' + d.ms + '</div></div>' +
+        '<div class="dash-kpi-card"><div class="dash-kpi-label">相关主题反馈变化</div><div class="dash-kpi-value green">' + d.s + '</div><div class="dash-kpi-sub">' + d.ss + '</div></div>';
       const tc = document.getElementById('dash-two-col');
       if (tc) tc.innerHTML =
-        `<div class="dash-col-panel"><div class="dash-col-title">转化漏斗对比（${effLabel(effMode)}）</div>` +
+        '<div class="dash-col-panel"><div class="dash-col-title">转化漏斗对比（' + effLabel(effMode) + '）</div>' +
           funnelRow('访问 → 注册', b.funnel[0], d.funnel[0], isD) +
           funnelRow('注册 → 试用', b.funnel[1], d.funnel[1], isD) +
           funnelRow('试用 → 导出', b.funnel[2], d.funnel[2], isD) +
           funnelRow('导出 → 留存', b.funnel[3], d.funnel[3], isD) +
-        `</div>` +
-        `<div class="dash-col-panel"><div class="dash-col-title">用户情绪变化（${effLabel(effMode)}）</div>` +
+        '</div>' +
+        '<div class="dash-col-panel"><div class="dash-col-title">用户情绪变化（' + effLabel(effMode) + '）</div>' +
           emoRow('负面反馈', b.emo[0], d.emo[0], 'negative', isD) +
           emoRow('中性反馈', b.emo[1], d.emo[1], 'neutral', isD) +
           emoRow('正面反馈', b.emo[2], d.emo[2], 'positive', isD) +
-        `</div>`;
+        '</div>';
       const sub = document.querySelector('#page-effects .page-subtitle');
       if (sub) sub.textContent = '验证产品迭代闭环的实际收益 · 当前迭代：' + EFFECTS[effIter].name + ' · 对比 ' + ({ after: '上线后', before: '上线前', delta: '环比变化' }[effMode]);
     }
-    makeDropdown(byText('page-effects', '迭代'), ['v1.3 导出异步化', 'v1.2 搜索语义重排', 'v1.1 基础体验'], (opt) => {
+    makeDropdown($('#effects-iter-btn'), ['v1.3 导出异步化', 'v1.2 搜索语义重排', 'v1.1 基础体验'], (opt) => {
       effIter = opt.indexOf('v1.3') >= 0 ? 'v13' : opt.indexOf('v1.2') >= 0 ? 'v12' : 'v11';
       renderEffects(); toast('已切换迭代：' + opt);
     });
-    makeDropdown(byText('page-effects', '对比'), ['上线后', '上线前', '环比变化'], (opt) => {
+    makeDropdown($('#effects-compare-btn'), ['上线后', '上线前', '环比变化'], (opt) => {
       effMode = opt === '上线后' ? 'after' : opt === '上线前' ? 'before' : 'delta';
       renderEffects(); toast('对比维度：' + opt);
     });
-    on(byText('page-effects', '导出报告'), 'click', () => download('上线效果报告_' + EFFECTS[effIter].name + '.md', 'InsightLoop ' + EFFECTS[effIter].name + ' 上线效果报告\n目标完成率 ' + EFFECTS[effIter][effMode].c + '\n留存/转化 ' + EFFECTS[effIter][effMode].m + '\n相关主题 ' + EFFECTS[effIter][effMode].s));
-    on(byText('page-effects', '返回机会'), 'click', () => { switchTab('opportunities'); toast('已返回机会工作区'); });
+    on($('#effects-export-btn'), 'click', () => download('上线效果报告_' + EFFECTS[effIter].name + '.md', 'InsightLoop ' + EFFECTS[effIter].name + ' 上线效果报告\n目标完成率 ' + EFFECTS[effIter][effMode].c + '\n留存/转化 ' + EFFECTS[effIter][effMode].m + '\n相关主题 ' + EFFECTS[effIter][effMode].s));
+    on($('#effects-back-btn'), 'click', () => { switchTab('opportunities'); toast('已返回机会工作区'); });
+    // 上线效果初始就渲染一次，避免面板状态与下拉不一致
+    renderEffects();
   })();
   </script>
 </body>
