@@ -1413,7 +1413,7 @@
       font-size: 15px; font-weight: 700;
     }
     .modal-close { background: none; border: none; font-size: 22px; line-height: 1; cursor: pointer; color: var(--text-secondary); }
-    .modal-body { padding: 18px; }
+    .modal-body { padding: 18px; max-height: calc(86vh - 56px); overflow-y: auto; }
 
     /* ─── 反馈中心筛选面板可收起 ─── */
     .fb-filters.collapsed { display: none; }
@@ -2613,7 +2613,7 @@ export_start / export_progress / export_cancel / export_success。
       });
     })();
   </script>
-  <script type="module" src="ai-integration.js?v=1.6"></script>
+  <script type="module" src="ai-integration.js?v=1.7"></script>
   <script>
   /* 死按钮补齐：让每个可点击元素点击后都有真实结果（导航 / 展开 / 弹窗 / 提示）
      与 ai-integration.js 互不干扰（本段只处理无 data-ai-cap 的元素）。 */
@@ -2918,7 +2918,7 @@ export_start / export_progress / export_cancel / export_success。
           source: c.querySelector('.opp-card-source').textContent,
           priority: c.querySelector('.opp-card-priority').textContent,
           status: c.querySelector('.opp-card-status').textContent,
-          desc: c.dataset.desc || '', story: c.dataset.story || '', prd: c.dataset.prd || '',
+          desc: c.dataset.desc || '', story: c.dataset.story || '',
           oppIndex: c.dataset.opp || '',
         }))));
       } catch (e) {}
@@ -2932,7 +2932,7 @@ export_start / export_progress / export_cancel / export_success。
       saved.forEach(o => {
         const n = document.createElement('div'); n.className = 'opp-card';
         if (o.oppIndex) n.dataset.opp = o.oppIndex;
-        n.dataset.desc = o.desc || ''; n.dataset.story = o.story || ''; n.dataset.prd = o.prd || '';
+        n.dataset.desc = o.desc || ''; n.dataset.story = o.story || '';
         n.innerHTML = '<div class="opp-card-title">' + escapeHtml(o.title) + '</div><div class="opp-card-source">' + escapeHtml(o.source) + '</div><div class="opp-card-bottom"><span class="opp-card-priority">' + escapeHtml(o.priority) + '</span><span class="opp-card-status">' + escapeHtml(o.status) + '</span></div>';
         col.insertBefore(n, btn);
       });
@@ -2982,14 +2982,12 @@ export_start / export_progress / export_cancel / export_success。
       const priority = parseFloat(priText.replace(/[^0-9.]/g, '')) || '';
       const desc = card.dataset.desc || '';
       const story = card.dataset.story || '';
-      const prd = card.dataset.prd || '';
       const html =
         '<div class="modal-form-row"><label>机会标题</label><input type="text" id="opp-edit-title" value="' + escapeHtml(title || '新建机会（草稿）') + '"></div>' +
         '<div class="modal-form-row"><label>来源 / 背景</label><input type="text" id="opp-edit-source" value="' + escapeHtml(source || '手动创建') + '"></div>' +
         '<div class="modal-form-row"><label>优先级（数字）</label><input type="number" id="opp-edit-priority" value="' + priority + '" step="0.1" placeholder="如 7.5"></div>' +
         '<div class="modal-form-row"><label>机会描述</label><textarea id="opp-edit-desc" placeholder="用户遇到了什么问题…">' + escapeHtml(desc) + '</textarea></div>' +
         '<div class="modal-form-row"><label>用户故事</label><textarea id="opp-edit-story" placeholder="作为…我希望…以便…">' + escapeHtml(story) + '</textarea></div>' +
-        '<div class="modal-form-row"><label>PRD / 方案草稿</label><textarea id="opp-edit-prd" placeholder="# 问题定义\n\n# 用户故事\n\n# 方案概述">' + escapeHtml(prd) + '</textarea></div>' +
         '<div class="modal-actions"><button class="btn-ghost" id="opp-edit-cancel">取消</button><button class="btn-primary" id="opp-edit-save">保存</button></div>';
       showModal('编辑机会（草稿）', html);
       const close = () => { const m = $('#generic-modal'); if (m) m.remove(); };
@@ -3000,12 +2998,11 @@ export_start / export_progress / export_cancel / export_success。
         const p = $('#opp-edit-priority').value.trim();
         const d = $('#opp-edit-desc').value.trim();
         const st = $('#opp-edit-story').value.trim();
-        const pr = $('#opp-edit-prd').value.trim();
         card.querySelector('.opp-card-title').textContent = t;
         card.querySelector('.opp-card-source').textContent = s;
         card.querySelector('.opp-card-priority').textContent = '优先级 ' + (p || '--');
         card.querySelector('.opp-card-status').textContent = '已编辑';
-        card.dataset.desc = d; card.dataset.story = st; card.dataset.prd = pr;
+        card.dataset.desc = d; card.dataset.story = st;
         // 如果当前草稿正被展示在右侧面板，也同步刷新右侧面板
         if (card.classList.contains('active')) {
           const pEl = document.getElementById('page-opportunities');
@@ -3015,8 +3012,6 @@ export_start / export_progress / export_cancel / export_success。
             const blocks = pEl.querySelectorAll('.opp-block-text');
             if (blocks[0]) blocks[0].textContent = d || '（暂无描述）';
             if (blocks[1]) blocks[1].textContent = st || '（暂无用户故事）';
-            const ta = document.getElementById('opp-prd-content');
-            if (ta) ta.value = pr || '';
           }
         }
         persistOpps();
