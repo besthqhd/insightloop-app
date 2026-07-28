@@ -1428,7 +1428,7 @@
 
     /* ─── 版本对比弹窗 ─── */
     .modal-overlay { position: fixed; inset: 0; background: rgba(13,24,41,.45); display: none;
-      align-items: center; justify-content: center; z-index: 80; }
+      align-items: center; justify-content: center; z-index: 700; }
     .modal-overlay.open { display: flex; }
     .modal { background: #fff; border-radius: 14px; width: 880px; max-width: 92vw; max-height: 86vh;
       display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(13,24,41,.25); overflow: hidden; }
@@ -2604,15 +2604,16 @@ export_start / export_progress / export_cancel / export_success。
       });
 
       clearBtn.addEventListener('click', () => {
-        if (!confirm('确定清空本地保存的「AI 编辑 / 采纳 / 反馈 / 版本历史」吗？\n此操作不可撤销，AI 密钥不受影响。')) return;
+        if (!confirm('确定清空本地保存的「AI 编辑 / 采纳 / 反馈 / 版本历史 / 机会草稿」吗？\n此操作不可撤销，AI 密钥不受影响。')) return;
         localStorage.removeItem('insightloop_history_v1');
         localStorage.removeItem('insightloop_human_v1');
+        localStorage.removeItem('insightloop_opps_v1');
         miniToast('本地记录已清空，即将刷新…');
         setTimeout(() => location.reload(), 600);
       });
     })();
   </script>
-  <script type="module" src="ai-integration.js?v=1.5"></script>
+  <script type="module" src="ai-integration.js?v=1.6"></script>
   <script>
   /* 死按钮补齐：让每个可点击元素点击后都有真实结果（导航 / 展开 / 弹窗 / 提示）
      与 ai-integration.js 互不干扰（本段只处理无 data-ai-cap 的元素）。 */
@@ -2652,7 +2653,7 @@ export_start / export_progress / export_cancel / export_success。
     }
     function showModal(title, html) {
       let ov = $('#generic-modal'); if (ov) ov.remove();
-      ov = document.createElement('div'); ov.className = 'modal-overlay'; ov.id = 'generic-modal';
+      ov = document.createElement('div'); ov.className = 'modal-overlay open'; ov.id = 'generic-modal'; ov.style.zIndex = '720';
       ov.innerHTML = `<div class="modal"><div class="modal-header"><span>${title}</span><button class="modal-close">×</button></div><div class="modal-body">${html}</div></div>`;
       on(ov.querySelector('.modal-close'), 'click', () => ov.remove());
       on(ov, 'click', (e) => { if (e.target === ov) ov.remove(); });
@@ -2906,6 +2907,39 @@ export_start / export_progress / export_cancel / export_success。
     on($('#insight-to-opp-btn'), 'click', () => { switchTab('opportunities'); toast('已转入「机会工作区」'); });
 
     /* ── 机会工作区 ── */
+    const OPP_STORE_KEY = 'insightloop_opps_v1';
+    function persistOpps() {
+      const col = $('.opp-list-col'); if (!col) return;
+      const cards = $$('.opp-card', col);
+      const cnt = $('.opp-list-title'); if (cnt) cnt.textContent = '机会列表 · ' + cards.length;
+      try {
+        localStorage.setItem(OPP_STORE_KEY, JSON.stringify(cards.map(c => ({
+          title: c.querySelector('.opp-card-title').textContent,
+          source: c.querySelector('.opp-card-source').textContent,
+          priority: c.querySelector('.opp-card-priority').textContent,
+          status: c.querySelector('.opp-card-status').textContent,
+          desc: c.dataset.desc || '', story: c.dataset.story || '', prd: c.dataset.prd || '',
+          oppIndex: c.dataset.opp || '',
+        }))));
+      } catch (e) {}
+    }
+    function restoreOpps() {
+      let saved; try { saved = JSON.parse(localStorage.getItem(OPP_STORE_KEY) || 'null'); } catch (e) { saved = null; }
+      if (!Array.isArray(saved) || !saved.length) return false;
+      const col = $('.opp-list-col'); if (!col) return false;
+      const btn = col.querySelector('.opp-new-btn');
+      $$('.opp-card', col).forEach(c => c.remove());
+      saved.forEach(o => {
+        const n = document.createElement('div'); n.className = 'opp-card';
+        if (o.oppIndex) n.dataset.opp = o.oppIndex;
+        n.dataset.desc = o.desc || ''; n.dataset.story = o.story || ''; n.dataset.prd = o.prd || '';
+        n.innerHTML = '<div class="opp-card-title">' + escapeHtml(o.title) + '</div><div class="opp-card-source">' + escapeHtml(o.source) + '</div><div class="opp-card-bottom"><span class="opp-card-priority">' + escapeHtml(o.priority) + '</span><span class="opp-card-status">' + escapeHtml(o.status) + '</span></div>';
+        col.insertBefore(n, btn);
+      });
+      return true;
+    }
+    restoreOpps();
+    const _firstCard = document.querySelector('.opp-card'); if (_firstCard) { _firstCard.classList.add('active'); if (typeof selectOpp === 'function') selectOpp(0); }
     function priOf(card) { const t = card.querySelector('.opp-card-priority'); return t ? (parseFloat(t.textContent.replace(/[^0-9.]/g, '')) || 0) : 0; }
     function sortOpp(by) {
       const col = $('.opp-list-col'); if (!col) return;
@@ -2922,11 +2956,12 @@ export_start / export_progress / export_cancel / export_success。
       const card = e.target.closest('.opp-card'); if (!card) return;
       $$('.opp-card').forEach(c => c.classList.remove('active'));
       card.classList.add('active');
-      const idx = card.dataset.opp;
-      if (idx !== undefined) selectOpp(+idx);
-      else editOppDraft(card); // 草稿机会：点击即编辑
+      const statusEl = card.querySelector('.opp-card-status');
+      const isDraft = statusEl && /草稿|已编辑/.test(statusEl.textContent);
+      if (isDraft) editOppDraft(card);            // 草稿 / 已编辑机会：点击即编辑
+      else { const idx = card.dataset.opp; if (idx !== undefined) selectOpp(+idx); }
     });
-    makeDropdown($('#opp-sort-btn'), ['优先级', '最近更新', '影响用户数'], (opt) => sortOpp(opt));
+    makeDropdown($('#opp-sort-btn'), ['优先级', '最近更新', '影响用户数'], (opt) => { sortOpp(opt); persistOpps(); });
     on($('.opp-new-btn'), 'click', () => {
       const col = $('.opp-list-col'); if (!col) return;
       const n = document.createElement('div');
@@ -2935,6 +2970,7 @@ export_start / export_progress / export_cancel / export_success。
       const btn = col.querySelector('.opp-new-btn');
       col.insertBefore(n, btn);
       $$('.opp-card').forEach(c => c.classList.remove('active')); n.classList.add('active');
+      persistOpps();
       editOppDraft(n); // 新建后直接打开编辑弹窗
     });
 
@@ -2983,6 +3019,7 @@ export_start / export_progress / export_cancel / export_success。
             if (ta) ta.value = pr || '';
           }
         }
+        persistOpps();
         close(); toast('草稿机会已保存');
       });
     }
