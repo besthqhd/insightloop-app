@@ -1835,7 +1835,7 @@
 
               <div class="ai-conclusion">
                 <svg class="ai-conclusion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-                <div class="ai-conclusion-text" data-editable data-edit-cap="batch_analyze">
+                <div class="ai-conclusion-text editable" data-editable data-edit-cap="batch_analyze">
                   <strong>AI 结论</strong><br>
                   该主题主因是「报表查询未做分页与缓存」，在月度峰值并发下触发数据库慢查询与超时。建议优先做服务端缓存 + 异步导出，预计可将导出耗时从 ~120s 降至 ~5s，覆盖 412 位受影响用户。
                 </div>
@@ -2164,7 +2164,7 @@ export_start / export_progress / export_cancel / export_success。
             <span class="review-panel-title">AI 复盘结论</span>
             <span class="review-panel-link" data-ai-cap="ai_review" data-ai-target="#review-body" data-ai-mode="panel">查看复盘 ▸</span>
           </div>
-          <div class="review-panel-body" id="review-body" data-editable data-edit-cap="ai_review">
+          <div class="review-panel-body editable" id="review-body" data-editable data-edit-cap="ai_review">
             v1.3 导出报表异步化上线后核心目标全面达成：报表导出 P95 由 40s 降至 7.8s，重复点击率下降 71%，相关主题负反馈下降 34%。「试用 → 导出」转化提升最显著（+17pt），验证「进度可见 + 可取消」假设成立。建议将异步化模式复制至「批量操作」「通知预加载」等同类阻塞场景。
           </div>
         </div>
@@ -2174,7 +2174,7 @@ export_start / export_progress / export_cancel / export_success。
             <span class="suggest-panel-title">下轮优化建议</span>
             <span class="suggest-panel-link" data-ai-cap="ai_suggest" data-ai-target="#suggest-body" data-ai-mode="panel">下轮建议 ▸</span>
           </div>
-          <div class="suggest-panel-body" id="suggest-body" data-editable data-edit-cap="ai_suggest">
+          <div class="suggest-panel-body editable" id="suggest-body" data-editable data-edit-cap="ai_suggest">
             ① 批量操作进度条（优先级 6.8）：复用导出异步化组件，预计再降 12% 重复操作。<br>
             ② 通知中心预加载缓存（优先级 6.2）：降低首屏白屏，提升满意度。<br>
             ③ 搜索语义重排（优先级 7.5）：承接正面情绪上升带来的新用户，巩固留存。
@@ -2271,21 +2271,205 @@ export_start / export_progress / export_cancel / export_success。
       });
     });
 
-    // Topic card selection in 洞察看板
+    // ─────────────────────────────────────────────────────────────
+    // 主题卡片 / 机会卡片 → 右侧详情面板 联动
+    // 只更新右侧面板内“稳定子节点”的文本内容，不替换容器节点，
+    // 以保留 AI 分析过程 / 双击编辑 / 采纳等已绑定在节点上的监听。
+    // ─────────────────────────────────────────────────────────────
+    const TOPICS = [
+      {
+        title: '导出报表耗时过长',
+        meta: 'P0 严重 · 影响 412 位用户 · 负面情绪占比 41% · 趋势 ↑',
+        evidence: [
+          { q: '每月底导出月度报表要等将近 2 分钟，数据量大时还会超时失败，只能反复重试。', s: '应用内反馈 · 2026-07-21 · 用户 #U8821' },
+          { q: '导出的 Excel 字段顺序和页面展示不一致，财务同事每次都要手动调整，很浪费时间。', s: '客服工单 · 2026-07-18 · 工单 #T2043' },
+          { q: '希望支持按条件筛选后导出，而不是每次都导出全量再自己删减。', s: '应用商店评论 · 2026-07-15 · iOS 端' },
+        ],
+        conclusion: '该主题主因是「报表查询未做分页与缓存」，在月度峰值并发下触发数据库慢查询与超时。建议优先做服务端缓存 + 异步导出，预计可将导出耗时从 ~120s 降至 ~5s，覆盖 412 位受影响用户。',
+        line: [130, 125, 118, 105, 90, 72],
+        neg: [138, 132, 128, 120, 108, 95],
+      },
+      {
+        title: '移动端登录偶发失败',
+        meta: 'P1 高 · 影响 286 位用户 · 负面情绪占比 36% · 趋势 ↑',
+        evidence: [
+          { q: 'iOS 端登录有时提示网络错误，重试 2-3 次才能成功，很影响日常使用。', s: '客服工单 · 2026-07-20 · 用户 #U7730' },
+          { q: '地铁里弱网切换时登录必失败，回到信号好的地方才能登进去。', s: '应用内反馈 · 2026-07-19 · 用户 #U6512' },
+          { q: 'SSO 登录跳转后偶发回不来，卡在空白页，只能杀进程重开。', s: '应用商店评论 · 2026-07-16 · Android 端' },
+        ],
+        conclusion: '主因是「登录链路未做失败自愈与重试退避」，在弱网 / SSO 回调超时场景直接失败。建议接入指数退避重试 + 本地令牌续期，预计可将登录成功率从 92% 提升至 99%+，覆盖 286 位受影响用户。',
+        line: [128, 124, 120, 112, 104, 96],
+        neg: [125, 122, 119, 114, 109, 103],
+      },
+      {
+        title: '搜索结果不准确',
+        meta: 'P1 高 · 影响 218 位用户 · 负面情绪占比 29% · 趋势 →',
+        evidence: [
+          { q: '搜索“导出”出来的结果里混进了不少不相关文档，得自己慢慢翻找。', s: '应用商店评论 · 2026-07-18 · 用户 #U4408' },
+          { q: '想找上周的方案，排在前面的全是半年前的旧文件，根本不是我要的。', s: '应用内反馈 · 2026-07-17 · 用户 #U3391' },
+          { q: '输入错别字就直接无结果，希望至少能给点相近的候选。', s: '客服工单 · 2026-07-15 · 工单 #T1982' },
+        ],
+        conclusion: '主因是「检索仅做关键词精确匹配，未做语义重排与纠错」。建议引入向量语义召回 + 相关性加权排序，并对错别字做模糊候选，预计可将首屏命中率从 54% 提升至 80%+，覆盖 218 位受影响用户。',
+        line: [108, 110, 106, 109, 111, 108],
+        neg: [112, 113, 111, 114, 112, 113],
+      },
+      {
+        title: '批量操作无进度提示',
+        meta: 'P2 中 · 影响 154 位用户 · 负面情绪占比 33% · 趋势 ↑',
+        evidence: [
+          { q: '批量删除 200 条记录时没有任何进度提示，一度以为页面卡死了。', s: '应用内反馈 · 2026-07-17 · 用户 #U5207' },
+          { q: '批量导入上千条数据时进度条不动，不知道是还在跑还是已经挂了。', s: '客服工单 · 2026-07-14 · 工单 #T1765' },
+          { q: '希望批量任务能告诉我预计还要多久，而不是干等。', s: '应用商店评论 · 2026-07-12 · 用户 #U4980' },
+        ],
+        conclusion: '主因是「批量任务走同步阻塞，前端无阶段性进度回传」。建议复用导出异步化能力，增加分片进度推送与预计剩余时间，预计可将批量操作的“误判卡死”投诉下降 60%+，覆盖 154 位受影响用户。',
+        line: [122, 119, 115, 110, 104, 98],
+        neg: [115, 118, 122, 127, 132, 138],
+      },
+      {
+        title: '通知中心加载慢',
+        meta: 'P2 中 · 影响 98 位用户 · 负面情绪占比 27% · 趋势 ↓',
+        evidence: [
+          { q: '点开通知中心要转好几秒，红点也经常不消失，容易漏看重要消息。', s: '客服工单 · 2026-07-14 · 用户 #U6155' },
+          { q: '每次进通知都要重新拉全量，列表很长时白屏特别久。', s: '应用内反馈 · 2026-07-13 · 用户 #U5022' },
+          { q: '希望未读通知能本地缓存，打开就能看，不用等加载。', s: '应用商店评论 · 2026-07-11 · 用户 #U4880' },
+        ],
+        conclusion: '主因是「通知列表每次全量拉取且未做预加载缓存」。建议做首屏预加载 + 增量拉取 + 未读本地缓存，预计可将首屏耗时从 ~3.5s 降至 <800ms，覆盖 98 位受影响用户。',
+        line: [100, 104, 108, 112, 116, 120],
+        neg: [96, 99, 103, 107, 111, 115],
+      },
+      {
+        title: '深色模式对比度不足',
+        meta: 'P3 低 · 影响 72 位用户 · 正面情绪占比 61% · 趋势 →',
+        evidence: [
+          { q: '深色模式下部分辅助文字看不清，希望提高对比度，更护眼一些。', s: '问卷调研 · 2026-07-15 · 用户 #U3902' },
+          { q: '图标在深色背景下几乎看不见，得眯着眼找。', s: '应用内反馈 · 2026-07-13 · 用户 #U3770' },
+          { q: '整体配色挺好，就是次要信息的灰太灰了，希望能调亮一档。', s: '应用商店评论 · 2026-07-10 · 用户 #U3641' },
+        ],
+        conclusion: '该主题以「体验优化」为主、负面情绪低（正面 61%），主因是「深色模式次级文字与图标对比度未达 WCAG AA」。建议按 AA 标准统一对比度令牌，工作量小、收益直观，可作为低成本体验专项。',
+        line: [105, 106, 104, 105, 106, 105],
+        neg: [100, 101, 99, 100, 101, 100],
+      },
+    ];
+
+    const OPPS = [
+      {
+        name: '导出报表异步化（流式 + 进度）',
+        meta: '优先级 8.6 · 状态 评估中 · 来源洞察：导出报表耗时过长',
+        desc: '用户在导出大报表时面临最长 40s 的同步阻塞，期间界面无任何进度反馈，易被误判为失败而重复点击，进一步加剧服务负载与用户流失。',
+        story: '作为运营人员，我希望在导出报表时能看到实时进度并支持中途取消，以便准确掌控等待时间、避免重复操作。',
+        prd: '# 问题定义\n当前大报表导出为同步阻塞，最长等待 40s，期间无进度反馈，用户误判失败后重复点击，加剧负载。\n\n# 用户故事\n作为运营人员，我希望导出时看到实时进度并可中途取消，以便掌控等待。\n\n# 方案概述\n改为流式生成 + SSE 进度推送；前端分块渲染；支持取消与断点续传。\n\n# 范围\nWeb 端报表中心；首期覆盖 3 类核心报表。\n\n# 验收标准\n进度可见；可取消；失败可重试；P95 < 8s。\n\n# 埋点方案\nexport_start / export_progress / export_cancel / export_success。\n\n# 任务拆解\n[前端] 进度条组件；[后端] 流式接口；[测试] 压测脚本。',
+        score: { i: 9.0, v: 8.5, e: 9.2, c: 8.8 }, pri: '8.6',
+        note: '基于 412 条相关反馈与 18% 流失数据估算，评分可溯源至原始证据。',
+      },
+      {
+        name: '移动端登录失败自愈与重试',
+        meta: '优先级 8.2 · 状态 待排期 · 来源洞察：移动端登录偶发失败',
+        desc: '弱网与 SSO 回调超时场景下登录直接失败，iOS 端重试 2-3 次才能成功，阻断核心使用路径，造成明显的日活流失。',
+        story: '作为移动端用户，我希望登录在弱网 / 超时后能自动重试并平滑恢复，以便无需手动重复操作即可进入应用。',
+        prd: '# 问题定义\n登录链路无自愈，弱网 / SSO 超时即失败，iOS 端平均重试 2.3 次。\n\n# 用户故事\n作为移动端用户，我希望登录失败自动重试恢复，免去反复手动操作。\n\n# 方案概述\n接入指数退避重试 + 本地令牌续期 + SSO 回调超时兜底。\n\n# 范围\niOS / Android 登录与 SSO 场景。\n\n# 验收标准\n登录成功率 ≥ 99%；弱网可恢复；无空白页卡死。\n\n# 埋点方案\nlogin_start / login_retry / login_success / login_fail。\n\n# 任务拆解\n[客户端] 重试与续期；[后端] 令牌时效优化；[测试] 弱网模拟。',
+        score: { i: 8.6, v: 8.4, e: 8.8, c: 8.9 }, pri: '8.2',
+        note: '基于 286 条负反馈与弱网重试率估算，评分可溯源至原始证据。',
+      },
+      {
+        name: '搜索语义重排 + 相关性加权',
+        meta: '优先级 7.5 · 状态 评估中 · 来源洞察：搜索结果不准确',
+        desc: '当前检索仅做关键词精确匹配，忽略语义与相关度，首屏命中率仅 54%，用户需在结果中手动翻找，搜索满意度偏低。',
+        story: '作为使用者，我希望搜索能理解我的真实意图并优先展示最相关结果，以便更快找到所需内容。',
+        prd: '# 问题定义\n检索为精确匹配，无语义理解，首屏命中率 54%，错别字直接无结果。\n\n# 用户故事\n作为使用者，我希望搜索理解意图并优先展示相关结果，减少翻找。\n\n# 方案概述\n引入向量语义召回 + 相关性加权排序 + 错别字模糊候选。\n\n# 范围\n全站搜索；首期覆盖文档与方案库。\n\n# 验收标准\n首屏命中率 ≥ 80%；错别字给候选；排序相关。\n\n# 埋点方案\nsearch_query / search_click / search_noresult。\n\n# 任务拆解\n[算法] 语义召回；[后端] 排序服务；[前端] 候选展示。',
+        score: { i: 8.0, v: 8.2, e: 8.0, c: 8.8 }, pri: '7.5',
+        note: '基于 218 条相关反馈与命中率基线估算，评分可溯源至原始证据。',
+      },
+      {
+        name: '批量操作实时进度条',
+        meta: '优先级 6.8 · 状态 草稿 · 来源洞察：批量操作无进度提示',
+        desc: '批量删除 / 导入走同步阻塞且无阶段性进度，用户无法判断任务是否在跑，误判卡死导致重复提交，加重服务端压力。',
+        story: '作为运营人员，我希望批量任务有实时进度与预计剩余时间，以便安心等待、不再重复点击。',
+        prd: '# 问题定义\n批量任务同步阻塞、无进度，误判卡死引发重复提交。\n\n# 用户故事\n作为运营人员，我希望批量任务有进度与预计剩余时间，避免重复操作。\n\n# 方案概述\n复用导出异步化能力，分片进度推送 + 预计剩余时间估算。\n\n# 范围\n批量删除 / 导入 / 导出三类任务。\n\n# 验收标准\n进度可见；可取消；预计剩余时间准确。\n\n# 埋点方案\nbatch_start / batch_progress / batch_done。\n\n# 任务拆解\n[前端] 进度组件；[后端] 分片接口；[测试] 大数据量压测。',
+        score: { i: 7.5, v: 7.0, e: 7.2, c: 7.8 }, pri: '6.8',
+        note: '基于 154 条相关反馈估算，可复用既有异步化组件，成本可控。',
+      },
+      {
+        name: '通知中心预加载缓存',
+        meta: '优先级 6.2 · 状态 草稿 · 来源洞察：通知中心加载慢',
+        desc: '通知列表每次全量拉取且未预加载，列表长时首屏白屏 2-3s，红点状态更新不及时，重要消息易被漏看。',
+        story: '作为用户，我希望打开通知中心即可即时看到未读消息，无需等待加载，以便不错过重要信息。',
+        prd: '# 问题定义\n通知每次全量拉取、无预加载，首屏白屏 2-3s，红点更新滞后。\n\n# 用户故事\n作为用户，我希望打开通知即时可见未读，不等待加载。\n\n# 方案概述\n首屏预加载 + 增量拉取 + 未读本地缓存。\n\n# 范围\n通知中心全端。\n\n# 验收标准\n首屏 < 800ms；红点即时；离线可看缓存。\n\n# 埋点方案\nnotify_open / notify_read / notify_cache_hit。\n\n# 任务拆解\n[客户端] 缓存层；[后端] 增量接口；[测试] 弱网验证。',
+        score: { i: 6.8, v: 6.5, e: 6.5, c: 7.2 }, pri: '6.2',
+        note: '基于 98 条相关反馈估算，属低成本体验优化，建议排入体验专项。',
+      },
+    ];
+
+    /* 近 30 天反馈量（蓝实线）+ 负面情绪趋势（橙虚线）SVG，line/neg 为 6 个屏幕 y 坐标 */
+    function topicChartSVG(line, neg) {
+      const xs = [40, 184, 328, 472, 616, 760];
+      const lp = line.map((y, i) => xs[i] + ',' + y).join(' ');
+      const np = neg.map((y, i) => xs[i] + ',' + y).join(' ');
+      const areaPts = '40,150 ' + lp + ' 760,150';
+      return `
+        <line x1="40" y1="150" x2="760" y2="150" stroke="#E5E7EB" stroke-width="1"/>
+        <line x1="40" y1="100" x2="760" y2="100" stroke="#F4F6F9" stroke-width="1"/>
+        <line x1="40" y1="50" x2="760" y2="50" stroke="#F4F6F9" stroke-width="1"/>
+        <polygon points="${areaPts}" fill="#1D5DD9" fill-opacity="0.08"/>
+        <polyline points="${np}" fill="none" stroke="#F59E0B" stroke-width="2" stroke-dasharray="5,4"/>
+        <polyline points="${lp}" fill="none" stroke="#1D5DD9" stroke-width="2.5"/>
+        <circle cx="40" cy="${line[0]}" r="3" fill="#1D5DD9"/>
+        <circle cx="760" cy="${line[5]}" r="3" fill="#1D5DD9"/>
+        <text x="40" y="170" font-size="11" fill="#9CA3AF">06-26</text>
+        <text x="720" y="170" font-size="11" fill="#9CA3AF">07-26</text>`;
+    }
+
+    function selectTopic(i) {
+      const t = TOPICS[i];
+      if (!t) return;
+      const p = document.getElementById('page-insights');
+      p.querySelector('.detail-header-title').textContent = t.title;
+      p.querySelector('.detail-header-meta').textContent = t.meta;
+      p.querySelector('.evidence-list').innerHTML = t.evidence.map(e =>
+        '<div class="evidence-item"><div class="evidence-quote">' + e.q + '</div><div class="evidence-source">' + e.s + '</div></div>'
+      ).join('');
+      const concl = p.querySelector('.ai-conclusion-text');
+      concl.innerHTML = '<strong>AI 结论</strong><br>' + t.conclusion;
+      p.querySelector('.chart-svg').innerHTML = topicChartSVG(t.line, t.neg);
+    }
+
+    function selectOpp(i) {
+      const o = OPPS[i];
+      if (!o) return;
+      const p = document.getElementById('page-opportunities');
+      const card = p.querySelector('.opp-detail-card');
+      card.querySelector('.opp-detail-name').textContent = o.name;
+      card.querySelector('.opp-detail-meta').textContent = o.meta;
+      const blocks = card.querySelectorAll('.opp-block-text');
+      if (blocks[0]) blocks[0].textContent = o.desc;
+      if (blocks[1]) blocks[1].textContent = o.story;
+      const ta = document.getElementById('opp-prd-content');
+      if (ta) ta.value = o.prd;
+      card.querySelector('.opp-score-formula').textContent =
+        '影响 ' + o.score.i + '　×　价值 ' + o.score.v + '　×　证据 ' + o.score.e + '　÷　成本 ' + o.score.c + '　=　' + o.pri;
+      card.querySelector('.opp-score-note').textContent = o.note;
+    }
+
+    // Topic card selection in 洞察看板（active 态 + 右侧详情联动）
     document.querySelectorAll('.topic-card').forEach(card => {
       card.addEventListener('click', () => {
         document.querySelectorAll('.topic-card').forEach(c => c.classList.remove('active'));
         card.classList.add('active');
+        selectTopic(+card.dataset.topic);
       });
     });
 
-    // Opportunity card selection in 机会工作区
+    // Opportunity card selection in 机会工作区（active 态 + 右侧详情联动）
     document.querySelectorAll('.opp-card').forEach(card => {
       card.addEventListener('click', () => {
         document.querySelectorAll('.opp-card').forEach(c => c.classList.remove('active'));
         card.classList.add('active');
+        selectOpp(+card.dataset.opp);
       });
     });
+
+    // 初始渲染：让默认选中卡片与右侧详情一致
+    selectTopic(0);
+    selectOpp(0);
 
     // Emotion pills toggle in 反馈中心
     document.querySelectorAll('.emotion-pill').forEach(pill => {
