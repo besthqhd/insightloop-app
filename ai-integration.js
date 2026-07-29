@@ -10,7 +10,7 @@
  * 依赖：ai-contract.js 导出的 CAPABILITY / callModel / regenerate / getHistory
  */
 
-import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel, getModelConfig, SCHEMAS, validate } from './ai-contract.js?v=2.2.7';
+import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel, getModelConfig, SCHEMAS, validate } from './ai-contract.js?v=2.2.8';
 
 /* ============================ 能力中文标签 ============================ */
 const LABELS = {
@@ -301,6 +301,105 @@ const EVAL_CASES = [
   { cat: '含时间线索', input: '上周导出的报表字段顺序不对，和页面展示的不一致。', expect: { time: '2026-07-21', source: '导出' } },
   { cat: '空输入', input: '', expect: {} },
   { cat: '多意图+风险', input: '搜索太慢还老出错，再不修我就退款投诉了。', expect: { multi: true, risk: 'escalate' } },
+  // —— 以下为扩充用例（覆盖 正向/中性/英文/多意图/时间/版本/疑问/错别字/指标/团队/长文 等缺口，expect 取正确 Ground Truth）——
+  { cat: '正向表扬', input: '最近的导出速度快多了，体验很棒，给你们点个赞！', expect: { emotion: 'positive', source: '导出' } },
+  { cat: '中性功能建议', input: '希望后续能支持导出 CSV 格式，方便我们做二次分析。', expect: { emotion: 'neutral', source: '导出' } },
+  { cat: '英文反馈(国际化缺口)', input: 'The export is too slow and often times out when the dataset is large.', expect: { emotion: 'negative', source: '导出' } },
+  { cat: '三意图混合', input: '导出太慢、搜索结果不准、通知还老是漏看，三个问题都要解决！', expect: { multi: true, emotion: 'negative', source: '导出', risk: 'none' } },
+  { cat: '带版本号', input: '升级到 v2.3 之后，导出报表就一直超时失败。', expect: { emotion: 'negative', risk: 'none' } },
+  { cat: '疑问式需求', input: '能不能加个批量导出功能？现在一次只能导一条太麻烦。', expect: { emotion: 'neutral', source: '导出' } },
+  { cat: '今日相对时间', input: '今天导出的报表数据不对，还经常报错。', expect: { emotion: 'negative', time: '2026-07-28' } },
+  { cat: '礼貌客诉', input: '导出的文件又打不开了，影响了我们整个团队的工作进度。', expect: { emotion: 'negative', risk: 'none' } },
+  { cat: '错别字/繁体混合', input: '导除報表太慢了老時超，根本导不出來。', expect: { emotion: 'negative' } },
+  { cat: '含具体指标', input: '导出 5000 条数据要等 3 分钟，太慢了。', expect: { emotion: 'negative', multi: false } },
+  { cat: '团队批量场景', input: '我们团队 20 多人，每次导出都超时，大家都在抱怨。', expect: { emotion: 'negative' } },
+  { cat: '表扬+建议混合', input: '整体体验不错，就是导出还是有点慢，希望能优化下。', expect: { emotion: 'negative' } },
+  { cat: '重复刷屏', input: '卡卡卡卡卡卡卡卡卡卡导出不了！！！', expect: { emotion: 'negative' } },
+  { cat: '长文多诉求(五方面)', input: '我们的反馈问题很多：导出超时、搜索不准、登录偶尔 401、通知红点不消失、深色模式对比度太低，全都得改。', expect: { multi: true, emotion: 'negative', source: '导出', risk: 'none' } },
+  { cat: '中性无情绪', input: '希望周末前能收到你们的回复，谢谢。', expect: { emotion: 'neutral' } },
+  // —— 扩充第二批（30→100）：单意图导出/搜索/登录/通知/深色/批量、多意图、时间、客诉、中性建议、正向、英文 ——
+  // 单意图·导出（source 仅多意图才回填，故 Mock 基线在此暴露“单意图来源”短板，属预期）
+  { cat: '单意图·导出', input: '导出报表太慢了，每次都要等好久。', expect: { emotion: 'negative', source: '导出' } },
+  { cat: '单意图·导出', input: '导出的文件经常打不开，不知道什么情况。', expect: { emotion: 'negative', source: '导出' } },
+  { cat: '单意图·导出', input: '数据量一大，导出就超时失败。', expect: { emotion: 'negative', source: '导出' } },
+  { cat: '单意图·导出', input: '能不能把导出速度优化一下，现在太慢了。', expect: { emotion: 'negative', source: '导出' } },
+  { cat: '单意图·导出', input: '导出功能经常报错，影响使用。', expect: { emotion: 'negative', source: '导出' } },
+  { cat: '单意图·导出', input: '下载的报表格式错乱，还经常打不开。', expect: { emotion: 'negative', source: '导出' } },
+  { cat: '单意图·导出', input: '导出按钮点了没反应，卡住了。', expect: { emotion: 'negative', source: '导出' } },
+  { cat: '单意图·导出', input: '报表导出要收费吗？太大了导不出，还老是失败。', expect: { emotion: 'negative', source: '导出' } },
+  // 单意图·搜索
+  { cat: '单意图·搜索', input: '搜索结果不准确，经常报错还搜不到想要的。', expect: { emotion: 'negative', source: '搜索' } },
+  { cat: '单意图·搜索', input: '查找功能太慢了，输入关键词半天没反应。', expect: { emotion: 'negative', source: '搜索' } },
+  { cat: '单意图·搜索', input: '搜索出来的内容和关键词完全不相关，体验太差。', expect: { emotion: 'negative', source: '搜索' } },
+  { cat: '单意图·搜索', input: '搜索框点了没反应，还报错。', expect: { emotion: 'negative', source: '搜索' } },
+  { cat: '单意图·搜索', input: '站内搜索根本找不到东西，很烦。', expect: { emotion: 'negative', source: '搜索' } },
+  // 单意图·登录
+  { cat: '单意图·登录', input: '登录总是失败，提示网络错误。', expect: { emotion: 'negative', source: '登录' } },
+  { cat: '单意图·登录', input: '注册收不到验证码，一直报错转圈。', expect: { emotion: 'negative', source: '登录' } },
+  { cat: '单意图·登录', input: '账号登录后老是自动掉线，还反复要重新认证。', expect: { emotion: 'negative', source: '登录' } },
+  { cat: '单意图·登录', input: 'OAuth 授权之后还是进不去系统。', expect: { emotion: 'negative', source: '登录' } },
+  { cat: '单意图·登录', input: '登录页面打不开，白屏了。', expect: { emotion: 'negative', source: '登录' } },
+  // 单意图·通知
+  { cat: '单意图·通知', input: '通知红点一直不消失，还老是报错。', expect: { emotion: 'negative', source: '通知' } },
+  { cat: '单意图·通知', input: '消息推送老是失败，提示音也乱。', expect: { emotion: 'negative', source: '通知' } },
+  { cat: '单意图·通知', input: '漏看通知导致错过重要 deadline，真的很烦。', expect: { emotion: 'negative', source: '通知' } },
+  { cat: '单意图·通知', input: '推送通知转好几秒才出来。', expect: { emotion: 'negative', source: '通知' } },
+  // 单意图·深色模式
+  { cat: '单意图·深色', input: '深色模式下文字看不清，对比度太低，体验太差。', expect: { emotion: 'negative', source: '深色模式' } },
+  { cat: '单意图·深色', input: '护眼模式颜色太刺眼，还老出 bug。', expect: { emotion: 'negative', source: '深色模式' } },
+  { cat: '单意图·深色', input: '深色模式切换后布局错位，还报错。', expect: { emotion: 'negative', source: '深色模式' } },
+  // 单意图·批量操作
+  { cat: '单意图·批量', input: '批量删除没有进度提示，不知道到哪了。', expect: { emotion: 'negative', source: '批量操作' } },
+  { cat: '单意图·批量', input: '批量导出卡死了，只能强退。', expect: { emotion: 'negative', source: '导出' } },
+  { cat: '单意图·批量', input: '删除操作太慢，一次只能删一条。', expect: { emotion: 'negative', source: '批量操作' } },
+  // 多意图（>=2 方面，source 回填 sub[0]，multi=true）
+  { cat: '多意图', input: '导出太慢，搜索也不准，两个都要改。', expect: { emotion: 'negative', multi: true, source: '导出' } },
+  { cat: '多意图', input: '登录老 401，通知还漏看，烦死了。', expect: { emotion: 'negative', multi: true, source: '登录' } },
+  { cat: '多意图', input: '搜索慢、导出超时，还有登录掉线。', expect: { emotion: 'negative', multi: true, source: '导出' } },
+  { cat: '多意图', input: '深色对比度低，批量删除没进度，都得修。', expect: { emotion: 'negative', multi: true, source: '深色模式' } },
+  { cat: '多意图', input: '报表导不出、查找不准、消息还漏。', expect: { emotion: 'negative', multi: true, source: '导出' } },
+  { cat: '多意图', input: '导出慢、登录失败、通知红点不消，三个问题。', expect: { emotion: 'negative', multi: true, source: '导出' } },
+  { cat: '多意图', input: '搜索结果不相关，深色模式刺眼，都得优化。', expect: { emotion: 'negative', multi: true, source: '搜索' } },
+  { cat: '多意图', input: '批量删除卡死，导出超时，体验太差。', expect: { emotion: 'negative', multi: true, source: '导出' } },
+  { cat: '多意图', input: '登录认证失败，搜索打不开，通知也漏。', expect: { emotion: 'negative', multi: true, source: '搜索' } },
+  { cat: '多意图', input: '导出报错、查找慢、删除无进度提示。', expect: { emotion: 'negative', multi: true, source: '导出' } },
+  { cat: '多意图', input: '深色护眼颜色乱，消息推送失败，登录还掉线。', expect: { emotion: 'negative', multi: true, source: '登录' } },
+  { cat: '多意图', input: '报表格式错乱、搜索不准、批量卡死。', expect: { emotion: 'negative', multi: true, source: '导出' } },
+  // 时间+多意图（结合参考日期 2026-07-28）
+  { cat: '时间+多意图', input: '前天导出的报表字段错位，搜索也变慢了。', expect: { emotion: 'negative', time: '2026-07-26', multi: true, source: '导出' } },
+  { cat: '时间+多意图', input: '昨天登录又失败，通知也漏了。', expect: { emotion: 'negative', time: '2026-07-27', multi: true, source: '登录' } },
+  { cat: '时间+多意图', input: '今天导出的数据不对，搜索也卡。', expect: { emotion: 'negative', time: '2026-07-28', multi: true, source: '导出' } },
+  { cat: '时间+多意图', input: '上周导出的报表打不开，登录也老失败。', expect: { emotion: 'negative', time: '2026-07-21', multi: true, source: '导出' } },
+  { cat: '时间+多意图', input: '3天前搜索就很慢，导出也超时。', expect: { emotion: 'negative', time: '2026-07-25', multi: true, source: '导出' } },
+  { cat: '时间+多意图', input: '2周前通知就漏看，登录还报错。', expect: { emotion: 'negative', time: '2026-07-14', multi: true, source: '登录' } },
+  { cat: '时间+多意图', input: '1个月前导出的文件就打不开，搜索也慢。', expect: { emotion: 'negative', time: '2026-06-28', multi: true, source: '导出' } },
+  { cat: '时间+多意图', input: '上周批量删除卡死，导出也超时。', expect: { emotion: 'negative', time: '2026-07-21', multi: true, source: '导出' } },
+  // 攻击性/客诉（risk=escalate，emotion=angry）
+  { cat: '客诉·攻击', input: '你们这软件就是骗钱的，我要投诉！', expect: { emotion: 'angry', risk: 'escalate' } },
+  { cat: '客诉·攻击', input: '再也不用了，垃圾软件赶紧退款！', expect: { emotion: 'angry', risk: 'escalate' } },
+  { cat: '客诉·攻击', input: '我要起诉你们，体验差到极点！', expect: { emotion: 'angry', risk: 'escalate' } },
+  { cat: '客诉·攻击', input: '曝光你们，太坑钱了，必须退款！', expect: { emotion: 'angry', risk: 'escalate' } },
+  { cat: '客诉·攻击', input: '消协见，这破软件骗了我三千块！', expect: { emotion: 'angry', risk: 'escalate' } },
+  { cat: '客诉·攻击', input: '拉黑你们，再也不推荐给任何人。', expect: { emotion: 'angry', risk: 'escalate' } },
+  // 中性功能建议（无负面词 -> neutral；带方面 -> Mock 给 medium，helpful）
+  { cat: '中性建议', input: '希望可以自定义导出模板。', expect: { emotion: 'neutral', source: '导出' } },
+  { cat: '中性建议', input: '建议增加暗黑模式切换开关。', expect: { emotion: 'neutral', source: '深色模式' } },
+  { cat: '中性建议', input: '希望能够批量导入数据，省点时间。', expect: { emotion: 'neutral', source: '批量操作' } },
+  { cat: '中性建议', input: '希望搜索能支持按时间筛选。', expect: { emotion: 'neutral', source: '搜索' } },
+  { cat: '中性建议', input: '建议登录支持指纹识别。', expect: { emotion: 'neutral', source: '登录' } },
+  { cat: '中性建议', input: '希望通知能按类型分组。', expect: { emotion: 'neutral', source: '通知' } },
+  { cat: '中性建议', input: '希望导出能直接发到邮箱。', expect: { emotion: 'neutral', source: '导出' } },
+  { cat: '中性建议', input: '建议深色模式默认跟随系统。', expect: { emotion: 'neutral', source: '深色模式' } },
+  // 正向表扬（Mock 仅识别中文负面词 -> 暴露“正向情绪”盲区，intended baseline gap）
+  { cat: '正向表扬', input: '你们的导出速度最近快多了，很满意！', expect: { emotion: 'positive', source: '导出' } },
+  { cat: '正向表扬', input: '搜索体验比以前好太多了，点赞。', expect: { emotion: 'positive', source: '搜索' } },
+  { cat: '正向表扬', input: '登录现在很顺畅，给你们点个赞。', expect: { emotion: 'positive', source: '登录' } },
+  { cat: '正向表扬', input: '深色模式看着舒服多了，做得好。', expect: { emotion: 'positive', source: '深色模式' } },
+  // 英文反馈（国际化缺口，Mock 仅中文关键词 -> 暴露盲区）
+  { cat: '英文反馈', input: 'The search is too slow and results are irrelevant.', expect: { emotion: 'negative', source: '搜索' } },
+  { cat: '英文反馈', input: 'Export keeps timing out and fails for large datasets.', expect: { emotion: 'negative', source: '导出' } },
+  { cat: '英文反馈', input: 'Login page does not load and stays blank.', expect: { emotion: 'negative', source: '登录' } },
+  { cat: '英文反馈', input: 'The notification badge never disappears and it is annoying.', expect: { emotion: 'negative', source: '通知' } },
 ];
 
 let lastEvalRuns = [];
