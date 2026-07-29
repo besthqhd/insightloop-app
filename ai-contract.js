@@ -451,7 +451,7 @@ export async function callRealModel(systemPrompt, context, { signal, cfgOverride
 
   let resp;
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 15000);
+  const timer = setTimeout(() => ctrl.abort(), 25000);
   try {
     // 后端模式下不附带浏览器 Key（由 Worker 用自身 Secret 调智谱）；直连模式才附带
     const headers = { 'Content-Type': 'application/json' };

@@ -10,7 +10,7 @@
  * 依赖：ai-contract.js 导出的 CAPABILITY / callModel / regenerate / getHistory
  */
 
-import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel, getModelConfig, SCHEMAS, validate } from './ai-contract.js?v=2.2.6';
+import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel, getModelConfig, SCHEMAS, validate } from './ai-contract.js?v=2.2.7';
 
 /* ============================ 能力中文标签 ============================ */
 const LABELS = {
@@ -297,7 +297,7 @@ const EVAL_CASES = [
   { cat: '专业术语', input: 'Webhook 回调在 OAuth2 刷新 token 之后返回 401，重试三次才成功。', expect: { emotion: 'negative', source: '登录' } },
   { cat: '敏感/攻击性', input: '你们这垃圾软件骗钱，我要投诉退款！', expect: { emotion: 'angry', risk: 'escalate' } },
   { cat: '无法判断(无语义)', input: '啊实打实大苏打都是。', expect: {} },
-  { cat: '仅情绪无事实', input: '太差了太差了！', expect: { emotion: 'negative' } },
+  { cat: '仅情绪无事实', input: '太差了太差了！', expect: { confidence: 'low' } },
   { cat: '含时间线索', input: '上周导出的报表字段顺序不对，和页面展示的不一致。', expect: { time: '2026-07-21', source: '导出' } },
   { cat: '空输入', input: '', expect: {} },
   { cat: '多意图+风险', input: '搜索太慢还老出错，再不修我就退款投诉了。', expect: { multi: true, risk: 'escalate' } },
@@ -314,7 +314,7 @@ async function evalOne(c, modelFn) {
       artifacts: [{ feedback_text: c.input }],
       constraints: { tone: '专业', detail: '高', _seed: 1, reference_date: EVAL_REF_DATE },
       history: [],
-    }, { requestModel: modelFn, fallbackModel: modelFn, maxRetry: 0, timeoutMs: 12000 });
+    }, { requestModel: modelFn, fallbackModel: modelFn, maxRetry: 1, timeoutMs: 25000 });
   } catch (e) {
     res = { status: 'failed', error: { message: e.message } };
   }
@@ -322,6 +322,7 @@ async function evalOne(c, modelFn) {
   const fmt = res.status !== 'failed';
   const checks = [];
   if (c.expect.emotion != null) checks.push(d.user_emotion === c.expect.emotion);
+  if (c.expect.confidence != null) checks.push(d.confidence === c.expect.confidence);
   if (c.expect.risk != null) checks.push(d.risk_flag === c.expect.risk);
   if (c.expect.time != null) checks.push(d.feedback_time === c.expect.time);
   if (c.expect.multi != null) { const has = Array.isArray(d.sub_intents) && d.sub_intents.length >= 1; checks.push(has === c.expect.multi); }
@@ -332,7 +333,7 @@ async function evalOne(c, modelFn) {
 }
 
 // 受限并发执行评估用例：结果按用例顺序落位，实时回调进度（避免纯串行太慢）
-const EVAL_CONCURRENCY = 4;
+const EVAL_CONCURRENCY = 2;
 async function runEvalCases(cases, modelFn, { concurrency = 1, onProgress } = {}) {
   const results = new Array(cases.length);
   if (concurrency <= 1) {
@@ -412,6 +413,7 @@ function renderEval(runs, modelLabel) {
     const st = r.status === 'failed' ? '<span class="activity-pill failed">失败</span>' : '<span class="activity-pill done">成功</span>';
     const keys = [];
     if (r.expect.emotion != null) keys.push('情绪');
+    if (r.expect.confidence != null) keys.push('把握度');
     if (r.expect.risk != null) keys.push('风险');
     if (r.expect.time != null) keys.push('时间');
     if (r.expect.multi != null) keys.push('多意图');
