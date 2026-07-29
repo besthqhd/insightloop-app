@@ -1586,6 +1586,10 @@
       border: none; background: transparent; font-size: 16px; cursor: pointer; color: #94A3B8;
     }
     .ai-settings-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+    .ai-test-result { margin: 2px 0 4px; padding: 8px 10px; border-radius: 8px; font-size: 12.5px; line-height: 1.5; white-space: pre-wrap; word-break: break-all; display: none; }
+    .ai-test-result.info { background: #F5F8FF; color: #1E3A8A; border: 1px solid #DBEAFE; }
+    .ai-test-result.ok { background: #F0FDF4; color: #0E7C4F; border: 1px solid #BBF7D0; }
+    .ai-test-result.err { background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; }
     .ai-set-row { display: flex; flex-direction: column; gap: 5px; font-size: 13px; color: #475569; }
     .ai-set-label { font-weight: 600; color: #1E293B; }
     .ai-set-row input[type="text"], .ai-set-row input[type="password"] {
@@ -1712,8 +1716,10 @@
             </div>
             <div class="ai-set-actions">
               <button class="btn-primary" id="ai-set-save">保存</button>
+              <button class="btn-ghost" id="ai-set-test" type="button">测试连接</button>
               <button class="btn-ghost" id="ai-set-cancel">取消</button>
             </div>
+            <div id="ai-test-result" class="ai-test-result"></div>
           </div>
         </div>
       </div>
@@ -2735,6 +2741,8 @@ export_start / export_progress / export_cancel / export_success。
       const keyEl = document.getElementById('ai-key');
       const proxyEl = document.getElementById('ai-proxy');
       const clearBtn = document.getElementById('ai-set-clear');
+      const testBtn = document.getElementById('ai-set-test');
+      testBtn && testBtn.addEventListener('click', () => { if (window.testAiConfig) window.testAiConfig(); });
 
       function miniToast(msg) {
         const t = document.createElement('div');
@@ -2791,7 +2799,7 @@ export_start / export_progress / export_cancel / export_success。
       });
     })();
   </script>
-  <script type="module" src="ai-integration.js?v=2.2.1"></script>
+  <script type="module" src="ai-integration.js?v=2.2.2"></script>
   <script>
   /* 死按钮补齐：让每个可点击元素点击后都有真实结果（导航 / 展开 / 弹窗 / 提示）
      与 ai-integration.js 互不干扰（本段只处理无 data-ai-cap 的元素）。 */

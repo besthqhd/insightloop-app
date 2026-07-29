@@ -10,7 +10,7 @@
  * 依赖：ai-contract.js 导出的 CAPABILITY / callModel / regenerate / getHistory
  */
 
-import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel, getModelConfig, SCHEMAS, validate } from './ai-contract.js?v=2.2.1';
+import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel, getModelConfig, SCHEMAS, validate } from './ai-contract.js?v=2.2.2';
 
 /* ============================ 能力中文标签 ============================ */
 const LABELS = {
@@ -1446,11 +1446,44 @@ if (document.readyState === 'loading') {
   init();
 }
 
+// 测试真实模型连接（AI 设置弹窗「测试连接」按钮调用，无需开发者工具）
+async function testAiConfig() {
+  const baseEl = document.getElementById('ai-base');
+  const modelEl = document.getElementById('ai-model');
+  const keyEl = document.getElementById('ai-key');
+  const proxyEl = document.getElementById('ai-proxy');
+  const out = document.getElementById('ai-test-result');
+  if (!keyEl || !out) return;
+  const apiKey = keyEl.value.trim();
+  if (!apiKey) {
+    out.style.display = 'block'; out.className = 'ai-test-result err';
+    out.textContent = '请先填写 API Key 再测试。';
+    return;
+  }
+  const cfgOverride = {
+    baseUrl: (baseEl && baseEl.value.trim()) || 'https://api.openai.com/v1',
+    model: (modelEl && modelEl.value.trim()) || 'glm-4-flash',
+    apiKey,
+    proxyUrl: (proxyEl && proxyEl.value.trim()) || undefined,
+  };
+  out.style.display = 'block'; out.className = 'ai-test-result info';
+  out.textContent = '正在请求真实模型（15s 超时）…';
+  try {
+    const res = await callRealModel('你是测试助手，请用一句话回复"连接成功"。', { context: { test: true } }, { cfgOverride });
+    out.className = 'ai-test-result ok';
+    out.textContent = '✅ 连接成功！模型返回：' + String(res).slice(0, 160);
+  } catch (e) {
+    out.className = 'ai-test-result err';
+    out.textContent = '❌ 连接失败：' + (e?.message || e);
+  }
+}
+
 // 暴露给页面 / 其他模块调用的入口（评估与 RAG）
 if (typeof window !== 'undefined') {
   window.insightRag = { retrieve: ragRetrieve, init: ragInit, ready: () => !!ragIndex };
   window.runInsightEval = runEvalSuite;
   window.runInsightEvalCompare = () => runEvalSuite({ mode: 'compare' });
+  window.testAiConfig = testAiConfig;
 }
 
 export { runAI, openDrawer, pushActivity };

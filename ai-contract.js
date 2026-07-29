@@ -436,8 +436,8 @@ export function setUseRealModel(on) {
   localStorage.setItem('insightloop_use_real', on ? '1' : '0');
 }
 
-export async function callRealModel(systemPrompt, context, { signal } = {}) {
-  const cfg = getModelConfig();
+export async function callRealModel(systemPrompt, context, { signal, cfgOverride } = {}) {
+  const cfg = cfgOverride || getModelConfig();
   if (!cfg || !cfg.apiKey) {
     throw new Error('NO_API_KEY: 请在「⚙ AI 设置」中填写 API Key');
   }
@@ -447,6 +447,8 @@ export async function callRealModel(systemPrompt, context, { signal } = {}) {
   const userContent = JSON.stringify(context?.context ?? context, null, 2);
 
   let resp;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 15000);
   try {
     resp = await fetch(`${baseUrl}/chat/completions`, {
       method: 'POST',
@@ -454,7 +456,7 @@ export async function callRealModel(systemPrompt, context, { signal } = {}) {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${cfg.apiKey}`,
       },
-      signal,
+      signal: signal || ctrl.signal,
       body: JSON.stringify({
         model,
         temperature: 0.7,
@@ -467,12 +469,17 @@ export async function callRealModel(systemPrompt, context, { signal } = {}) {
     });
   } catch (e) {
     const msg = String(e?.message || e);
+    if (e?.name === 'AbortError' || /abort|timeout|the operation was aborted/i.test(msg)) {
+      throw new Error('TIMEOUT: 请求超时（15s）。可能是你的网络无法访问代理/API，或代理地址不可达；若使用 workers.dev，请确认 Worker 已部署且地址正确（末尾为 /v1）。');
+    }
     // 浏览器拦截跨域请求时通常抛 TypeError: Failed to fetch / NetworkError
     const isCors = /Failed to fetch|NetworkError|CORS|network/i.test(msg);
     if (isCors) {
       throw new Error('CORS_BLOCKED: 浏览器被目标 API 的 CORS 策略拦截。智谱 open.bigmodel.cn 禁止前端直连，请在「⚙ AI 设置」填写代理地址（Proxy URL），或改用支持浏览器访问的 API。');
     }
-    throw new Error('ETIMEDOUT: 网络请求失败（' + msg + '）');
+    throw new Error('NETWORK_FAIL: 网络请求失败（' + msg + '）');
+  } finally {
+    clearTimeout(timer);
   }
 
   if (!resp.ok) {
