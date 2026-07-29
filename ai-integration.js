@@ -10,7 +10,7 @@
  * 依赖：ai-contract.js 导出的 CAPABILITY / callModel / regenerate / getHistory
  */
 
-import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel, getModelConfig, SCHEMAS, validate } from './ai-contract.js?v=2.2.5';
+import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel, getModelConfig, SCHEMAS, validate } from './ai-contract.js?v=2.2.6';
 
 /* ============================ 能力中文标签 ============================ */
 const LABELS = {
@@ -327,7 +327,7 @@ async function evalOne(c, modelFn) {
   if (c.expect.multi != null) { const has = Array.isArray(d.sub_intents) && d.sub_intents.length >= 1; checks.push(has === c.expect.multi); }
   if (c.expect.source != null) checks.push((d.problem_source || '').includes(c.expect.source));
   const understood = checks.length ? checks.some(Boolean) : fmt;
-  const helpful = fmt && d.confidence !== 'low';
+  const helpful = fmt && (d.confidence !== 'low' || d.risk_flag === 'escalate');
   return { cat: c.cat, input: c.input, status: res.status, data: d, fmt, understood, helpful, expect: c.expect, error: res.error };
 }
 

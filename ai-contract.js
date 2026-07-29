@@ -180,7 +180,7 @@ export function buildSystemPrompt(capability, ctx) {
       '  - user_emotion（用户情绪）：positive / neutral / negative / angry。无法判断填 "待确认"。',
       '  - feedback_time（反馈时间）：若文本含相对时间（如「昨天 / 前天 / 3天前 / 上周 / 上个月」），' + (refDate ? '结合【今天日期】' : '结合当前日期') + '还原为绝对日期 YYYY-MM-DD（例如 2026-07-27）；无线索填 "待确认"。',
       '  - feedback_content（反馈内容）：用一句话凝练用户真实诉求 / 问题，保留关键事实，不展开。',
-      '  - confidence：你对以上整体判断的把握度 high / medium / low。信息越缺失、情绪越极端、文本越短，把握度越低。',
+      '  - confidence：你对以上整体判断的把握度 high / medium / low。信息越缺失、情绪越极端、文本越短，把握度越低。注意：只要情绪(user_emotion)、问题来源(problem_source)或客诉风险(risk_flag)中有任一维度能依据文本明确判断，就不要给 low（至少 medium/high）；low 仅用于几乎无任何可提取信息的情形（如纯乱码、空输入）。',
       '  - notes：说明哪些字段因信息不足标记为「待确认」以及原因。',
       '  - sub_intents（多意图拆分）：若一条反馈包含多个不同意图（如同时抱怨「导出慢」与「搜索不准」），请逐条拆分成独立意图对象，每条含 aspect（意图方面，如「导出速度」）/ problem_source（该意图来源）/ feedback_content（该意图诉求）；单意图或无法拆分时填空数组 []。',
       '  - risk_flag（客诉风险）：若反馈带有明显攻击性、辱骂、威胁，或高风险情绪（如要求退款、投诉、起诉、扬言弃用、拉黑），置为 "escalate" 并在 notes 说明；否则置为 "none"。',
