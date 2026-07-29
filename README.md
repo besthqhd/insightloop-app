@@ -39,7 +39,7 @@ InsightLoop 把「反馈 → 洞察 → 机会 → 上线验证」的产品迭�
   3. **低 confidence 补采 / 驳回流程**：把握度 `low` 时弹窗给出「补采（索取更多信息）」与「驳回（标记无效反馈）」两个动作，分别记录到 `localStorage` 决策表并在卡片打标签。
   4. **攻击性内容联动客诉告警**：`risk_flag=escalate` 时结果弹窗显示红色客诉横幅，顶栏出现「⚠️ 客诉」铃铛（累计计数 + 活动日志），并提供「转客诉工单」一键处置。
 
-- **评估看板（Evals）· 量化 AI 质量（v2.0）**：新增「评估看板」页，用 15 条固定用例跑真实 `callModel` 链路（mock 或真实模型），页面实时计算并呈现三大指标：① 格式稳定率（输出可解析 + schema 校验通过）② 任务理解率（至少命中情绪 / 风险 / 时间还原 / 多意图 / 来源之一）③ 有帮助率（格式稳定且把握度非 low、可据以行动）。核心立意——**LLM 输出是概率性的，必须被度量，而非只会「能跑」**；配置真实 Key 后看板数字会随模型与 prompt 迭代而变化，这正是 AI 产品上线前必备的可观测能力。
+- **评估看板（Evals）· 量化 AI 质量（v2.0–v2.2.7）**：新增「评估看板」页，用 15 条固定边界用例跑 `callModel` 链路（mock 或真实模型），实时计算三大指标：① 格式稳定率 ② 任务理解率 ③ 有帮助率。支持「对比 Mock vs 真实」并排（可控并发 2 + 进度提示），并有「测试连接」诊断与 25s 超时 + 重试兜底。核心立意——**LLM 输出是概率性的，必须被度量，而非只会「能跑」**。实测结果见 [`evals-evidence.svg`](./evals-evidence.svg)。
 - **本地 RAG 检索 · 零后端 grounding（v2.0）**：反馈中心新增「知识库检索」面板，纯浏览器、零依赖、零后端——把反馈 / 主题结论向量化（中文按单字 + bigram、英文按词，FNV-1a hash 到 2048 维并 L2 归一化，余弦相似度 top-k，阈值 0.12 过滤哈希碰撞噪声），为 AI 分析提供「相似历史反馈 / 主题结论」作为证据 grounding、抑制幻觉。检索接口 `retrieve` 保持不变，生产可一行替换为 transformers.js(all-MiniLM-L6-v2) 或 OpenAI embeddings；该能力已在单条反馈分析弹窗中注入 grounding 证据。
 
 详见 PRD 第 12–14 节；竞品对比见 [`InsightLoop_竞品分析.md`](./InsightLoop_竞品分析.md)。
@@ -53,10 +53,10 @@ InsightLoop 把「反馈 → 洞察 → 机会 → 上线验证」的产品迭�
 ├── index.html          # 四页单文件应用（1440px 等比缩放，纯 CSS/原生 JS，零外部资源）
 ├── ai-contract.js      # AI 接入契约层：固定 JSON、8 个 SCHEMAS、失败状态机、重生
 ├── ai-integration.js   # 前端联调层：mock 模型 + 三层展示法渲染（loading/失败/重生）
-├── proxy-worker.js     # Cloudflare Worker 代理脚本，解决智谱等 API 的浏览器 CORS 限制
-├── InsightLoop_PRD.md  # 产品需求文档（v1.1，与已实现 UI/功能对齐）
-├── InsightLoop_竞品分析.md # 竞品对比与差异化定位（v1.0）
-├── feedback-analysis-test-report.md # 单条反馈分析测试集与评估
+├── proxy-worker.js     # 密钥托管后端（Cloudflare Worker）：浏览器不传 Key，Key 存 Worker Secret，解决 CORS 并代发请求
+├── InsightLoop_PRD.md  # 产品需求文档（v2.3，含真实模型接入 / RAG / Evals 与实测证据）
+├── InsightLoop_竞品分析.md # 竞品对比与差异化定位（v2.0）
+├── evals-evidence.svg  # Evals 评估看板实测结果图（Mock 确定性基线 vs GLM-4-Flash）
 └── README.md
 ```
 
@@ -70,30 +70,24 @@ python -m http.server 8080
 # 浏览器访问 http://localhost:8080
 ```
 
-## 接入真实模型
+## 接入真实模型（v2.0–v2.2.7：密钥托管后端）
 
-原型默认用 `mockModel` 按契约返回固定 JSON（演示用）。已内置 **OpenAI 兼容适配器** `callRealModel`（`ai-contract.js`），厂商无关，支持 DeepSeek / 智谱 GLM / 阿里通义 / Groq / OpenAI 等。
+原型默认用 `mockModel` 按契约返回固定 JSON（演示 / 回归基线）。已内置 **OpenAI 兼容适配器** `callRealModel`（`ai-contract.js`），厂商无关，支持智谱 GLM / DeepSeek / 阿里通义 / Groq / OpenAI 等。
 
-**使用方式（无需改代码）：**
-1. 点击顶栏「⚙ AI 设置」；
-2. 填写 `API Base URL`（如 `https://api.deepseek.com/v1`）、`模型名`（如 `deepseek-chat` / `glm-4-flash`）、`API Key`；
-3. 勾选「使用真实模型」并保存。之后点击任意 AI 按钮即调用真实模型。
+**密钥托管后端（推荐，Key 不下发浏览器）：**
+浏览器**不发送 API Key**，Key 仅存于 Cloudflare Worker 的 Secret（`ZHIPU_API_KEY`）。前端「⚙ AI 设置」只需填 `API Base URL` / `模型名` / **后端地址**（形如 `https://<worker>.<sub>.workers.dev/v1`），由后端代发请求并解决 CORS。把 `proxy-worker.js` 部署到 Cloudflare Worker、配置 Secret 后即可使用，部署步骤见 PRD 第 12.3 节。
 
-**实现要点：** 密钥仅存浏览器 `localStorage`（`insightloop_ai_config`），**不入库、不进 GitHub**；`callRealModel` 通过 `fetch` 调 `/chat/completions` 并带 `response_format=json_object`，返回文本交给契约层的 `repairJson` + `validate` 处理，UI 与契约层零改动。
+**直连模式（仅限支持浏览器 CORS 的厂商，如 Groq）：**
+在「⚙ AI 设置」填 `API Base URL`（如 `https://api.groq.com/openai/v1`）、`模型名`（如 `llama-3.3-70b-versatile`）、`API Key`，**后端地址留空**即可，无需 Worker。
 
-**关于智谱 GLM-4-Flash 的 CORS 限制：**
-智谱 `open.bigmodel.cn` 的 OpenAI 兼容接口**禁止浏览器前端直接跨域访问**（`Access-Control-Allow-Origin` 为空，且不包含 `Authorization`），因此在 GitHub Pages 等静态托管页面上直接填写 `https://open.bigmodel.cn/api/paas/v4` 会请求失败。解决方案：
-1. 在「⚙ AI 设置」的「代理地址」栏填入你自己的转发接口（如 Cloudflare Worker），并保留 Base URL 为 `https://open.bigmodel.cn/api/paas/v4`；
-2. 或把 Base URL 直接改成支持 CORS 的代理地址（如 `https://your-worker.your-subdomain.workers.dev/v1`）。
+**「测试连接」诊断（v2.2.2 新增）：** 填完配置点「测试连接」，弹窗内直接打印成功 / 失败结论（区分 Key 无效、网络不可达、后端不可达），免开发者工具排查。真实模型请求带 25s 超时 + 失败重试 1 次兜底，界面不会卡死。
 
-项目已附带 `proxy-worker.js`（Cloudflare Worker 代理脚本），部署后即可解决 CORS。若使用 DeepSeek / Groq / OpenAI 等支持浏览器 CORS 的厂商，通常无需代理。
-
-**评估看板「对比 Mock vs 真实」模式（v2.1）：** 评估看板右上角可切换「当前模型 / 对比 Mock vs 真实」。选「对比」并配置好真实 Key 后，点「运行评估」会用**同一套 15 条固定用例**分别跑 mock 与真实模型（如智谱 GLM-4-Flash），并在下方排出逐用例对比表（理解/帮助命中 ✓✗、是否有差异）。未配置 Key 时只跑 mock 并提示去填写——无需改动契约层即可横向比较模型质量与 prompt 迭代效果。打开「⚙ AI 设置」若未保存过配置，会自动预填 GLM-4-Flash 的 Base URL 与模型名，你只需粘贴 Key。
+**评估看板「对比 Mock vs 真实」模式（v2.1–v2.2.7）：** 评估看板可切换「当前模型 / 对比 Mock vs 真实」。选「对比」并配置好后端（或直连 Key）后，点「运行评估」会用**同一套 15 条固定边界用例**分别跑 mock 与真实模型（GLM-4-Flash），并以可控并发（并发 2）渲染逐用例对比表（理解/帮助命中 ✓✗、是否有差异）。实测结果见 [`evals-evidence.svg`](./evals-evidence.svg) 与 PRD 第 15 节。
 
 ## 现状与边界
 
-- ✅ 已完成：四页可交互原型、AI 契约层、三层展示法、GitHub Pages 托管、真实模型 OpenAI 兼容适配器（顶栏「⚙ AI 设置」本地接入，密钥不入库）。
-- ⚠️ 原型阶段为前端直连模型 API（key 存本机 localStorage）；生产化建议改用后端代理转发，避免 key 暴露在客户端。其他未做方向：多用户与评测后台（当前为单用户本地原型；评估看板与本地 RAG 已在前端实现）。
+- ✅ 已完成：四页可交互原型、AI 契约层、三层展示法、GitHub Pages 托管、真实模型 OpenAI 兼容适配器（密钥托管后端，Key 不落浏览器）。
+- ⚠️ 原型已通过密钥托管后端接入真实模型（Key 存 Worker Secret，不落浏览器）；若要彻底脱离 Cloudflare Worker，可改用支持浏览器 CORS 直连的厂商（如 Groq）。其他未做方向：多用户与评测后台持久化（当前评估看板与本地 RAG 已在前端实现）。
 
 详见 PRD 第 12–14 节。
 

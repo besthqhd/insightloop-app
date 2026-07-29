@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="460" viewBox="0 0 680 460" font-family="Noto Sans SC, -apple-system, Segoe UI, sans-serif">
+  <rect width="680" height="460" fill="#FFFFFF"/>
+  <text x="40" y="38" font-size="19" font-weight="700" fill="#1A202C">InsightLoop · Evals 评估看板实测结果</text>
+  <text x="40" y="62" font-size="13" fill="#4A5568">v2.2.7 ｜ 15 条固定边界反馈用例 ｜ Mock 确定性基线 vs 智谱 GLM-4-Flash（密钥托管后端）</text>
+
+  <!-- Legend -->
+  <rect x="470" y="84" width="14" height="14" rx="3" fill="#3B5BDB"/>
+  <text x="490" y="95" font-size="13" fill="#1A202C">Mock 基线</text>
+  <rect x="565" y="84" width="14" height="14" rx="3" fill="#0E9F6E"/>
+  <text x="585" y="95" font-size="13" fill="#1A202C">GLM-4-Flash</text>
+
+  <!-- Gridlines + Y labels -->
+  <g stroke="#E2E8F0" stroke-width="1">
+    <line x1="70" y1="380" x2="630" y2="380"/>
+    <line x1="70" y1="307.5" x2="630" y2="307.5"/>
+    <line x1="70" y1="235" x2="630" y2="235"/>
+    <line x1="70" y1="162.5" x2="630" y2="162.5"/>
+    <line x1="70" y1="90" x2="630" y2="90"/>
+  </g>
+  <g font-size="11" fill="#718096" text-anchor="end">
+    <text x="60" y="384">0</text>
+    <text x="60" y="311">25</text>
+    <text x="60" y="239">50</text>
+    <text x="60" y="166">75</text>
+    <text x="60" y="94">100</text>
+  </g>
+  <text x="40" y="240" font-size="11" fill="#718096" text-anchor="middle" transform="rotate(-90 40 240)">指标命中率 (%)</text>
+
+  <!-- Group 1: 格式稳定率 (100 / 100) -->
+  <rect x="105" y="90" width="50" height="290" rx="4" fill="#3B5BDB"/>
+  <rect x="165" y="90" width="50" height="290" rx="4" fill="#0E9F6E"/>
+  <text x="130" y="82" font-size="12" font-weight="600" fill="#1A202C" text-anchor="middle">100%</text>
+  <text x="190" y="82" font-size="12" font-weight="600" fill="#1A202C" text-anchor="middle">100%</text>
+
+  <!-- Group 2: 任务理解率 (93 / 93) -->
+  <rect x="295" y="110" width="50" height="270" rx="4" fill="#3B5BDB"/>
+  <rect x="355" y="110" width="50" height="270" rx="4" fill="#0E9F6E"/>
+  <text x="320" y="102" font-size="12" font-weight="600" fill="#1A202C" text-anchor="middle">93%</text>
+  <text x="380" y="102" font-size="12" font-weight="600" fill="#1A202C" text-anchor="middle">93%</text>
+
+  <!-- Group 3: 有帮助率 (87 / 87) -->
+  <rect x="485" y="128" width="50" height="252" rx="4" fill="#3B5BDB"/>
+  <rect x="545" y="128" width="50" height="252" rx="4" fill="#0E9F6E"/>
+  <text x="510" y="120" font-size="12" font-weight="600" fill="#1A202C" text-anchor="middle">87%</text>
+  <text x="570" y="120" font-size="12" font-weight="600" fill="#1A202C" text-anchor="middle">87%</text>
+
+  <!-- Group labels -->
+  <g font-size="13" fill="#2D3748" text-anchor="middle" font-weight="600">
+    <text x="160" y="402">格式稳定率</text>
+    <text x="350" y="402">任务理解率</text>
+    <text x="540" y="402">有帮助率</text>
+  </g>
+
+  <!-- Footnote -->
+  <rect x="40" y="424" width="600" height="26" rx="6" fill="#F0F4FF"/>
+  <text x="52" y="441" font-size="12" fill="#2B4A8B">结论：两模型在 13/15 用例上结果完全一致；差异仅集中在「信息缺失」「纯情绪无事实」两类边界文本的把握度策略。</text>
+</svg>
