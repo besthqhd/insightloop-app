@@ -10,7 +10,7 @@
  * 依赖：ai-contract.js 导出的 CAPABILITY / callModel / regenerate / getHistory
  */
 
-import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel, getModelConfig, SCHEMAS, validate } from './ai-contract.js?v=2.0';
+import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel, getModelConfig, SCHEMAS, validate } from './ai-contract.js?v=2.2';
 
 /* ============================ 能力中文标签 ============================ */
 const LABELS = {
@@ -390,11 +390,14 @@ function renderEval(runs, modelLabel) {
     const assert = keys.length ? keys.join('/') : '—';
     const conf = r.data.confidence || (r.status === 'failed' ? '—' : 'low');
     const confCls = conf === 'high' ? 'high' : conf === 'medium' ? 'mid' : 'low';
+    const errTip = r.status === 'failed' && r.error?.message
+      ? `<div class="eval-err" title="${escapeHtml(r.error.message)}">${escapeHtml(r.error.message.slice(0, 36))}${r.error.message.length > 36 ? '…' : ''}</div>`
+      : '';
     return `<tr>
       <td>${i + 1}</td>
       <td>${escapeHtml(r.cat)}</td>
       <td class="eval-input">${escapeHtml(r.input ? (r.input.length > 22 ? r.input.slice(0, 22) + '…' : r.input) : '（空）')}</td>
-      <td>${st}</td>
+      <td>${st}${errTip}</td>
       <td>${assert}</td>
       <td><span class="fb-ai-conf ${confCls}">${conf}</span></td>
     </tr>`;
@@ -429,7 +432,7 @@ function renderEvalCompare(mockRuns, realRuns, realLabel) {
   tb.innerHTML = mockRuns.map((m, i) => {
     const r = realRuns[i];
     const realCell = r
-      ? `${mark(r.understood)} / ${mark(r.helpful)}${r.status === 'failed' ? '<div class="eval-err">' + escapeHtml((r.error && r.error.message || '').slice(0, 40)) + '</div>' : ''}`
+      ? `${mark(r.understood)} / ${mark(r.helpful)}${r.status === 'failed' ? '<div class="eval-err" title="' + escapeHtml(r.error?.message || '') + '">' + escapeHtml((r.error?.message || '').slice(0, 55)) + '</div>' : ''}`
       : '<span class="eval-muted">未运行</span>';
     const delta = r ? ((r.helpful === m.helpful && r.understood === m.understood) ? '' : '<span class="eval-delta">有差异</span>') : '';
     return `<tr>

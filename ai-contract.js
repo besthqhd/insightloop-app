@@ -441,7 +441,8 @@ export async function callRealModel(systemPrompt, context, { signal } = {}) {
   if (!cfg || !cfg.apiKey) {
     throw new Error('NO_API_KEY: 请在「⚙ AI 设置」中填写 API Key');
   }
-  const baseUrl = (cfg.baseUrl || 'https://api.openai.com/v1').replace(/\/+$/, '');
+  // proxyUrl 优先：用于绕过智谱等国内 API 对浏览器端直连的 CORS 限制
+  const baseUrl = (cfg.proxyUrl || cfg.baseUrl || 'https://api.openai.com/v1').replace(/\/+$/, '');
   const model = cfg.model || 'gpt-4o-mini';
   const userContent = JSON.stringify(context?.context ?? context, null, 2);
 
@@ -465,18 +466,37 @@ export async function callRealModel(systemPrompt, context, { signal } = {}) {
       }),
     });
   } catch (e) {
-    throw new Error('ETIMEDOUT: 网络请求失败（' + (e?.message || e) + '）');
+    const msg = String(e?.message || e);
+    // 浏览器拦截跨域请求时通常抛 TypeError: Failed to fetch / NetworkError
+    const isCors = /Failed to fetch|NetworkError|CORS|network/i.test(msg);
+    if (isCors) {
+      throw new Error('CORS_BLOCKED: 浏览器被目标 API 的 CORS 策略拦截。智谱 open.bigmodel.cn 禁止前端直连，请在「⚙ AI 设置」填写代理地址（Proxy URL），或改用支持浏览器访问的 API。');
+    }
+    throw new Error('ETIMEDOUT: 网络请求失败（' + msg + '）');
   }
 
   if (!resp.ok) {
+    let bodyText = '';
+    try { bodyText = await resp.text(); } catch {}
     let msg = `HTTP ${resp.status}`;
-    try { const j = await resp.json(); msg = j?.error?.message || msg; } catch {}
+    try { const j = JSON.parse(bodyText); msg = j?.error?.message || msg; } catch {}
+    console.error('[callRealModel] API error', { status: resp.status, body: bodyText.slice(0, 800), model, baseUrl });
     if (resp.status === 429) throw new Error('429: ' + msg);
     if (resp.status >= 500) throw new Error('5xx: ' + msg);
     throw new Error(msg);
   }
-  const j = await resp.json();
+  let j;
+  try {
+    j = await resp.json();
+  } catch (e) {
+    const text = await resp.text().catch(() => '');
+    console.error('[callRealModel] JSON parse error', text.slice(0, 800));
+    throw new Error('JSON_PARSE: 模型返回非 JSON');
+  }
   const content = j?.choices?.[0]?.message?.content;
-  if (!content) throw new Error('EMPTY_RESPONSE: 模型返回为空');
+  if (!content) {
+    console.error('[callRealModel] empty content', j);
+    throw new Error('EMPTY_RESPONSE: 模型返回为空');
+  }
   return content; // callModel 会用 repairJson 解析为 JSON
 }

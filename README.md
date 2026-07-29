@@ -53,6 +53,7 @@ InsightLoop 把「反馈 → 洞察 → 机会 → 上线验证」的产品迭�
 ├── index.html          # 四页单文件应用（1440px 等比缩放，纯 CSS/原生 JS，零外部资源）
 ├── ai-contract.js      # AI 接入契约层：固定 JSON、8 个 SCHEMAS、失败状态机、重生
 ├── ai-integration.js   # 前端联调层：mock 模型 + 三层展示法渲染（loading/失败/重生）
+├── proxy-worker.js     # Cloudflare Worker 代理脚本，解决智谱等 API 的浏览器 CORS 限制
 ├── InsightLoop_PRD.md  # 产品需求文档（v1.1，与已实现 UI/功能对齐）
 ├── InsightLoop_竞品分析.md # 竞品对比与差异化定位（v1.0）
 ├── feedback-analysis-test-report.md # 单条反馈分析测试集与评估
@@ -79,6 +80,13 @@ python -m http.server 8080
 3. 勾选「使用真实模型」并保存。之后点击任意 AI 按钮即调用真实模型。
 
 **实现要点：** 密钥仅存浏览器 `localStorage`（`insightloop_ai_config`），**不入库、不进 GitHub**；`callRealModel` 通过 `fetch` 调 `/chat/completions` 并带 `response_format=json_object`，返回文本交给契约层的 `repairJson` + `validate` 处理，UI 与契约层零改动。
+
+**关于智谱 GLM-4-Flash 的 CORS 限制：**
+智谱 `open.bigmodel.cn` 的 OpenAI 兼容接口**禁止浏览器前端直接跨域访问**（`Access-Control-Allow-Origin` 为空，且不包含 `Authorization`），因此在 GitHub Pages 等静态托管页面上直接填写 `https://open.bigmodel.cn/api/paas/v4` 会请求失败。解决方案：
+1. 在「⚙ AI 设置」的「代理地址」栏填入你自己的转发接口（如 Cloudflare Worker），并保留 Base URL 为 `https://open.bigmodel.cn/api/paas/v4`；
+2. 或把 Base URL 直接改成支持 CORS 的代理地址（如 `https://your-worker.your-subdomain.workers.dev/v1`）。
+
+项目已附带 `proxy-worker.js`（Cloudflare Worker 代理脚本），部署后即可解决 CORS。若使用 DeepSeek / Groq / OpenAI 等支持浏览器 CORS 的厂商，通常无需代理。
 
 **评估看板「对比 Mock vs 真实」模式（v2.1）：** 评估看板右上角可切换「当前模型 / 对比 Mock vs 真实」。选「对比」并配置好真实 Key 后，点「运行评估」会用**同一套 15 条固定用例**分别跑 mock 与真实模型（如智谱 GLM-4-Flash），并在下方排出逐用例对比表（理解/帮助命中 ✓✗、是否有差异）。未配置 Key 时只跑 mock 并提示去填写——无需改动契约层即可横向比较模型质量与 prompt 迭代效果。打开「⚙ AI 设置」若未保存过配置，会自动预填 GLM-4-Flash 的 Base URL 与模型名，你只需粘贴 Key。
 

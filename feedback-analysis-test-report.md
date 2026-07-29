@@ -168,3 +168,8 @@
 ### 9.3 验证
 - 节点 ESM 测试桩调用 `window.runInsightEvalCompare()`（无真实 Key → 仅 mock）：返回 15 条、格式 100% / 理解 100% / 帮助 80%，断言全过（5/5）。真实模型路径依赖浏览器内 `localStorage` 的 Key，需在页面内配 GLM-4-Flash 等实际运行验证。
 - 打开「⚙ AI 设置」若未保存过配置，自动预填 GLM-4-Flash 的 Base URL（`https://open.bigmodel.cn/api/paas/v4`）与模型名（`glm-4-flash`），用户只需粘贴 Key。
+
+### 9.4 真实模型接入的 CORS 限制与代理方案
+- 在 GitHub Pages 等静态托管页面直接调智谱 `open.bigmodel.cn` 会被浏览器 CORS 拦截（该端点 `Access-Control-Allow-Origin` 为空，且不包含 `Authorization`），导致 15 条用例全部请求失败。
+- 已在 `callRealModel` 中识别此类网络错误并抛出明确诊断：`CORS_BLOCKED: 浏览器被目标 API 的 CORS 策略拦截……请在「AI 设置」填写代理地址`。
+- 解决方案：部署项目附带的 `proxy-worker.js`（Cloudflare Worker）作为转发，在「AI 设置」的「代理地址」填入 Worker 域名即可。使用 DeepSeek / Groq / OpenAI 等支持浏览器 CORS 的厂商通常无需代理。
