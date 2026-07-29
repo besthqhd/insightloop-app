@@ -10,7 +10,7 @@
  * 依赖：ai-contract.js 导出的 CAPABILITY / callModel / regenerate / getHistory
  */
 
-import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel, getModelConfig, SCHEMAS, validate } from './ai-contract.js?v=2.2.4';
+import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel, getModelConfig, SCHEMAS, validate } from './ai-contract.js?v=2.2.5';
 
 /* ============================ 能力中文标签 ============================ */
 const LABELS = {
@@ -379,9 +379,10 @@ async function runEvalCompare() {
   });
   const cfg = getModelConfig();
   const realLabel = (cfg && cfg.model) || '真实模型';
-  if (!cfg || !cfg.apiKey) {
+  const isBackend = !!(cfg && cfg.proxyUrl);
+  if (!cfg || (!isBackend && !cfg.apiKey)) {
     renderEvalCompare(mockRuns, [], realLabel);
-    if (meta) meta.textContent = '⚠ 未配置真实模型 Key：请在顶栏「⚙ AI 设置」填写 GLM-4-Flash 的 API Key 后重试对比。';
+    if (meta) meta.textContent = '⚠ 未配置真实模型：请在顶栏「⚙ AI 设置」填写 API Key，或填写后端地址走密钥托管模式。';
     return mockRuns;
   }
   const realRuns = await runEvalCases(EVAL_CASES, callRealModel, {
