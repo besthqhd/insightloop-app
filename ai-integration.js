@@ -10,7 +10,7 @@
  * 依赖：ai-contract.js 导出的 CAPABILITY / callModel / regenerate / getHistory
  */
 
-import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel, getModelConfig, SCHEMAS, validate } from './ai-contract.js?v=2.2.3';
+import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel, getModelConfig, SCHEMAS, validate } from './ai-contract.js?v=2.2.4';
 
 /* ============================ 能力中文标签 ============================ */
 const LABELS = {
@@ -331,23 +331,52 @@ async function evalOne(c, modelFn) {
   return { cat: c.cat, input: c.input, status: res.status, data: d, fmt, understood, helpful, expect: c.expect, error: res.error };
 }
 
+// 受限并发执行评估用例：结果按用例顺序落位，实时回调进度（避免纯串行太慢）
+const EVAL_CONCURRENCY = 4;
+async function runEvalCases(cases, modelFn, { concurrency = 1, onProgress } = {}) {
+  const results = new Array(cases.length);
+  if (concurrency <= 1) {
+    for (let i = 0; i < cases.length; i++) {
+      results[i] = await evalOne(cases[i], modelFn);
+      if (onProgress) onProgress(i + 1, cases.length);
+    }
+    return results;
+  }
+  let done = 0;
+  const queue = cases.map((_, i) => i); // 待处理用例下标队列
+  const runner = async () => {
+    while (queue.length) {
+      const i = queue.shift();
+      results[i] = await evalOne(cases[i], modelFn);
+      done++;
+      if (onProgress) onProgress(done, cases.length);
+    }
+  };
+  const n = Math.min(concurrency, cases.length);
+  await Promise.all(Array.from({ length: n }, () => runner()));
+  return results;
+}
+
 async function runEvalSuite({ mode = 'current' } = {}) {
   if (mode === 'compare') return runEvalCompare();
-  const cap = CAPABILITY.ANALYZE_FEEDBACK;
   const modelFn = useRealModel() ? callRealModel : mockModel;
   const modelLabel = useRealModel() ? '真实模型' : 'Mock（演示基线）';
-  const runs = [];
-  for (const c of EVAL_CASES) runs.push(await evalOne(c, modelFn));
+  const meta = document.getElementById('eval-meta');
+  const runs = await runEvalCases(EVAL_CASES, modelFn, {
+    concurrency: EVAL_CONCURRENCY,
+    onProgress: (d, t) => { if (meta) meta.textContent = `评估中（${modelLabel}） ${d}/${t} …`; },
+  });
   lastEvalRuns = runs;
   renderEval(runs, modelLabel);
   return runs;
 }
 
-// 对比模式：固定测试集分别跑 Mock 与真实模型，渲染并排对比
+// 对比模式：固定测试集分别跑 Mock 与真实模型，渲染并排对比（真实模型受限并发提速）
 async function runEvalCompare() {
   const meta = document.getElementById('eval-meta');
-  const mockRuns = [];
-  for (const c of EVAL_CASES) mockRuns.push(await evalOne(c, mockModel));
+  const mockRuns = await runEvalCases(EVAL_CASES, mockModel, {
+    onProgress: (d, t) => { if (meta) meta.textContent = `基线评估（Mock） ${d}/${t} …`; },
+  });
   const cfg = getModelConfig();
   const realLabel = (cfg && cfg.model) || '真实模型';
   if (!cfg || !cfg.apiKey) {
@@ -355,11 +384,10 @@ async function runEvalCompare() {
     if (meta) meta.textContent = '⚠ 未配置真实模型 Key：请在顶栏「⚙ AI 设置」填写 GLM-4-Flash 的 API Key 后重试对比。';
     return mockRuns;
   }
-  const realRuns = [];
-  for (let i = 0; i < EVAL_CASES.length; i++) {
-    if (meta) meta.textContent = `对比中（真实模型 ${realLabel}） ${i + 1}/${EVAL_CASES.length} …`;
-    realRuns.push(await evalOne(EVAL_CASES[i], callRealModel));
-  }
+  const realRuns = await runEvalCases(EVAL_CASES, callRealModel, {
+    concurrency: EVAL_CONCURRENCY,
+    onProgress: (d, t) => { if (meta) meta.textContent = `对比中（真实模型 ${realLabel}） ${d}/${t} …`; },
+  });
   renderEvalCompare(mockRuns, realRuns, realLabel);
   return realRuns;
 }
