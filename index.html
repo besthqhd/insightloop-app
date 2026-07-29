@@ -1484,6 +1484,20 @@
       background: #EEF2FF; border-radius: 6px; cursor: pointer; font-family: inherit; font-weight: 600; }
     .fb-ai-btn:hover { background: var(--primary); color: #fff; }
     .fb-card-actions { display: inline-flex; align-items: center; gap: 10px; }
+    .fb-ai-risk { background: #FEE2E2; border: 1px solid #FCA5A5; color: #B91C1C; border-radius: 8px; padding: 10px 12px;
+      font-size: 13px; line-height: 1.6; margin-bottom: 12px; font-weight: 600; }
+    .fb-ai-sub { background: #F5F8FF; border: 1px solid #DBE4FF; border-radius: 8px; padding: 10px 12px; margin: 8px 0 4px; }
+    .fb-ai-sub-item { font-size: 13px; line-height: 1.6; color: #1F3A8A; padding: 2px 0; }
+    .fb-ai-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .fb-ai-action { font-size: 12px; padding: 6px 12px; }
+    .fb-ai-action-warn { border-color: #FCA5A5; color: #B91C1C; background: #FEF2F2; }
+    .fb-ai-action-warn:hover { background: #B91C1C; color: #fff; border-color: #B91C1C; }
+    .fb-decision-tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 999px; margin-left: 6px; }
+    .fb-decision-tag.rejected { background: #FEE2E2; color: #B91C1C; }
+    .fb-decision-tag.collecting { background: #FEF3C7; color: #B45309; }
+    .fb-decision-tag:not(.rejected):not(.collecting) { background: #E0E7FF; color: #4338CA; }
+    .complaint-bell { display: inline-flex; align-items: center; gap: 4px; background: #FEE2E2; color: #B91C1C;
+      border: 1px solid #FCA5A5; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 700; }
 
     /* ─── 双击编辑：让 AI 结论 / 复盘面板可被人工修正 ─── */
     .editable { position: relative; cursor: text; border-radius: 6px; transition: background .15s; }
@@ -1605,6 +1619,7 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             <span class="activity-count" id="activity-count" style="display:none">0</span>
           </div>
+          <span class="complaint-bell" id="complaint-bell" style="display:none" title="存在需优先跟进的客诉告警">⚠️ 客诉 <b id="complaint-count">0</b></span>
           <button class="ai-settings-btn" id="ai-settings-btn" title="AI 模型设置">⚙ AI 设置</button>
           <div class="avatar">苗</div>
         </div>
@@ -2648,7 +2663,7 @@ export_start / export_progress / export_cancel / export_success。
       });
     })();
   </script>
-  <script type="module" src="ai-integration.js?v=1.8"></script>
+  <script type="module" src="ai-integration.js?v=1.9"></script>
   <script>
   /* 死按钮补齐：让每个可点击元素点击后都有真实结果（导航 / 展开 / 弹窗 / 提示）
      与 ai-integration.js 互不干扰（本段只处理无 data-ai-cap 的元素）。 */
@@ -3012,6 +3027,18 @@ export_start / export_progress / export_cancel / export_success。
       persistOpps();
       editOppDraft(n); // 新建后直接打开编辑弹窗
     });
+
+    // 供反馈分析「多意图拆分」调用：把单条意图转为机会草稿（不自动弹编辑框，避免模态堆叠）
+    window.createDraftOpportunity = function (title, desc, source) {
+      const col = $('.opp-list-col'); if (!col) return false;
+      const n = document.createElement('div'); n.className = 'opp-card';
+      n.innerHTML = '<div class="opp-card-title">' + escapeHtml(title || '新机会（草稿）') + '</div><div class="opp-card-source">' + escapeHtml(source || '来自反馈拆分') + '</div><div class="opp-card-bottom"><span class="opp-card-priority">优先级 --</span><span class="opp-card-status">草稿</span></div>';
+      n.dataset.desc = desc || '';
+      const btn = col.querySelector('.opp-new-btn');
+      col.insertBefore(n, btn);
+      persistOpps();
+      return true;
+    };
 
     // 草稿机会编辑弹窗
     function editOppDraft(card) {

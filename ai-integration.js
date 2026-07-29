@@ -10,7 +10,7 @@
  * 依赖：ai-contract.js 导出的 CAPABILITY / callModel / regenerate / getHistory
  */
 
-import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel } from './ai-contract.js?v=1.8';
+import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel } from './ai-contract.js?v=1.9';
 
 /* ============================ 能力中文标签 ============================ */
 const LABELS = {
@@ -126,21 +126,87 @@ const MOCK = {
   /* 单条反馈 PM 视角分类：原型阶段不接真实模型，按「能判断才填、不能判断一律待确认」演示 */
   [CAPABILITY.ANALYZE_FEEDBACK]: (ctx) => {
     const txt = (ctx && ctx.context && ctx.context.artifacts && ctx.context.artifacts[0] && ctx.context.artifacts[0].feedback_text) || '';
-    const angry = /(垃圾|太差|愤怒|投诉|退款|骗|傻|滚)/i.test(txt);
-    const neg = /(慢|崩溃|卡|报错|失败|烦|差|bug|错误|无法|不能|打不开|超时|等不及|白屏)/i.test(txt);
-    const emotion = angry ? 'angry' : neg ? 'negative' : '待确认';
-    const hasTime = /(昨天|今天|上周|上周|3月|最近|周一|早上|晚上|月初|月底|前天)/.test(txt);
+    const ref = (ctx && ctx.context && ctx.context.constraints && ctx.context.constraints.reference_date) || new Date().toISOString().slice(0, 10);
+
+    // 攻击性 / 客诉风险
+    const angry = /(垃圾|太差|愤怒|投诉|退款|骗|傻|滚|起诉|威胁|弃用|拉黑|再也不|曝光|投诉电话|消协|315|垃圾软件|坑钱)/i.test(txt);
+    const neg = /(慢|崩溃|卡|报错|失败|烦|差|bug|错误|无法|不能|打不开|超时|等不及|白屏|转好几秒|反复重试)/i.test(txt);
+    const emotion = angry ? 'angry' : neg ? 'negative' : (txt ? 'neutral' : '待确认');
+    const risk_flag = angry ? 'escalate' : 'none';
+
+    // 时间还原：相对时间 -> 绝对日期（结合 reference_date）
+    const fbTime = normFeedbackTime(txt, ref);
+
+    // 多意图拆分：按方面命中多个组 -> 拆成 sub_intents
+    const sub = extractSubIntents(txt);
+
+    // 把握度：攻击性 / 无内容 / 无明显方面 -> low；命中方面且有时间 -> high；否则 medium
+    let confidence = 'low';
+    if (txt && sub.length >= 1) confidence = fbTime !== '待确认' ? 'high' : 'medium';
+    if (angry) confidence = 'low';
+
+    const pending = [];
+    if (!/导出|搜索|登录|通知|深色|批量|报表|下载|查找|红点|消息|对比度|护眼|删除|进度/.test(txt)) pending.push('问题来源');
+    pending.push('用户类型');
+
     return {
-      problem_source: '待确认',
+      problem_source: sub.length >= 1 ? sub[0].problem_source : '待确认',
       user_type: '待确认',
       user_emotion: emotion,
-      feedback_time: hasTime ? '待确认（文本含时间线索，需结合上下文还原）' : '待确认',
-      feedback_content: txt.slice(0, 80) || '（空反馈）',
-      confidence: 'low',
-      notes: '原型 mock：未接入真实模型；problem_source / user_type / feedback_time 常规标为「待确认」，情绪与内容基于关键词粗判。',
+      feedback_time: fbTime,
+      feedback_content: txt.slice(0, 90) || '（空反馈）',
+      confidence,
+      notes: '原型 mock：未接入真实模型；' + pending.join('、') + ' 常规标为「待确认」。' +
+        (sub.length >= 2 ? `检测到 ${sub.length} 个意图，已在 sub_intents 拆分。` : '') +
+        (risk_flag === 'escalate' ? ' 命中攻击性/客诉风险，已置 risk_flag=escalate。' : ''),
+      sub_intents: sub,
+      risk_flag,
     };
   },
 };
+
+/* 相对时间 -> 绝对日期（结合 reference_date）。用本地日期分量计算，避免 UTC 时区导致的差一天 */
+function normFeedbackTime(txt, ref) {
+  const base = new Date(ref + 'T00:00:00');
+  if (isNaN(base.getTime())) return '待确认';
+  const sub = (days) => {
+    const d = new Date(base);
+    d.setDate(d.getDate() - days);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+  if (/(前天)/.test(txt)) return sub(2);
+  if (/(昨天|昨日)/.test(txt)) return sub(1);
+  if (/(今天|今日)/.test(txt)) return ref;
+  if (/(上周|一个星期前|一周前)/.test(txt)) return sub(7);
+  let m = txt.match(/(\d+)\s*天前/); if (m) return sub(parseInt(m[1], 10));
+  m = txt.match(/(\d+)\s*周前/); if (m) return sub(parseInt(m[1], 10) * 7);
+  m = txt.match(/(\d+)\s*个月前|(\d+)\s*月前/); if (m) return sub(parseInt(m[1], 10) * 30);
+  if (/(上个月|上月)/.test(txt)) return sub(30);
+  if (/(月初|月底|3月|最近|周一|早上|晚上)/.test(txt)) return '待确认';
+  return '待确认';
+}
+
+/* 多意图拆分：按方面命中多个组 */
+function extractSubIntents(txt) {
+  const ASPECTS = [
+    { key: '导出/报表', re: /导出|报表|下载|超时失败|等.*分钟|数据量大/ },
+    { key: '搜索', re: /搜索|查找|结果不准确|不相关|混进/ },
+    { key: '登录', re: /登录|注册|网络错误|重试.*成功|提示.*错误/ },
+    { key: '通知', re: /通知|红点|消息|漏看|转好几秒/ },
+    { key: '深色模式', re: /深色|对比度|护眼|颜色|文字看不清/ },
+    { key: '批量操作', re: /批量|删除|进度提示|卡死/ },
+  ];
+  const matched = ASPECTS.filter(a => a.re.test(txt));
+  if (matched.length < 2) return [];
+  return matched.map(a => ({
+    aspect: a.key,
+    problem_source: a.key,
+    feedback_content: txt.length > 60 ? `（涉及「${a.key}」的诉求，详见原反馈）` : txt,
+  }));
+}
 
 /* 确定性伪随机：同一种子产生同一序列，保证「同一次重新生成」结果可复现 */
 function seededRand(seed) {
@@ -415,16 +481,19 @@ async function runAI(cap, opts = {}) {
 
   // 单条反馈分析：把该条反馈原文作为强类型上下文传入，模型据此抽取
   let artifacts = [{ insight: cap, sample: 'mock-artifact' }];
+  const extraConstraints = { tone: '专业', detail: '高', _seed: seed };
   if (cap === CAPABILITY.ANALYZE_FEEDBACK) {
     const card = triggerEl && triggerEl.closest('.feedback-card');
     const quote = card ? (card.querySelector('.feedback-quote')?.textContent || '') : '';
     artifacts = [{ feedback_text: quote }];
+    // 时间还原需要“今天”锚点：把当前日期作为 reference_date 注入上下文
+    extraConstraints.reference_date = todayISO();
   }
 
   const params = {
     artifacts,
     userInstruction: opts.instruction || '',
-    constraints: { tone: '专业', detail: '高', _seed: seed },
+    constraints: extraConstraints,
     history: [],
   };
 
@@ -494,6 +563,44 @@ function saveManualFb(obj) {
   try { localStorage.setItem(MANUAL_FB_KEY, JSON.stringify(obj)); } catch {}
 }
 
+/* ============================ 5.4.1 反馈决策 / 客诉告警 状态 ============================ */
+const FB_DECISION_KEY = 'insightloop_fb_decision_v1';
+function loadFbDecisions() { try { return JSON.parse(localStorage.getItem(FB_DECISION_KEY) || '{}'); } catch { return {}; } }
+function saveFbDecision(fbId, decision, extra) {
+  try { const o = loadFbDecisions(); o[fbId] = Object.assign({ decision, ts: Date.now() }, extra || {}); localStorage.setItem(FB_DECISION_KEY, JSON.stringify(o)); } catch {}
+}
+const escalatedFb = new Set();
+let complaintCount = 0;
+(function initComplaintBell() {
+  const dec = loadFbDecisions();
+  for (const k in dec) if (dec[k].decision === 'escalated') { escalatedFb.add(k); complaintCount++; }
+  renderComplaintBell();
+})();
+function renderComplaintBell() {
+  const bell = $('#complaint-bell');
+  const cnt = $('#complaint-count');
+  if (!bell) return;
+  bell.style.display = complaintCount > 0 ? 'inline-flex' : 'none';
+  if (cnt) cnt.textContent = complaintCount;
+}
+function markCardDecision(fbId, label, cls) {
+  const card = document.querySelector('.feedback-card[data-fb-id="' + fbId + '"]');
+  if (!card) return;
+  const tagWrap = card.querySelector('.feedback-tags');
+  if (!tagWrap) return;
+  let tag = card.querySelector('.fb-decision-tag');
+  if (!tag) { tag = document.createElement('span'); tagWrap.appendChild(tag); }
+  tag.className = 'fb-decision-tag ' + (cls || '');
+  tag.textContent = label;
+}
+function raiseComplaintAlert(fbId) {
+  if (escalatedFb.has(fbId)) return;
+  escalatedFb.add(fbId);
+  complaintCount += 1;
+  renderComplaintBell();
+  pushActivity(CAPABILITY.ANALYZE_FEEDBACK, 'escalated', 'req_complaint_' + fbId);
+}
+
 /* 把单条分析结果渲染进 #fb-ai-modal；失败/无法识别时引导人工处理 */
 function renderFeedbackAnalysis(result, triggerEl) {
   const modal = $('#fb-ai-modal');
@@ -508,10 +615,16 @@ function renderFeedbackAnalysis(result, triggerEl) {
   const manual = fbId ? loadManualFb()[fbId] : null;
   const d = manual || (result && result.data) || {};
   const source = manual ? '人工填写' : (result ? result.status : 'unknown');
+  const isEscalate = d.risk_flag === 'escalate';
+  const isLow = (d.confidence === 'low') && !manual;
+  const subIntents = Array.isArray(d.sub_intents) ? d.sub_intents : [];
+
+  // 攻击性/客诉风险 -> 顶栏铃铛 + 活动日志（仅对模型结果去重触发一次）
+  if (isEscalate && !manual && fbId) raiseComplaintAlert(fbId);
 
   if (result && result.status === 'failed' && !manual) {
     body.innerHTML =
-      '<div class="fb-ai-fail">⚠️ 模型未能完成分析：' + (result.error?.message || '生成失败') +
+      '<div class="fb-ai-fail">⚠️ 模型未能完成分析：' + escapeHtml(result.error?.message || '生成失败') +
       '<br>你可以点击下方「人工处理」手动补全这条反馈的结构化信息。</div>';
   } else {
     const row = (label, val) => {
@@ -521,16 +634,61 @@ function renderFeedbackAnalysis(result, triggerEl) {
     };
     const conf = d.confidence || '—';
     const confCls = conf === 'high' ? 'high' : conf === 'medium' ? 'mid' : 'low';
+
+    let subHtml = '';
+    if (subIntents.length) {
+      subHtml = '<div class="fb-ai-sub"><div class="fb-ai-k" style="margin-bottom:6px">多意图拆分（' + subIntents.length + '）</div>' +
+        subIntents.map((s, i) => '<div class="fb-ai-sub-item"><b>' + (i + 1) + '. ' + escapeHtml(s.aspect || '意图') + '</b>：' + escapeHtml(s.feedback_content || '') + '</div>').join('') +
+        '</div>';
+    }
+    const riskHtml = isEscalate
+      ? '<div class="fb-ai-risk">⚠️ 客诉风险：该反馈含攻击性 / 高风险情绪（如退款、投诉、威胁），已触发客诉告警，建议优先跟进。</div>'
+      : '';
+
     body.innerHTML =
       '<div class="fb-ai-quote">' + escapeHtml(quote || '（无原文）') + '</div>' +
+      riskHtml +
       row('问题来源', d.problem_source) +
       row('用户类型', d.user_type) +
       row('用户情绪', d.user_emotion) +
       row('反馈时间', d.feedback_time) +
       row('反馈内容', d.feedback_content) +
+      (subHtml ? subHtml : '') +
       '<div class="fb-ai-row"><span class="fb-ai-k">把握度</span><span class="fb-ai-conf ' + confCls + '">' + conf + '</span></div>' +
       (d.notes ? '<div class="fb-ai-notes">备注：' + escapeHtml(d.notes) + '</div>' : '') +
-      '<div class="fb-ai-source">数据来源：' + escapeHtml(source) + '</div>';
+      '<div class="fb-ai-source">数据来源：' + escapeHtml(source) + '</div>' +
+      '<div class="fb-ai-actions" id="fb-ai-actions"></div>';
+
+    // 动态操作按钮：根据状态呈现不同处置动作
+    const actions = $('#fb-ai-actions');
+    if (actions) {
+      if (subIntents.length) {
+        const b = document.createElement('button');
+        b.className = 'btn btn-outline fb-ai-action';
+        b.textContent = '拆分为机会草稿 (' + subIntents.length + ')';
+        b.onclick = () => splitSubIntentsToOpps(subIntents, quote);
+        actions.appendChild(b);
+      }
+      if (isEscalate) {
+        const b = document.createElement('button');
+        b.className = 'btn btn-outline fb-ai-action fb-ai-action-warn';
+        b.textContent = '转客诉工单';
+        b.onclick = () => openComplaintTicket(fbId, quote);
+        actions.appendChild(b);
+      }
+      if (isLow) {
+        const c = document.createElement('button');
+        c.className = 'btn btn-outline fb-ai-action';
+        c.textContent = '补采（索取更多信息）';
+        c.onclick = () => openCollectModal(fbId);
+        actions.appendChild(c);
+        const r = document.createElement('button');
+        r.className = 'btn btn-outline fb-ai-action fb-ai-action-warn';
+        r.textContent = '驳回（标记无效反馈）';
+        r.onclick = () => rejectFeedback(fbId);
+        actions.appendChild(r);
+      }
+    }
   }
 
   // 绑定弹窗底部按钮（每次重建后重新绑定）
@@ -544,6 +702,54 @@ function renderFeedbackAnalysis(result, triggerEl) {
   modal.classList.add('open');
 }
 
+/* 多意图 -> 机会工作区草稿 */
+function splitSubIntentsToOpps(subs, quote) {
+  if (!subs || !subs.length) return;
+  let created = 0;
+  subs.forEach((s) => {
+    const title = (s.aspect || '反馈') + ' 反馈';
+    const desc = (s.feedback_content || '') + (quote ? '\n（原反馈：' + quote.slice(0, 50) + (quote.length > 50 ? '…' : '') + '）' : '');
+    if (typeof window.createDraftOpportunity === 'function') {
+      window.createDraftOpportunity(title, desc, '来自反馈拆分');
+      created++;
+    }
+  });
+  if (created) {
+    if (typeof window.switchTab === 'function') window.switchTab('opportunities');
+    toast('已将 ' + created + ' 个意图转为机会草稿', 'success');
+  } else {
+    toast('机会工作区未就绪，无法创建草稿', 'error');
+  }
+}
+
+/* 低 confidence -> 补采 / 驳回 */
+function openCollectModal(fbId) {
+  const html =
+    '<div class="modal-form-row"><label>补采问题</label><textarea id="fb-collect-q" placeholder="向用户追询的问题，例如：请问导出大概在多少条数据时开始超时？"></textarea></div>' +
+    '<div class="modal-actions"><button class="btn-ghost" id="fb-collect-cancel">取消</button><button class="btn-primary" id="fb-collect-save">生成补采任务</button></div>';
+  showModal('补采 · 索取更多信息', html);
+  $('#fb-collect-cancel').onclick = () => { const m = $('#generic-modal'); if (m) m.remove(); };
+  $('#fb-collect-save').onclick = () => {
+    const q = $('#fb-collect-q').value.trim();
+    saveFbDecision(fbId, 'collect', { question: q });
+    const m = $('#generic-modal'); if (m) m.remove();
+    markCardDecision(fbId, '补采中', 'collecting');
+    toast('已生成补采任务，等待用户补充信息', 'success');
+  };
+}
+function rejectFeedback(fbId) {
+  if (!confirm('确认将该反馈标记为「无效反馈 / 驳回」吗？\n驳回后将在卡片上标注，不再进入机会转化。')) return;
+  saveFbDecision(fbId, 'reject', {});
+  markCardDecision(fbId, '已驳回', 'rejected');
+  toast('已驳回该反馈', 'info');
+}
+function openComplaintTicket(fbId, quote) {
+  saveFbDecision(fbId, 'escalated', { quote });
+  markCardDecision(fbId, '客诉', 'rejected');
+  toast('已转客诉工单，建议优先跟进', 'error');
+  if (typeof window.switchTab === 'function') window.switchTab('feedback');
+}
+
 /* 人工处理入口：模型无法识别 / 用户不满意时，由人工补全结构化字段 */
 function openFeedbackHumanModal(fbId, preset, triggerEl) {
   const p = preset || {};
@@ -551,8 +757,9 @@ function openFeedbackHumanModal(fbId, preset, triggerEl) {
     '<div class="modal-form-row"><label>问题来源</label><input type="text" id="fbh-source" value="' + escapeHtml(p.problem_source || '') + '" placeholder="如：导出报表 / 搜索（未知填 待确认）"></div>' +
     '<div class="modal-form-row"><label>用户类型</label><input type="text" id="fbh-type" value="' + escapeHtml(p.user_type || '') + '" placeholder="如：付费版 / 企业版（未知填 待确认）"></div>' +
     '<div class="modal-form-row"><label>用户情绪</label><input type="text" id="fbh-emotion" value="' + escapeHtml(p.user_emotion || '') + '" placeholder="positive / neutral / negative / angry / 待确认"></div>' +
-    '<div class="modal-form-row"><label>反馈时间</label><input type="text" id="fbh-time" value="' + escapeHtml(p.feedback_time || '') + '" placeholder="相对日期或 待确认"></div>' +
+    '<div class="modal-form-row"><label>反馈时间</label><input type="text" id="fbh-time" value="' + escapeHtml(p.feedback_time || '') + '" placeholder="绝对日期 YYYY-MM-DD 或 待确认"></div>' +
     '<div class="modal-form-row"><label>反馈内容</label><textarea id="fbh-content" placeholder="一句话凝练用户真实诉求">' + escapeHtml(p.feedback_content || '') + '</textarea></div>' +
+    '<div class="modal-form-row"><label>客诉风险</label><select id="fbh-risk"><option value="none"' + (p.risk_flag !== 'escalate' ? ' selected' : '') + '>none（无）</option><option value="escalate"' + (p.risk_flag === 'escalate' ? ' selected' : '') + '>escalate（转客诉）</option></select></div>' +
     '<div class="modal-actions"><button class="btn-ghost" id="fbh-cancel">取消</button><button class="btn-primary" id="fbh-save">保存为人工填写</button></div>';
   showModal('人工处理 · 补全反馈信息', html);
   $('#fbh-cancel').onclick = () => { const m = $('#generic-modal'); if (m) m.remove(); };
@@ -564,6 +771,7 @@ function openFeedbackHumanModal(fbId, preset, triggerEl) {
       feedback_time: $('#fbh-time').value.trim() || '待确认',
       feedback_content: $('#fbh-content').value.trim() || '（人工填写，无内容）',
       confidence: 'high',
+      risk_flag: $('#fbh-risk').value,
       notes: '由人工在「人工处理」入口补全，覆盖模型结果。',
     };
     if (fbId) { const all = loadManualFb(); all[fbId] = val; saveManualFb(all); }
@@ -575,6 +783,14 @@ function openFeedbackHumanModal(fbId, preset, triggerEl) {
 
 function escapeHtml(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function todayISO() {
+  try {
+    const d = new Date();
+    const off = d.getTimezoneOffset();
+    const local = new Date(d.getTime() - off * 60000);
+    return local.toISOString().slice(0, 10);
+  } catch { return ''; }
 }
 
 /* ============================ 5.5 生成内容版本对比（亮点功能） ============================

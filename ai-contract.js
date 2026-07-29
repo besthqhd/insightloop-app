@@ -39,10 +39,13 @@ export const SCHEMAS = {
       problem_source: 'string',   // 问题来源模块/功能，信息不足填 '待确认'
       user_type: 'string',        // 用户类型/角色，信息不足填 '待确认'
       user_emotion: 'enum(positive|neutral|negative|angry|待确认)',
-      feedback_time: 'string',    // 反馈时间线索，无线索填 '待确认'
+      feedback_time: 'string',    // 已还原的绝对日期 YYYY-MM-DD；相对时间需结合“今天”还原；无线索填 '待确认'
       feedback_content: 'string', // 凝练后的用户真实诉求/问题
       confidence: 'enum(high|medium|low)', // 模型对整体判断的把握度
       notes: 'string',            // 说明哪些字段因信息不足标为待确认及原因
+      // ── v1.9 增强字段 ──
+      sub_intents: 'array<{aspect:string, problem_source:string, feedback_content:string}>', // 多意图拆分；单意图为空数组
+      risk_flag: 'enum(none|escalate)', // 攻击性/客诉风险：escalate 表示需转客诉告警
     },
   },
   [CAPABILITY.BATCH_ANALYZE]: {
@@ -159,23 +162,28 @@ export function buildContext(capability, params) {
  * 若平台支持 response_format=json_schema / function calling，应作为“硬保证”，
  * 本 prompt 作为“软保证”兜底。
  */
-export function buildSystemPrompt(capability) {
+export function buildSystemPrompt(capability, ctx) {
   const schema = SCHEMAS[capability];
   const fieldLines = Object.entries(schema.fields)
     .map(([k, v]) => `  - "${k}": ${v}`)
     .join('\n');
+  const refDate = (ctx && ctx.context && ctx.context.constraints && ctx.context.constraints.reference_date)
+    || (ctx && ctx.reference_date) || '';
 
   // 单条反馈分类：使用 PM 视角专用提示词，强制「信息不足即待确认，绝不编造」
   if (capability === CAPABILITY.ANALYZE_FEEDBACK) {
+    const refLine = refDate ? `【今天日期】：${refDate}。请以此为准还原相对时间。` : '';
     return [
       '你是一名资深产品经理，正在处理用户反馈。请基于下面给出的单条反馈文本，严格按契约识别并结构化抽取以下维度：',
       '  - problem_source（问题来源）：反馈指向的产品模块 / 功能 / 链路，例如「导出报表」「搜索」「移动端登录」。若文本无法判断，填 "待确认"，不要猜测。',
       '  - user_type（用户类型）：例如「免费个人用户」「企业管理员」「开发者」。信息不足填 "待确认"。',
       '  - user_emotion（用户情绪）：positive / neutral / negative / angry。无法判断填 "待确认"。',
-      '  - feedback_time（反馈时间）：若文本含时间线索（如「昨天 / 3月 / 上周」）尽量还原为相对日期；无线索填 "待确认"。',
+      '  - feedback_time（反馈时间）：若文本含相对时间（如「昨天 / 前天 / 3天前 / 上周 / 上个月」），' + (refDate ? '结合【今天日期】' : '结合当前日期') + '还原为绝对日期 YYYY-MM-DD（例如 2026-07-27）；无线索填 "待确认"。',
       '  - feedback_content（反馈内容）：用一句话凝练用户真实诉求 / 问题，保留关键事实，不展开。',
-      '  - confidence：你对以上整体判断的把握度 high / medium / low。',
+      '  - confidence：你对以上整体判断的把握度 high / medium / low。信息越缺失、情绪越极端、文本越短，把握度越低。',
       '  - notes：说明哪些字段因信息不足标记为「待确认」以及原因。',
+      '  - sub_intents（多意图拆分）：若一条反馈包含多个不同意图（如同时抱怨「导出慢」与「搜索不准」），请逐条拆分成独立意图对象，每条含 aspect（意图方面，如「导出速度」）/ problem_source（该意图来源）/ feedback_content（该意图诉求）；单意图或无法拆分时填空数组 []。',
+      '  - risk_flag（客诉风险）：若反馈带有明显攻击性、辱骂、威胁，或高风险情绪（如要求退款、投诉、起诉、扬言弃用、拉黑），置为 "escalate" 并在 notes 说明；否则置为 "none"。',
       '',
       '【硬性约束】',
       '1. 严禁自行编造任何信息；任何不确定的字段一律填 "待确认"。',
@@ -183,7 +191,8 @@ export function buildSystemPrompt(capability) {
       '3. 输出 JSON 必须严格满足以下字段契约（缺失必填字段或类型错误将被视为失败）：',
       fieldLines,
       `   必填字段：${schema.required.join(', ')}。`,
-      '   枚举约束必须严格遵守（user_emotion / confidence 取值见字段定义）。',
+      '   枚举约束必须严格遵守（user_emotion / confidence / risk_flag 取值见字段定义）。',
+      refLine,
     ].join('\n');
   }
 
@@ -259,7 +268,7 @@ export async function callModel(capability, params, opts = {}) {
   } = opts;
 
   const ctx = buildContext(capability, params);
-  const sysPrompt = buildSystemPrompt(capability);
+  const sysPrompt = buildSystemPrompt(capability, ctx);
 
   for (let attempt = 0; attempt <= maxRetry; attempt++) {
     try {

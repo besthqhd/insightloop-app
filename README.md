@@ -33,6 +33,13 @@ InsightLoop 把「反馈 → 洞察 → 机会 → 上线验证」的产品迭�
 - **模块加载鲁棒性（v1.5）**：修复 `ai-contract.js` 缺失 `callRealModel` 导出导致 `ai-integration.js` 模块加载失败、所有 AI 按钮无响应的隐藏 bug；为 JS module 增加 cache-buster，避免 GitHub Pages CDN 返回旧版本。
 - **单条反馈 AI 分析 · PM 视角（v1.8）**：反馈中心每张卡片新增「AI 分析」按钮，调用 `analyze_feedback` 能力，按产品经理视角结构化抽取「问题来源 / 用户类型 / 用户情绪 / 反馈时间 / 反馈内容」五维，并以 `confidence` 标注把握度。**信息不足字段一律标 `待确认`，严禁编造**；`待确认` 在结果弹窗中高亮，引导补采或人工处理。
 - **基础容错能力补全（v1.8）**：上传失败提示（导入格式弹窗 + 模板下载）、模型调用超时提示、输出解析失败自动重试（`JSON_UNPARSEABLE` 且 `retryable`，UI 多入口提供「重试」）、AI 触发按钮的数据状态徽标（生成中/已生成/部分生成/生成失败/已采纳）、同能力请求在途的**重复提交限制**、以及「无法识别时的人工处理入口」（人工补全 5 字段并覆盖模型结果，落盘 `localStorage`）。配套测试集与评估报告见 [`feedback-analysis-test-report.md`](./feedback-analysis-test-report.md)。
+- **单条反馈分析 · 4 项增强（v1.9）**：在 v1.8 五维抽取基础上补齐闭环处置能力——
+  1. **多意图拆分**：模型在 `sub_intents` 中逐条拆出多条意图（方面 / 来源 / 诉求），结果弹窗提供「拆分为机会草稿」一键把每个意图导入机会工作区。
+  2. **时间还原**：上下文注入「今天日期」，相对时间（昨天 / 前天 / 3天前 / 上周 / N天前…）由模型结合当天还原为绝对日期 `YYYY-MM-DD`（原型 mock 已用本地日期分量实现，规避时区差一天）。
+  3. **低 confidence 补采 / 驳回流程**：把握度 `low` 时弹窗给出「补采（索取更多信息）」与「驳回（标记无效反馈）」两个动作，分别记录到 `localStorage` 决策表并在卡片打标签。
+  4. **攻击性内容联动客诉告警**：`risk_flag=escalate` 时结果弹窗显示红色客诉横幅，顶栏出现「⚠️ 客诉」铃铛（累计计数 + 活动日志），并提供「转客诉工单」一键处置。
+
+详见 PRD 第 12–14 节；竞品对比见 [`InsightLoop_竞品分析.md`](./InsightLoop_竞品分析.md)。
 
 详细需求见 [`InsightLoop_PRD.md`](./InsightLoop_PRD.md)。
 
@@ -44,6 +51,8 @@ InsightLoop 把「反馈 → 洞察 → 机会 → 上线验证」的产品迭�
 ├── ai-contract.js      # AI 接入契约层：固定 JSON、8 个 SCHEMAS、失败状态机、重生
 ├── ai-integration.js   # 前端联调层：mock 模型 + 三层展示法渲染（loading/失败/重生）
 ├── InsightLoop_PRD.md  # 产品需求文档（v1.1，与已实现 UI/功能对齐）
+├── InsightLoop_竞品分析.md # 竞品对比与差异化定位（v1.0）
+├── feedback-analysis-test-report.md # 单条反馈分析测试集与评估
 └── README.md
 ```
 
