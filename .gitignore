@@ -8,3 +8,6 @@ Thumbs.db
 
 # 本静态应用不依赖 node 依赖
 node_modules/
+
+# 测试报告：保留本地，不进入 GitHub 仓库
+feedback-analysis-test-report.md
