@@ -152,3 +152,19 @@
 ### 8.3 验证方式
 - 节点 ESM 测试桩（stub `window/document/localStorage`，patch `?v=2.0` 查询串）加载 `ai-integration.js`：断言 `window.insightRag.ready()===true`、`runInsightEval` 可跑、RAG 相关查询有结果且无关查询返回空、Eval 三指标达标（9/9 断言通过）。
 - 两个模块均通过 `node --check` 语法校验。
+
+## 九、v2.1 · 评估看板「对比 Mock vs 真实」模式
+
+### 9.1 新增能力
+评估看板支持在「当前模型」与「对比 Mock vs 真实」两种模式间切换：
+- 选「对比」并配置真实 Key 后，「运行评估」用**同一套 15 条固定用例**分别跑 `mockModel` 与 `callRealModel`，并排出逐用例对比表（每格 `理解/帮助` 命中 ✓✗，并标出「有差异」行）；
+- 未配置 Key 时仅跑 mock 并提示去「⚙ AI 设置」填写，**不报错**；
+- 抽象：把 `runEvalSuite` 内部的单条评估抽成 `evalOne(c, modelFn)`，单模型与对比模式共用同一评估逻辑，保证「同一测试集、同一判定标准」。
+
+### 9.2 设计意图（面试叙事）
+- **模型路由 / 质量—成本权衡**：同一任务不同模型表现不同，产品要能横向比、能回归测 prompt。
+- **AI 可度量**：看板数字随模型/prompt 迭代变化，是 AI 产品上线前必备的可观测能力。
+
+### 9.3 验证
+- 节点 ESM 测试桩调用 `window.runInsightEvalCompare()`（无真实 Key → 仅 mock）：返回 15 条、格式 100% / 理解 100% / 帮助 80%，断言全过（5/5）。真实模型路径依赖浏览器内 `localStorage` 的 Key，需在页面内配 GLM-4-Flash 等实际运行验证。
+- 打开「⚙ AI 设置」若未保存过配置，自动预填 GLM-4-Flash 的 Base URL（`https://open.bigmodel.cn/api/paas/v4`）与模型名（`glm-4-flash`），用户只需粘贴 Key。

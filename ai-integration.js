@@ -10,7 +10,7 @@
  * 依赖：ai-contract.js 导出的 CAPABILITY / callModel / regenerate / getHistory
  */
 
-import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel, SCHEMAS, validate } from './ai-contract.js?v=2.0';
+import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel, getModelConfig, SCHEMAS, validate } from './ai-contract.js?v=2.0';
 
 /* ============================ 能力中文标签 ============================ */
 const LABELS = {
@@ -305,37 +305,63 @@ const EVAL_CASES = [
 
 let lastEvalRuns = [];
 
-async function runEvalSuite() {
+// 单条用例评估：复用 callModel 链路（mock 或真实模型由 modelFn 决定）
+async function evalOne(c, modelFn) {
+  const cap = CAPABILITY.ANALYZE_FEEDBACK;
+  let res;
+  try {
+    res = await callModel(cap, {
+      artifacts: [{ feedback_text: c.input }],
+      constraints: { tone: '专业', detail: '高', _seed: 1, reference_date: EVAL_REF_DATE },
+      history: [],
+    }, { requestModel: modelFn, fallbackModel: modelFn, maxRetry: 0, timeoutMs: 12000 });
+  } catch (e) {
+    res = { status: 'failed', error: { message: e.message } };
+  }
+  const d = res.data || {};
+  const fmt = res.status !== 'failed';
+  const checks = [];
+  if (c.expect.emotion != null) checks.push(d.user_emotion === c.expect.emotion);
+  if (c.expect.risk != null) checks.push(d.risk_flag === c.expect.risk);
+  if (c.expect.time != null) checks.push(d.feedback_time === c.expect.time);
+  if (c.expect.multi != null) { const has = Array.isArray(d.sub_intents) && d.sub_intents.length >= 1; checks.push(has === c.expect.multi); }
+  if (c.expect.source != null) checks.push((d.problem_source || '').includes(c.expect.source));
+  const understood = checks.length ? checks.some(Boolean) : fmt;
+  const helpful = fmt && d.confidence !== 'low';
+  return { cat: c.cat, input: c.input, status: res.status, data: d, fmt, understood, helpful, expect: c.expect, error: res.error };
+}
+
+async function runEvalSuite({ mode = 'current' } = {}) {
+  if (mode === 'compare') return runEvalCompare();
   const cap = CAPABILITY.ANALYZE_FEEDBACK;
   const modelFn = useRealModel() ? callRealModel : mockModel;
   const modelLabel = useRealModel() ? '真实模型' : 'Mock（演示基线）';
   const runs = [];
-  for (const c of EVAL_CASES) {
-    let res;
-    try {
-      res = await callModel(cap, {
-        artifacts: [{ feedback_text: c.input }],
-        constraints: { tone: '专业', detail: '高', _seed: 1, reference_date: EVAL_REF_DATE },
-        history: [],
-      }, { requestModel: modelFn, fallbackModel: modelFn, maxRetry: 0, timeoutMs: 8000 });
-    } catch (e) {
-      res = { status: 'failed', error: { message: e.message } };
-    }
-    const d = res.data || {};
-    const fmt = res.status !== 'failed';
-    const checks = [];
-    if (c.expect.emotion != null) checks.push(d.user_emotion === c.expect.emotion);
-    if (c.expect.risk != null) checks.push(d.risk_flag === c.expect.risk);
-    if (c.expect.time != null) checks.push(d.feedback_time === c.expect.time);
-    if (c.expect.multi != null) { const has = Array.isArray(d.sub_intents) && d.sub_intents.length >= 1; checks.push(has === c.expect.multi); }
-    if (c.expect.source != null) checks.push((d.problem_source || '').includes(c.expect.source));
-    const understood = checks.length ? checks.some(Boolean) : fmt;
-    const helpful = fmt && d.confidence !== 'low';
-    runs.push({ cat: c.cat, input: c.input, status: res.status, data: d, fmt, understood, helpful, expect: c.expect, error: res.error });
-  }
+  for (const c of EVAL_CASES) runs.push(await evalOne(c, modelFn));
   lastEvalRuns = runs;
   renderEval(runs, modelLabel);
   return runs;
+}
+
+// 对比模式：固定测试集分别跑 Mock 与真实模型，渲染并排对比
+async function runEvalCompare() {
+  const meta = document.getElementById('eval-meta');
+  const mockRuns = [];
+  for (const c of EVAL_CASES) mockRuns.push(await evalOne(c, mockModel));
+  const cfg = getModelConfig();
+  const realLabel = (cfg && cfg.model) || '真实模型';
+  if (!cfg || !cfg.apiKey) {
+    renderEvalCompare(mockRuns, [], realLabel);
+    if (meta) meta.textContent = '⚠ 未配置真实模型 Key：请在顶栏「⚙ AI 设置」填写 GLM-4-Flash 的 API Key 后重试对比。';
+    return mockRuns;
+  }
+  const realRuns = [];
+  for (let i = 0; i < EVAL_CASES.length; i++) {
+    if (meta) meta.textContent = `对比中（真实模型 ${realLabel}） ${i + 1}/${EVAL_CASES.length} …`;
+    realRuns.push(await evalOne(EVAL_CASES[i], callRealModel));
+  }
+  renderEvalCompare(mockRuns, realRuns, realLabel);
+  return realRuns;
 }
 
 function renderEval(runs, modelLabel) {
@@ -371,6 +397,47 @@ function renderEval(runs, modelLabel) {
       <td>${st}</td>
       <td>${assert}</td>
       <td><span class="fb-ai-conf ${confCls}">${conf}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// 对比渲染：Mock vs 真实模型 的汇总 + 逐用例差异
+function renderEvalCompare(mockRuns, realRuns, realLabel) {
+  const total = mockRuns.length;
+  const pct = (arr, key) => (total ? Math.round((arr.filter(r => r[key]).length / total) * 100) : 0) + '%';
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('eval-total', total);
+  // 汇总卡：显示 Mock 当前值（真实模型若缺失则留空）
+  set('eval-fmt', realRuns.length ? pct(realRuns, 'fmt') : pct(mockRuns, 'fmt'));
+  set('eval-under', realRuns.length ? pct(realRuns, 'understood') : pct(mockRuns, 'understood'));
+  set('eval-help', realRuns.length ? pct(realRuns, 'helpful') : pct(mockRuns, 'helpful'));
+
+  const meta = document.getElementById('eval-meta');
+  if (meta && realRuns.length) {
+    meta.innerHTML = `对比结果 · Mock 基线 vs <b>${escapeHtml(realLabel)}</b> · 参考日期 ${EVAL_REF_DATE} · 共 ${total} 条用例`
+      + `　|　格式 <b>${pct(mockRuns,'fmt')}/${pct(realRuns,'fmt')}</b>`
+      + `　理解 <b>${pct(mockRuns,'understood')}/${pct(realRuns,'understood')}</b>`
+      + `　帮助 <b>${pct(mockRuns,'helpful')}/${pct(realRuns,'helpful')}</b>`;
+  }
+
+  const cmp = document.getElementById('eval-compare');
+  if (!cmp) return;
+  cmp.style.display = 'block';
+  const tb = document.getElementById('eval-compare-rows');
+  if (!tb) return;
+  const mark = (b) => b ? '<span class="activity-pill done">✓</span>' : '<span class="activity-pill failed">✗</span>';
+  tb.innerHTML = mockRuns.map((m, i) => {
+    const r = realRuns[i];
+    const realCell = r
+      ? `${mark(r.understood)} / ${mark(r.helpful)}${r.status === 'failed' ? '<div class="eval-err">' + escapeHtml((r.error && r.error.message || '').slice(0, 40)) + '</div>' : ''}`
+      : '<span class="eval-muted">未运行</span>';
+    const delta = r ? ((r.helpful === m.helpful && r.understood === m.understood) ? '' : '<span class="eval-delta">有差异</span>') : '';
+    return `<tr>
+      <td>${i + 1}</td>
+      <td>${escapeHtml(m.cat)}</td>
+      <td>${mark(m.understood)} / ${mark(m.helpful)}</td>
+      <td>${realCell}</td>
+      <td>${delta}</td>
     </tr>`;
   }).join('');
 }
@@ -1326,17 +1393,28 @@ function init() {
   const evalBtn = $('#eval-run-btn');
   evalBtn && evalBtn.addEventListener('click', async () => {
     if (evalBtn.disabled) return;
+    const mode = ($('#eval-mode .seg.active') || {}).dataset?.mode || 'current';
+    const isCompare = mode === 'compare';
+    const singleWrap = $('#eval-single-wrap');
+    const cmpWrap = $('#eval-compare');
+    if (isCompare) { if (singleWrap) singleWrap.style.display = 'none'; }
+    else { if (cmpWrap) cmpWrap.style.display = 'none'; if (singleWrap) singleWrap.style.display = 'block'; }
     const orig = evalBtn.textContent;
-    evalBtn.disabled = true; evalBtn.textContent = '评估中…';
+    evalBtn.disabled = true; evalBtn.textContent = isCompare ? '对比中…' : '评估中…';
     try {
-      await runEvalSuite();
-      toast('评估完成，已更新质量看板', 'success');
+      await runEvalSuite({ mode });
+      toast(isCompare ? '对比完成：Mock 基线 vs 真实模型' : '评估完成，已更新质量看板', 'success');
     } catch (e) {
       toast('评估失败：' + (e.message || e), 'error');
     } finally {
       evalBtn.disabled = false; evalBtn.textContent = orig;
     }
   });
+
+  // 评估模式开关：当前模型 / 对比 Mock vs 真实
+  $$('#eval-mode .seg').forEach(b => b.addEventListener('click', () => {
+    $$('#eval-mode .seg').forEach(x => x.classList.toggle('active', x === b));
+  }));
 
   // 反馈页 RAG 检索面板
   const ragBtn = $('#rag-search-btn');
@@ -1369,6 +1447,7 @@ if (document.readyState === 'loading') {
 if (typeof window !== 'undefined') {
   window.insightRag = { retrieve: ragRetrieve, init: ragInit, ready: () => !!ragIndex };
   window.runInsightEval = runEvalSuite;
+  window.runInsightEvalCompare = () => runEvalSuite({ mode: 'compare' });
 }
 
 export { runAI, openDrawer, pushActivity };

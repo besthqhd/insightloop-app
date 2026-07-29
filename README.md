@@ -80,6 +80,8 @@ python -m http.server 8080
 
 **实现要点：** 密钥仅存浏览器 `localStorage`（`insightloop_ai_config`），**不入库、不进 GitHub**；`callRealModel` 通过 `fetch` 调 `/chat/completions` 并带 `response_format=json_object`，返回文本交给契约层的 `repairJson` + `validate` 处理，UI 与契约层零改动。
 
+**评估看板「对比 Mock vs 真实」模式（v2.1）：** 评估看板右上角可切换「当前模型 / 对比 Mock vs 真实」。选「对比」并配置好真实 Key 后，点「运行评估」会用**同一套 15 条固定用例**分别跑 mock 与真实模型（如智谱 GLM-4-Flash），并在下方排出逐用例对比表（理解/帮助命中 ✓✗、是否有差异）。未配置 Key 时只跑 mock 并提示去填写——无需改动契约层即可横向比较模型质量与 prompt 迭代效果。打开「⚙ AI 设置」若未保存过配置，会自动预填 GLM-4-Flash 的 Base URL 与模型名，你只需粘贴 Key。
+
 ## 现状与边界
 
 - ✅ 已完成：四页可交互原型、AI 契约层、三层展示法、GitHub Pages 托管、真实模型 OpenAI 兼容适配器（顶栏「⚙ AI 设置」本地接入，密钥不入库）。

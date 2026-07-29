@@ -1514,6 +1514,18 @@
     .eval-empty { text-align: center; color: var(--muted); padding: 28px; }
     .eval-note { font-size: 12px; color: var(--muted); line-height: 1.7; margin-top: 14px; background: #F8FAFC; border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
     .eval-note b { color: #334155; }
+    .eval-mode { display: inline-flex; background: #F1F5F9; border-radius: 9px; padding: 3px; gap: 2px; }
+    .eval-mode .seg { border: none; background: transparent; font-size: 13px; color: var(--muted); padding: 7px 13px; border-radius: 7px; cursor: pointer; transition: .15s; }
+    .eval-mode .seg.active { background: var(--surface); color: var(--primary); box-shadow: 0 1px 3px rgba(15,23,42,.1); font-weight: 600; }
+    .eval-compare { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; }
+    .eval-compare-head { font-size: 12.5px; color: #475569; margin-bottom: 10px; font-weight: 600; }
+    .eval-compare-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .eval-compare-table th { text-align: left; padding: 9px 12px; background: #F8FAFC; color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--border); }
+    .eval-compare-table td { padding: 9px 12px; border-bottom: 1px solid #EEF2F7; vertical-align: top; }
+    .eval-compare-table tr:last-child td { border-bottom: none; }
+    .eval-muted { color: var(--muted); font-weight: 400; }
+    .eval-err { font-size: 11px; color: #DC2626; margin-top: 3px; }
+    .eval-delta { display: inline-block; font-size: 11px; color: #B45309; background: #FEF3C7; border-radius: 6px; padding: 2px 7px; }
 
     /* ===== 本地 RAG 检索面板 ===== */
     .rag-panel { margin-bottom: 14px; }
@@ -2326,6 +2338,10 @@ export_start / export_progress / export_cancel / export_success。
             <h1 class="page-title">AI 评估看板</h1>
             <p class="page-subtitle">用固定测试集量化模型输出质量：格式稳定率 / 任务理解率 / 是否有帮助——AI 产品上线前必须可度量，而非只看“能不能跑”</p>
           </div>
+          <div class="eval-mode" id="eval-mode">
+            <button class="seg active" data-mode="current">当前模型</button>
+            <button class="seg" data-mode="compare">对比 Mock vs 真实</button>
+          </div>
           <button class="btn btn-primary" id="eval-run-btn">运行评估</button>
         </div>
 
@@ -2337,7 +2353,7 @@ export_start / export_progress / export_cancel / export_success。
         </div>
         <div class="eval-meta" id="eval-meta">点击「运行评估」后展示指标 · 评估能力：反馈 PM 视角分析（analyze_feedback）</div>
 
-        <div class="eval-table-wrap">
+        <div class="eval-table-wrap" id="eval-single-wrap">
           <table class="eval-table">
             <thead><tr><th>#</th><th>类别</th><th>输入</th><th>状态</th><th>关键断言</th><th>把握度</th></tr></thead>
             <tbody id="eval-rows">
@@ -2345,9 +2361,17 @@ export_start / export_progress / export_cancel / export_success。
             </tbody>
           </table>
         </div>
+
+        <div class="eval-compare" id="eval-compare" style="display:none">
+          <div class="eval-compare-head">逐用例对比：<span class="eval-muted">Mock（演示基线）</span> vs <span class="eval-muted">真实模型</span>（✓ 命中 / ✗ 未命中 · 理解/帮助）</div>
+          <table class="eval-compare-table">
+            <thead><tr><th>#</th><th>类别</th><th>Mock 理解/帮助</th><th>真实 理解/帮助</th><th>差异</th></tr></thead>
+            <tbody id="eval-compare-rows"></tbody>
+          </table>
+        </div>
         <div class="eval-note">
           <b>指标说明</b>：格式稳定率 = 输出可被解析且通过 schema 校验的占比；任务理解率 = 至少命中一个预期维度（情绪/风险/时间还原/多意图/来源）的占比；有帮助率 = 格式稳定且模型把握度非 low、可据此直接行动的占比。<br>
-          <b>如何解读</b>：当前为 Mock（演示基线）跑 15 条固定用例，格式稳定率 100%、任务理解率 100%；有帮助率约 80% 并非缺陷——其余 3 条为「空输入 / 无语义乱码 / 信息缺失」，模型正确地把把握度判为 low 并 abstain（不臆测），这正是评测要暴露的「何时不该自信」。配置真实 API Key 后，「运行评估」将改为评估真实模型表现，看板数字会随模型与 prompt 迭代而变化。
+          <b>如何解读</b>：当前为 Mock（演示基线）跑 15 条固定用例，格式稳定率 100%、任务理解率 100%；有帮助率约 80% 并非缺陷——其余 3 条为「空输入 / 无语义乱码 / 信息缺失」，模型正确地把把握度判为 low 并 abstain（不臆测），这正是评测要暴露的「何时不该自信」。在右上角切换到「对比 Mock vs 真实」并配置 GLM-4-Flash 等真实 Key 后，「运行评估」会同一套固定用例分别跑 Mock 与真实模型，并排出逐用例对比表——可直观比较模型质量与 prompt 迭代效果。
         </div>
       </section>
 
@@ -2718,6 +2742,12 @@ export_start / export_progress / export_cancel / export_success。
         try {
           const c = JSON.parse(localStorage.getItem('insightloop_ai_config') || 'null');
           if (c) { baseEl.value = c.baseUrl || ''; modelEl.value = c.model || ''; keyEl.value = c.apiKey || ''; }
+          else {
+            // 首次打开：预填智谱 GLM-4-Flash（真免费、OpenAI 兼容），用户只需粘贴 API Key
+            baseEl.value = 'https://open.bigmodel.cn/api/paas/v4';
+            modelEl.value = 'glm-4-flash';
+            keyEl.placeholder = '粘贴你的 GLM-4-Flash API Key（ZhipuAI 控制台获取）';
+          }
         } catch (e) {}
         useReal.checked = localStorage.getItem('insightloop_use_real') === '1';
       }
@@ -2749,7 +2779,7 @@ export_start / export_progress / export_cancel / export_success。
       });
     })();
   </script>
-  <script type="module" src="ai-integration.js?v=2.0"></script>
+  <script type="module" src="ai-integration.js?v=2.1"></script>
   <script>
   /* 死按钮补齐：让每个可点击元素点击后都有真实结果（导航 / 展开 / 弹窗 / 提示）
      与 ai-integration.js 互不干扰（本段只处理无 data-ai-cap 的元素）。 */
