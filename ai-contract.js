@@ -226,7 +226,7 @@ function repairJson(raw) {
 }
 
 /* ====================== 工具：契约校验 + 兜底修复 ====================== */
-function validate(data, capability) {
+export function validate(data, capability) {
   const schema = SCHEMAS[capability];
   const errors = [];
   const repaired = {};

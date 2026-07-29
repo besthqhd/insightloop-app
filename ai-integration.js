@@ -10,7 +10,7 @@
  * 依赖：ai-contract.js 导出的 CAPABILITY / callModel / regenerate / getHistory
  */
 
-import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel } from './ai-contract.js?v=1.9';
+import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel, SCHEMAS, validate } from './ai-contract.js?v=2.0';
 
 /* ============================ 能力中文标签 ============================ */
 const LABELS = {
@@ -129,8 +129,8 @@ const MOCK = {
     const ref = (ctx && ctx.context && ctx.context.constraints && ctx.context.constraints.reference_date) || new Date().toISOString().slice(0, 10);
 
     // 攻击性 / 客诉风险
-    const angry = /(垃圾|太差|愤怒|投诉|退款|骗|傻|滚|起诉|威胁|弃用|拉黑|再也不|曝光|投诉电话|消协|315|垃圾软件|坑钱)/i.test(txt);
-    const neg = /(慢|崩溃|卡|报错|失败|烦|差|bug|错误|无法|不能|打不开|超时|等不及|白屏|转好几秒|反复重试)/i.test(txt);
+    const angry = /(垃圾软件|愤怒|投诉|退款|骗|傻|滚|起诉|威胁|弃用|拉黑|再也不|曝光|投诉电话|消协|315|坑钱)/i.test(txt);
+    const neg = /(慢|崩溃|卡|报错|失败|烦|差|bug|错误|无法|不能|打不开|超时|等不及|白屏|转好几秒|反复重试|401|token|oauth|鉴权|认证|授权)/i.test(txt);
     const emotion = angry ? 'angry' : neg ? 'negative' : (txt ? 'neutral' : '待确认');
     const risk_flag = angry ? 'escalate' : 'none';
 
@@ -140,10 +140,12 @@ const MOCK = {
     // 多意图拆分：按方面命中多个组 -> 拆成 sub_intents
     const sub = extractSubIntents(txt);
 
-    // 把握度：攻击性 / 无内容 / 无明显方面 -> low；命中方面且有时间 -> high；否则 medium
+    // 把握度：无内容 / 无明确方面 -> low；命中方面或负面情绪 -> high/medium；
+    // 攻击性/客诉信号明确，升级路由是确定性动作，给予高把握（可直接触发客诉工单）
     let confidence = 'low';
-    if (txt && sub.length >= 1) confidence = fbTime !== '待确认' ? 'high' : 'medium';
-    if (angry) confidence = 'low';
+    const hasAspect = sub.length >= 1 || /导出|搜索|登录|通知|深色|批量|报表|下载|查找|红点|消息|对比度|护眼|删除|进度/.test(txt);
+    if (angry) confidence = 'high';
+    else if (txt && (hasAspect || neg)) confidence = fbTime !== '待确认' ? 'high' : 'medium';
 
     const pending = [];
     if (!/导出|搜索|登录|通知|深色|批量|报表|下载|查找|红点|消息|对比度|护眼|删除|进度/.test(txt)) pending.push('问题来源');
@@ -194,7 +196,7 @@ function extractSubIntents(txt) {
   const ASPECTS = [
     { key: '导出/报表', re: /导出|报表|下载|超时失败|等.*分钟|数据量大/ },
     { key: '搜索', re: /搜索|查找|结果不准确|不相关|混进/ },
-    { key: '登录', re: /登录|注册|网络错误|重试.*成功|提示.*错误/ },
+    { key: '登录', re: /登录|注册|网络错误|重试.*成功|提示.*错误|401|token|oauth|鉴权|认证/ },
     { key: '通知', re: /通知|红点|消息|漏看|转好几秒/ },
     { key: '深色模式', re: /深色|对比度|护眼|颜色|文字看不清/ },
     { key: '批量操作', re: /批量|删除|进度提示|卡死/ },
@@ -206,6 +208,171 @@ function extractSubIntents(txt) {
     problem_source: a.key,
     feedback_content: txt.length > 60 ? `（涉及「${a.key}」的诉求，详见原反馈）` : txt,
   }));
+}
+
+/* ============================ 本地 RAG 检索（Retrieval-Augmented Generation） ============================
+ * 纯前端、零依赖、零后端：把反馈/主题结论向量化后做余弦检索，为 AI 分析提供 grounding 上下文。
+ *   - embed()：轻量向量化（中文按单字 + bigram，英文按词，hash 到固定维度并 L2 归一化）
+ *     —— 这是“稠密向量检索”的最小可行实现；生产环境可一行替换为 transformers.js(all-MiniLM-L6-v2)
+ *        或 OpenAI embeddings，检索接口（retrieve）保持不变。
+ *   - buildIndex / retrieve：对语料建向量索引，按余弦相似度取 top-k，低于阈值视为“无相关”。
+ * 用途：(a) 反馈分析弹窗中检索“相似历史反馈/主题结论”做证据 grounding；(b) 反馈页 RAG 检索面板。
+ */
+const RAG_DIM = 2048;
+function ragTokenize(text) {
+  const t = String(text || '');
+  const tokens = [];
+  const en = t.toLowerCase().match(/[a-z0-9]+/g) || [];
+  en.forEach(w => tokens.push('en:' + w));
+  const cjk = t.match(/[一-龥]/g) || [];
+  for (const ch of cjk) tokens.push('cj:' + ch);
+  const big = t.match(/[一-龥]{2}/g) || [];
+  big.forEach(b => tokens.push('bg:' + b));
+  return tokens;
+}
+function ragHash(s) {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+function embed(text) {
+  const vec = new Float32Array(RAG_DIM);
+  for (const tk of ragTokenize(text)) vec[ragHash(tk) % RAG_DIM] += 1;
+  let norm = 0;
+  for (let i = 0; i < RAG_DIM; i++) norm += vec[i] * vec[i];
+  norm = Math.sqrt(norm) || 1;
+  for (let i = 0; i < RAG_DIM; i++) vec[i] /= norm;
+  return vec;
+}
+function cosine(a, b) {
+  let s = 0;
+  for (let i = 0; i < a.length; i++) s += a[i] * b[i];
+  return s;
+}
+let ragIndex = null;
+function ragBuild(docs) {
+  ragIndex = (docs || []).map(d => ({ text: d.text || '', meta: d.meta || '', _vec: embed((d.text || '') + ' ' + (d.meta || '')) }));
+}
+function ragRetrieve(query, k = 3, minScore = 0.12) {
+  if (!ragIndex || !query) return [];
+  const q = embed(query);
+  return ragIndex
+    .map(d => ({ text: d.text, meta: d.meta, score: cosine(q, d._vec) }))
+    .filter(x => x.score >= minScore)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, k);
+}
+/* 内置领域知识库（兜底，保证即便页面未注入语料也能演示检索）。页面会把真实反馈/主题结论注入 window.__RAG_DOCS */
+const RAG_KB = [
+  { text: '导出报表耗时过长：大报表同步阻塞，最长 40s，建议流式 + 进度条 + 可取消。', meta: '知识库·导出报表' },
+  { text: '移动端登录偶发失败：iOS 网络错误，重试 2-3 次成功，需失败自愈与重试。', meta: '知识库·登录' },
+  { text: '搜索结果不准确：结果混入不相关文档，需语义重排与相关性加权。', meta: '知识库·搜索' },
+  { text: '批量操作无进度提示：大批量删除无反馈，用户误判卡死，需进度条。', meta: '知识库·批量操作' },
+  { text: '通知中心加载慢：打开转好几秒，红点不消失，需预加载与缓存。', meta: '知识库·通知中心' },
+  { text: '深色模式对比度不足：辅助文字看不清，需提高对比度更护眼。', meta: '知识库·深色模式' },
+  { text: '退款与客诉：用户要求退款、投诉、威胁曝光时，应升级为客诉工单并优先跟进。', meta: '知识库·客诉处理' },
+];
+function ragInit() {
+  const docs = (window.__RAG_DOCS && Array.isArray(window.__RAG_DOCS) ? window.__RAG_DOCS : []).concat(RAG_KB);
+  ragBuild(docs);
+}
+
+/* ============================ AI 评估看板（Evals） ============================
+ * 用固定测试集跑真实 callModel 链路（mock 或真实模型），量化“AI 输出是否可用”：
+ *   - 格式稳定率：status !== 'failed'（JSON 可解析 + schema 校验通过）占比
+ *   - 任务理解率：至少一个预期维度被正确抽取（情绪/风险/时间还原/多意图/来源）占比
+ *   - 有帮助率：输出格式稳定且模型把握度非 low（可据此直接行动）占比
+ * 这是 AI 产品上线前必须可度量的核心能力——大多数 demo 只会“能跑”，不会“可衡量”。
+ */
+const EVAL_REF_DATE = '2026-07-28';
+const EVAL_CASES = [
+  { cat: '正常完整', input: '每月底导出月度报表要等将近 2 分钟，数据量大时还会超时失败，只能反复重试。', expect: { emotion: 'negative', source: '导出' } },
+  { cat: '含时间+类型', input: '昨天导出报表又超时了，我是企业版用户，真的很着急。', expect: { emotion: 'negative', time: '2026-07-27', source: '导出' } },
+  { cat: '内容过短', input: '导出好慢。', expect: { emotion: 'negative', source: '导出' } },
+  { cat: '内容过短', input: '登录失败。', expect: { emotion: 'negative', source: '登录' } },
+  { cat: '内容过长', input: '你们这个导出功能简直离谱，我每个月都要导出一大堆数据给财务，结果每次都要等一两分钟还经常超时，我都快被老板骂死了，这要是再不改我就不用了真的垃圾。', expect: { emotion: 'negative', risk: 'none' } },
+  { cat: '格式异常(emoji)', input: '导😡出报表🐢太慢了💢根本导不出来', expect: { emotion: 'negative', source: '导出' } },
+  { cat: '信息缺失', input: '这个功能的体验不太好，希望能改进一下。', expect: {} },
+  { cat: '多意图混合', input: '导出报表太慢，而且搜索结果还不准确，另外登录也偶尔失败。', expect: { multi: true, risk: 'none' } },
+  { cat: '专业术语', input: 'Webhook 回调在 OAuth2 刷新 token 之后返回 401，重试三次才成功。', expect: { emotion: 'negative', source: '登录' } },
+  { cat: '敏感/攻击性', input: '你们这垃圾软件骗钱，我要投诉退款！', expect: { emotion: 'angry', risk: 'escalate' } },
+  { cat: '无法判断(无语义)', input: '啊实打实大苏打都是。', expect: {} },
+  { cat: '仅情绪无事实', input: '太差了太差了！', expect: { emotion: 'negative' } },
+  { cat: '含时间线索', input: '上周导出的报表字段顺序不对，和页面展示的不一致。', expect: { time: '2026-07-21', source: '导出' } },
+  { cat: '空输入', input: '', expect: {} },
+  { cat: '多意图+风险', input: '搜索太慢还老出错，再不修我就退款投诉了。', expect: { multi: true, risk: 'escalate' } },
+];
+
+let lastEvalRuns = [];
+
+async function runEvalSuite() {
+  const cap = CAPABILITY.ANALYZE_FEEDBACK;
+  const modelFn = useRealModel() ? callRealModel : mockModel;
+  const modelLabel = useRealModel() ? '真实模型' : 'Mock（演示基线）';
+  const runs = [];
+  for (const c of EVAL_CASES) {
+    let res;
+    try {
+      res = await callModel(cap, {
+        artifacts: [{ feedback_text: c.input }],
+        constraints: { tone: '专业', detail: '高', _seed: 1, reference_date: EVAL_REF_DATE },
+        history: [],
+      }, { requestModel: modelFn, fallbackModel: modelFn, maxRetry: 0, timeoutMs: 8000 });
+    } catch (e) {
+      res = { status: 'failed', error: { message: e.message } };
+    }
+    const d = res.data || {};
+    const fmt = res.status !== 'failed';
+    const checks = [];
+    if (c.expect.emotion != null) checks.push(d.user_emotion === c.expect.emotion);
+    if (c.expect.risk != null) checks.push(d.risk_flag === c.expect.risk);
+    if (c.expect.time != null) checks.push(d.feedback_time === c.expect.time);
+    if (c.expect.multi != null) { const has = Array.isArray(d.sub_intents) && d.sub_intents.length >= 1; checks.push(has === c.expect.multi); }
+    if (c.expect.source != null) checks.push((d.problem_source || '').includes(c.expect.source));
+    const understood = checks.length ? checks.some(Boolean) : fmt;
+    const helpful = fmt && d.confidence !== 'low';
+    runs.push({ cat: c.cat, input: c.input, status: res.status, data: d, fmt, understood, helpful, expect: c.expect, error: res.error });
+  }
+  lastEvalRuns = runs;
+  renderEval(runs, modelLabel);
+  return runs;
+}
+
+function renderEval(runs, modelLabel) {
+  const total = runs.length;
+  const fmtN = runs.filter(r => r.fmt).length;
+  const undN = runs.filter(r => r.understood).length;
+  const helpN = runs.filter(r => r.helpful).length;
+  const pct = (n) => (total ? Math.round((n / total) * 100) : 0) + '%';
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('eval-total', total);
+  set('eval-fmt', pct(fmtN));
+  set('eval-under', pct(undN));
+  set('eval-help', pct(helpN));
+  const meta = document.getElementById('eval-meta');
+  if (meta) meta.textContent = `当前模型：${modelLabel} · 参考日期 ${EVAL_REF_DATE} · 评估能力：反馈 PM 视角分析 · 共 ${total} 条用例`;
+  const tb = document.getElementById('eval-rows');
+  if (!tb) return;
+  tb.innerHTML = runs.map((r, i) => {
+    const st = r.status === 'failed' ? '<span class="activity-pill failed">失败</span>' : '<span class="activity-pill done">成功</span>';
+    const keys = [];
+    if (r.expect.emotion != null) keys.push('情绪');
+    if (r.expect.risk != null) keys.push('风险');
+    if (r.expect.time != null) keys.push('时间');
+    if (r.expect.multi != null) keys.push('多意图');
+    if (r.expect.source != null) keys.push('来源');
+    const assert = keys.length ? keys.join('/') : '—';
+    const conf = r.data.confidence || (r.status === 'failed' ? '—' : 'low');
+    const confCls = conf === 'high' ? 'high' : conf === 'medium' ? 'mid' : 'low';
+    return `<tr>
+      <td>${i + 1}</td>
+      <td>${escapeHtml(r.cat)}</td>
+      <td class="eval-input">${escapeHtml(r.input ? (r.input.length > 22 ? r.input.slice(0, 22) + '…' : r.input) : '（空）')}</td>
+      <td>${st}</td>
+      <td>${assert}</td>
+      <td><span class="fb-ai-conf ${confCls}">${conf}</span></td>
+    </tr>`;
+  }).join('');
 }
 
 /* 确定性伪随机：同一种子产生同一序列，保证「同一次重新生成」结果可复现 */
@@ -240,7 +407,8 @@ async function mockModel(sysPrompt, ctx, opts) {
   const gen = MOCK[cap] || (() => ({ note: 'ok' }));
   const seed = (ctx && ctx.context && ctx.context.constraints && ctx.context.constraints._seed) || Date.now();
   // 返回“原始字符串”，让 callModel 走 repairJson → validate 完整链路
-  return JSON.stringify(jitter(gen(), seed));
+  // 注意：MOCK 函数（尤其反馈分析）依赖 ctx 读取 artifacts，必须传入 ctx
+  return JSON.stringify(jitter(gen(ctx), seed));
 }
 
 /* ============================ 2. 多 Agent 追溯流 ============================
@@ -601,6 +769,16 @@ function raiseComplaintAlert(fbId) {
   pushActivity(CAPABILITY.ANALYZE_FEEDBACK, 'escalated', 'req_complaint_' + fbId);
 }
 
+/* RAG grounding：检索与本条反馈相似的“历史反馈 / 主题结论”，作为分析的证据上下文 */
+function renderRagGroundingHtml(query) {
+  if (!query || !window.insightRag) return '';
+  const rel = window.insightRag.retrieve(query, 3);
+  if (!rel.length) return '';
+  return '<div class="fb-ai-rag"><div class="fb-ai-k" style="margin-bottom:6px">相关上下文（本地 RAG 检索）</div>' +
+    rel.map(r => `<div class="fb-ai-rag-item"><span class="rag-score">${(r.score * 100).toFixed(0)}%</span> ${escapeHtml(r.text || '')}<span class="rag-meta">${escapeHtml(r.meta || '')}</span></div>`).join('') +
+    '</div>';
+}
+
 /* 把单条分析结果渲染进 #fb-ai-modal；失败/无法识别时引导人工处理 */
 function renderFeedbackAnalysis(result, triggerEl) {
   const modal = $('#fb-ai-modal');
@@ -657,6 +835,7 @@ function renderFeedbackAnalysis(result, triggerEl) {
       '<div class="fb-ai-row"><span class="fb-ai-k">把握度</span><span class="fb-ai-conf ' + confCls + '">' + conf + '</span></div>' +
       (d.notes ? '<div class="fb-ai-notes">备注：' + escapeHtml(d.notes) + '</div>' : '') +
       '<div class="fb-ai-source">数据来源：' + escapeHtml(source) + '</div>' +
+      renderRagGroundingHtml(quote) +
       '<div class="fb-ai-actions" id="fb-ai-actions"></div>';
 
     // 动态操作按钮：根据状态呈现不同处置动作
@@ -1067,6 +1246,8 @@ function restoreHuman() {
 function init() {
   // 先回填 localStorage 中的人工态 / 编辑内容 / 活动日志
   loadLocalState();
+  // 初始化本地 RAG 向量库（页面会把真实反馈/主题结论注入 window.__RAG_DOCS）
+  ragInit();
 
   // 绑定所有 [data-ai-cap] 触发元素（把按钮本身作为 trigger 传入，便于分析单条反馈）
   $$('[data-ai-cap]').forEach(btn => {
@@ -1140,12 +1321,54 @@ function init() {
   restoreHuman();
   renderActivity();
   initInlineEdit();
+
+  // 评估看板：运行评估
+  const evalBtn = $('#eval-run-btn');
+  evalBtn && evalBtn.addEventListener('click', async () => {
+    if (evalBtn.disabled) return;
+    const orig = evalBtn.textContent;
+    evalBtn.disabled = true; evalBtn.textContent = '评估中…';
+    try {
+      await runEvalSuite();
+      toast('评估完成，已更新质量看板', 'success');
+    } catch (e) {
+      toast('评估失败：' + (e.message || e), 'error');
+    } finally {
+      evalBtn.disabled = false; evalBtn.textContent = orig;
+    }
+  });
+
+  // 反馈页 RAG 检索面板
+  const ragBtn = $('#rag-search-btn');
+  ragBtn && ragBtn.addEventListener('click', () => {
+    const q = $('#rag-input') && $('#rag-input').value.trim();
+    const box = $('#rag-results');
+    if (!box) return;
+    if (!q) { box.innerHTML = '<div class="rag-empty">请输入查询内容。</div>'; return; }
+    const res = window.insightRag ? window.insightRag.retrieve(q, 5) : [];
+    if (!res.length) { box.innerHTML = '<div class="rag-empty">未检索到相关片段（相似度低于阈值）。</div>'; return; }
+    box.innerHTML = res.map(r => `<div class="rag-item"><div class="rag-item-meta">${escapeHtml(r.meta || '')} · 相似度 ${(r.score * 100).toFixed(1)}%</div><div class="rag-item-text">${escapeHtml(r.text || '')}</div></div>`).join('');
+  });
+  const ragToggle = $('#rag-toggle');
+  ragToggle && ragToggle.addEventListener('click', () => {
+    const b = $('#rag-body');
+    if (!b) return;
+    const hidden = b.style.display === 'none';
+    b.style.display = hidden ? '' : 'none';
+    ragToggle.textContent = hidden ? '收起' : '展开';
+  });
 }
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
 } else {
   init();
+}
+
+// 暴露给页面 / 其他模块调用的入口（评估与 RAG）
+if (typeof window !== 'undefined') {
+  window.insightRag = { retrieve: ragRetrieve, init: ragInit, ready: () => !!ragIndex };
+  window.runInsightEval = runEvalSuite;
 }
 
 export { runAI, openDrawer, pushActivity };

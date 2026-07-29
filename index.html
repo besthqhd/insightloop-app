@@ -1499,6 +1499,43 @@
     .complaint-bell { display: inline-flex; align-items: center; gap: 4px; background: #FEE2E2; color: #B91C1C;
       border: 1px solid #FCA5A5; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 700; }
 
+    /* ===== AI 评估看板 ===== */
+    .eval-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 18px 0 10px; }
+    .eval-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; text-align: center; }
+    .eval-num { font-size: 30px; font-weight: 800; color: var(--primary); line-height: 1.1; }
+    .eval-lbl { font-size: 12px; color: var(--muted); margin-top: 6px; }
+    .eval-meta { font-size: 12px; color: var(--muted); background: #F1F5F9; border-radius: 8px; padding: 8px 12px; margin-bottom: 14px; }
+    .eval-table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .eval-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .eval-table th { text-align: left; padding: 11px 14px; background: #F8FAFC; color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--border); }
+    .eval-table td { padding: 10px 14px; border-bottom: 1px solid #EEF2F7; vertical-align: top; }
+    .eval-table tr:last-child td { border-bottom: none; }
+    .eval-input { max-width: 240px; color: #334155; }
+    .eval-empty { text-align: center; color: var(--muted); padding: 28px; }
+    .eval-note { font-size: 12px; color: var(--muted); line-height: 1.7; margin-top: 14px; background: #F8FAFC; border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+    .eval-note b { color: #334155; }
+
+    /* ===== 本地 RAG 检索面板 ===== */
+    .rag-panel { margin-bottom: 14px; }
+    .rag-panel-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--border); }
+    .rag-title { font-size: 13px; font-weight: 700; color: #334155; }
+    .rag-body { padding: 12px 14px; }
+    .rag-search { display: flex; gap: 8px; }
+    .rag-search input { flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; }
+    .rag-search input:focus { outline: none; border-color: var(--primary); }
+    .btn-sm { padding: 7px 14px; font-size: 13px; }
+    .rag-results { margin-top: 12px; display: grid; gap: 8px; }
+    .rag-empty { font-size: 12px; color: var(--muted); padding: 8px 2px; }
+    .rag-item { background: #F8FAFC; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+    .rag-item-meta { font-size: 11px; color: var(--primary); font-weight: 600; margin-bottom: 4px; }
+    .rag-item-text { font-size: 13px; color: #334155; line-height: 1.55; }
+
+    /* RAG grounding 区块（反馈分析弹窗内） */
+    .fb-ai-rag { margin-top: 10px; background: #F0F6FF; border: 1px solid #DBEAFE; border-radius: 8px; padding: 10px 12px; }
+    .fb-ai-rag-item { font-size: 12px; color: #334155; line-height: 1.6; margin-top: 4px; }
+    .rag-score { display: inline-block; font-weight: 700; color: var(--primary); margin-right: 6px; }
+    .rag-meta { color: var(--muted); font-size: 11px; margin-left: 6px; }
+
     /* ─── 双击编辑：让 AI 结论 / 复盘面板可被人工修正 ─── */
     .editable { position: relative; cursor: text; border-radius: 6px; transition: background .15s; }
     .editable::after {
@@ -1610,6 +1647,7 @@
             <button class="tab active" data-page="insights">洞察看板</button>
             <button class="tab" data-page="opportunities">机会工作区</button>
             <button class="tab" data-page="effects">上线效果</button>
+            <button class="tab" data-page="eval">评估看板</button>
           </nav>
         </div>
         <div class="topbar-right">
@@ -1755,6 +1793,22 @@
             <div class="fb-list-header">
               <span class="fb-list-title">反馈列表</span>
               <button class="chip" id="fb-sort-btn">最新优先 <span>▾</span></button>
+            </div>
+
+            <div class="rag-panel card" id="rag-panel">
+              <div class="rag-panel-head">
+                <span class="rag-title">📚 知识库检索（本地 RAG）</span>
+                <button class="chip" id="rag-toggle">收起</button>
+              </div>
+              <div class="rag-body" id="rag-body">
+                <div class="rag-search">
+                  <input type="text" id="rag-input" placeholder="输入问题，检索相似历史反馈 / 主题结论做 grounding…">
+                  <button class="btn btn-primary btn-sm" id="rag-search-btn">检索</button>
+                </div>
+                <div class="rag-results" id="rag-results">
+                  <div class="rag-empty">输入查询后点击「检索」，将基于本地向量库返回 top-5 相似片段（零后端、纯浏览器向量检索；相似度低于阈值视为「无相关」直接返回空）。</div>
+                </div>
+              </div>
             </div>
             <div class="feedback-cards" id="feedback-cards"></div>
             <div class="fb-empty" id="fb-empty" style="display:none">
@@ -2265,6 +2319,38 @@ export_start / export_progress / export_cancel / export_success。
         </div>
       </section>
 
+      <!-- Page: AI 评估看板 -->
+      <section class="page" id="page-eval">
+        <div class="page-header">
+          <div class="page-title-block">
+            <h1 class="page-title">AI 评估看板</h1>
+            <p class="page-subtitle">用固定测试集量化模型输出质量：格式稳定率 / 任务理解率 / 是否有帮助——AI 产品上线前必须可度量，而非只看“能不能跑”</p>
+          </div>
+          <button class="btn btn-primary" id="eval-run-btn">运行评估</button>
+        </div>
+
+        <div class="eval-summary" id="eval-summary">
+          <div class="eval-card"><div class="eval-num" id="eval-total">—</div><div class="eval-lbl">用例数</div></div>
+          <div class="eval-card"><div class="eval-num" id="eval-fmt">—</div><div class="eval-lbl">格式稳定率</div></div>
+          <div class="eval-card"><div class="eval-num" id="eval-under">—</div><div class="eval-lbl">任务理解率</div></div>
+          <div class="eval-card"><div class="eval-num" id="eval-help">—</div><div class="eval-lbl">有帮助率</div></div>
+        </div>
+        <div class="eval-meta" id="eval-meta">点击「运行评估」后展示指标 · 评估能力：反馈 PM 视角分析（analyze_feedback）</div>
+
+        <div class="eval-table-wrap">
+          <table class="eval-table">
+            <thead><tr><th>#</th><th>类别</th><th>输入</th><th>状态</th><th>关键断言</th><th>把握度</th></tr></thead>
+            <tbody id="eval-rows">
+              <tr><td colspan="6" class="eval-empty">尚未运行评估。点击右上角「运行评估」将用固定 15 条测试集跑真实 callModel 链路并统计上述指标。</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="eval-note">
+          <b>指标说明</b>：格式稳定率 = 输出可被解析且通过 schema 校验的占比；任务理解率 = 至少命中一个预期维度（情绪/风险/时间还原/多意图/来源）的占比；有帮助率 = 格式稳定且模型把握度非 low、可据此直接行动的占比。<br>
+          <b>如何解读</b>：当前为 Mock（演示基线）跑 15 条固定用例，格式稳定率 100%、任务理解率 100%；有帮助率约 80% 并非缺陷——其余 3 条为「空输入 / 无语义乱码 / 信息缺失」，模型正确地把把握度判为 low 并 abstain（不臆测），这正是评测要暴露的「何时不该自信」。配置真实 API Key 后，「运行评估」将改为评估真实模型表现，看板数字会随模型与 prompt 迭代而变化。
+        </div>
+      </section>
+
       <!-- Agent 追溯抽屉（三层展示法 · ②Agent 追溯抽屉） -->
       <aside class="agent-drawer" id="agent-drawer">
         <div class="agent-drawer-header">
@@ -2663,7 +2749,7 @@ export_start / export_progress / export_cancel / export_success。
       });
     })();
   </script>
-  <script type="module" src="ai-integration.js?v=1.9"></script>
+  <script type="module" src="ai-integration.js?v=2.0"></script>
   <script>
   /* 死按钮补齐：让每个可点击元素点击后都有真实结果（导航 / 展开 / 弹窗 / 提示）
      与 ai-integration.js 互不干扰（本段只处理无 data-ai-cap 的元素）。 */
@@ -2784,6 +2870,8 @@ export_start / export_progress / export_cancel / export_success。
     $$('#page-feedback .filter-row .checkbox').forEach(c => { if (!c.classList.contains('checked')) { c.classList.add('checked'); c.textContent = '✓'; } });
     $$('#page-feedback .emotion-pill').forEach(p => p.classList.add('active'));
     fbRender(FEEDBACKS);
+    // 暴露反馈语料给本地 RAG 引擎（ai-integration 会并入内置知识库后建向量索引）
+    window.__RAG_DOCS = FEEDBACKS.map(f => ({ text: f.quote, meta: '反馈·' + f.topic + '·' + f.userType }));
     // 搜索
     fbSearch && fbSearch.addEventListener('input', fbApply);
     // 筛选：事件委托，避免只绑定初始元素
