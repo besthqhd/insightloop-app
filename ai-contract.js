@@ -438,8 +438,11 @@ export function setUseRealModel(on) {
 
 export async function callRealModel(systemPrompt, context, { signal, cfgOverride } = {}) {
   const cfg = cfgOverride || getModelConfig();
-  if (!cfg || !cfg.apiKey) {
-    throw new Error('NO_API_KEY: 请在「⚙ AI 设置」中填写 API Key');
+  if (!cfg) throw new Error('NO_CONFIG: 未找到模型配置');
+  // 后端(密钥托管)模式：proxyUrl 指向我们自己的 Worker，由它持有 Key，浏览器无需发送 Key
+  const useBackend = !!cfg.proxyUrl;
+  if (!useBackend && !cfg.apiKey) {
+    throw new Error('NO_API_KEY: 请在「⚙ AI 设置」中填写 API Key，或填写后端地址（密钥托管，浏览器无需 Key）');
   }
   // proxyUrl 优先：用于绕过智谱等国内 API 对浏览器端直连的 CORS 限制
   const baseUrl = (cfg.proxyUrl || cfg.baseUrl || 'https://api.openai.com/v1').replace(/\/+$/, '');
@@ -450,12 +453,12 @@ export async function callRealModel(systemPrompt, context, { signal, cfgOverride
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 15000);
   try {
+    // 后端模式下不附带浏览器 Key（由 Worker 用自身 Secret 调智谱）；直连模式才附带
+    const headers = { 'Content-Type': 'application/json' };
+    if (!useBackend && cfg.apiKey) headers['Authorization'] = `Bearer ${cfg.apiKey}`;
     resp = await fetch(`${baseUrl}/chat/completions`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${cfg.apiKey}`,
-      },
+      headers,
       signal: signal || ctrl.signal,
       body: JSON.stringify({
         model,

@@ -10,7 +10,7 @@
  * 依赖：ai-contract.js 导出的 CAPABILITY / callModel / regenerate / getHistory
  */
 
-import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel, getModelConfig, SCHEMAS, validate } from './ai-contract.js?v=2.2.2';
+import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel, getModelConfig, SCHEMAS, validate } from './ai-contract.js?v=2.2.3';
 
 /* ============================ 能力中文标签 ============================ */
 const LABELS = {
@@ -1455,16 +1455,17 @@ async function testAiConfig() {
   const out = document.getElementById('ai-test-result');
   if (!keyEl || !out) return;
   const apiKey = keyEl.value.trim();
-  if (!apiKey) {
+  const proxyUrl = (proxyEl && proxyEl.value.trim()) || undefined;
+  if (!apiKey && !proxyUrl) {
     out.style.display = 'block'; out.className = 'ai-test-result err';
-    out.textContent = '请先填写 API Key 再测试。';
+    out.textContent = '请先填写 API Key，或填写后端地址（后端托管密钥，浏览器无需 Key）。';
     return;
   }
   const cfgOverride = {
     baseUrl: (baseEl && baseEl.value.trim()) || 'https://api.openai.com/v1',
     model: (modelEl && modelEl.value.trim()) || 'glm-4-flash',
-    apiKey,
-    proxyUrl: (proxyEl && proxyEl.value.trim()) || undefined,
+    apiKey: apiKey || 'BACKEND', // 后端模式下浏览器不发 Key，占位即可
+    proxyUrl,
   };
   out.style.display = 'block'; out.className = 'ai-test-result info';
   out.textContent = '正在请求真实模型（15s 超时）…';
