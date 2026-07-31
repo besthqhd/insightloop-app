@@ -1,6 +1,6 @@
 # InsightLoop（AI 产品迭代闭环工作台）产品需求文档 PRD
 
-版本：v3.1｜ 日期：2026-07-31
+版本：v3.2｜ 日期：2026-07-31
 > 产品定位：一个能够从用户反馈中发现高价值问题，并推动产品完成迭代验证的 AI 产品经理助手。
 
 
@@ -75,13 +75,18 @@
 
 ```mermaid
 flowchart LR
-    A[反馈导入<br/>应用商店/客服/访谈/问卷] --> B[AI 聚类分析<br/>结构化提取 + 语义聚类]
-    B --> C[洞察看板<br/>主题/趋势/原话/影响人数]
-    C --> D[机会识别<br/>影响 × 价值 ÷ 成本 排序]
-    D --> E[机会工作区<br/>PRD/验收/埋点/任务]
-    E --> F[开发上线]
-    F --> G[上线效果仪表盘<br/>前后指标对比]
-    G --> H[复盘与下轮建议]
+    classDef in fill:#DCFCE7,stroke:#16A34A,color:#14532D
+    classDef ana fill:#DBEAFE,stroke:#2563EB,color:#1E3A8A
+    classDef dev fill:#EDE9FE,stroke:#7C3AED,color:#4C1D95
+    classDef out fill:#FEF3C7,stroke:#D97706,color:#78350F
+    classDef rev fill:#CCFBF1,stroke:#0D9488,color:#134E4A
+    A[反馈导入<br/>应用商店/客服/访谈/问卷]:::in --> B[AI 聚类分析<br/>结构化提取 + 语义聚类]:::ana
+    B --> C[洞察看板<br/>主题/趋势/原话/影响人数]:::ana
+    C --> D[机会识别<br/>影响 × 价值 ÷ 成本 排序]:::ana
+    D --> E[机会工作区<br/>PRD/验收/埋点/任务]:::ana
+    E --> F[开发上线]:::dev
+    F --> G[上线效果仪表盘<br/>前后指标对比]:::out
+    G --> H[复盘与下轮建议]:::rev
     H -->|回到反馈| A
 ```
 
@@ -183,15 +188,19 @@ flowchart LR
 >
 > ```mermaid
 > flowchart TD
->     A[调用模型] --> B{返回是合法 JSON?}
->     B -- 否 --> C[repairJson 自动修复]
->     B -- 是 --> D{通过 schema 校验?}
+>     classDef proc fill:#DBEAFE,stroke:#2563EB,color:#1E3A8A
+>     classDef dec fill:#FEF3C7,stroke:#D97706,color:#78350F
+>     classDef ok fill:#DCFCE7,stroke:#16A34A,color:#14532D
+>     classDef bad fill:#FEE2E2,stroke:#DC2626,color:#7F1D1D
+>     A[调用模型]:::proc --> B{返回是合法 JSON?}:::dec
+>     B -- 否 --> C[repairJson 自动修复]:::proc
+>     B -- 是 --> D{通过 schema 校验?}:::dec
 >     C --> D
->     D -- 通过 --> E[成功返回结构化结果]
->     D -- 不通过 --> F{重试次数 < 上限?}
->     F -- 是 --> G[更换 variationSeed 重新调用]
+>     D -- 通过 --> E[成功返回结构化结果]:::ok
+>     D -- 不通过 --> F{重试次数 < 上限?}:::dec
+>     F -- 是 --> G[更换 variationSeed 重新调用]:::proc
 >     G --> A
->     F -- 否 --> H[降级 / 中文错误提示<br/>避免静默失败]
+>     F -- 否 --> H[降级 / 中文错误提示<br/>避免静默失败]:::bad
 > ```
 
 ### FR-7 AI 协同状态与失败处理（三层展示法）
@@ -229,12 +238,16 @@ flowchart LR
 >
 > ```mermaid
 > flowchart LR
->     U[浏览器<br/>仅持对话内容 不落 API Key] --> B[密钥托管后端<br/>代持 ZHIPU_API_KEY]
->     B --> M[智谱 API<br/>OpenAI 兼容 /v1/chat/completions]
+>     classDef user fill:#DBEAFE,stroke:#2563EB,color:#1E3A8A
+>     classDef back fill:#EDE9FE,stroke:#7C3AED,color:#4C1D95
+>     classDef ext fill:#FEE2E2,stroke:#DC2626,color:#7F1D1D
+>     classDef diag fill:#FEF3C7,stroke:#D97706,color:#78350F
+>     U[浏览器<br/>仅持对话内容 不落 API Key]:::user --> B[密钥托管后端<br/>代持 ZHIPU_API_KEY]:::back
+>     B --> M[智谱 API<br/>OpenAI 兼容 /v1/chat/completions]:::ext
 >     M -->|JSON 结果| B
 >     B -->|加 CORS 头返回| U
 >     U -.->|点「测试连接」| B
->     B -.->|诊断: Key无效/网络不可达/代理问题| D[(诊断结论)]
+>     B -.->|诊断: Key无效/网络不可达/代理问题| D[(诊断结论)]:::diag
 > ```
 
 ### FR-9 本地 RAG 证据检索
@@ -260,13 +273,17 @@ flowchart LR
 >
 > ```mermaid
 > flowchart TD
->     L[加载 100 条固定边界用例] --> R[并发 2 分别运行]
->     R --> M[Mock 确定性基线]
->     R --> G[真实模型 GLM-4-Flash]
->     M --> C[计算三指标<br/>格式稳定 / 任务理解 / 有帮助]
+>     classDef load fill:#DCFCE7,stroke:#16A34A,color:#14532D
+>     classDef run fill:#DBEAFE,stroke:#2563EB,color:#1E3A8A
+>     classDef calc fill:#EDE9FE,stroke:#7C3AED,color:#4C1D95
+>     classDef decide fill:#FEF3C7,stroke:#D97706,color:#78350F
+>     L[加载 100 条固定边界用例]:::load --> R[并发 2 分别运行]:::run
+>     R --> M[Mock 确定性基线]:::run
+>     R --> G[真实模型 GLM-4-Flash]:::run
+>     M --> C[计算三指标<br/>格式稳定 / 任务理解 / 有帮助]:::calc
 >     G --> C
->     C --> T[生成逐条对比表<br/>一致 / 差异]
->     T --> D[模型路由与成本/质量决策]
+>     C --> T[生成逐条对比表<br/>一致 / 差异]:::calc
+>     T --> D[模型路由与成本/质量决策]:::decide
 > ```
 
 ---
