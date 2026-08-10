@@ -2799,6 +2799,9 @@ export_start / export_progress / export_cancel / export_success。
       });
     })();
   </script>
+  <!-- 真实竞品评论覆盖数据：经典脚本先于下方 module 执行，设置 window.__EVAL_CASES__ / window.__FEEDBACKS__，
+       使评估看板与反馈中心默认即跑这 143 条真实跨 App 评论（而非内置 15 条 demo）。来源/偏差见 reviews-pipeline/DATA_README.md -->
+  <script src="reviews-pipeline/real-data.js?v=eval143"></script>
   <script type="module" src="ai-integration.js?v=2.2.8"></script>
   <script>
   /* 死按钮补齐：让每个可点击元素点击后都有真实结果（导航 / 展开 / 弹窗 / 提示）
@@ -2859,7 +2862,7 @@ export_start / export_progress / export_cancel / export_success。
     });
 
     /* ── 反馈中心：数据驱动 + 实时搜索/筛选 ── */
-    const FEEDBACKS = [
+    const FEEDBACKS = window.__FEEDBACKS__ || [
       { id:1, quote:'每月底导出月度报表要等将近 2 分钟，数据量大时还会超时失败，只能反复重试。', source:'应用内反馈', topic:'导出报表耗时过长', emotion:'负面', date:'2026-07-21', user:'#U8821', userType:'付费版' },
       { id:2, quote:'iOS 端登录有时提示网络错误，重试 2-3 次才能成功，很影响日常使用。', source:'客服工单', topic:'移动端登录偶发失败', emotion:'负面', date:'2026-07-20', user:'#U7730', userType:'免费版' },
       { id:3, quote:'搜索“导出”出来的结果里混进了不少不相关文档，得自己慢慢翻找。', source:'应用商店评论', topic:'搜索结果不准确', emotion:'中性', date:'2026-07-18', user:'#U4408', userType:'付费版' },

@@ -285,7 +285,7 @@ function ragInit() {
  * 这是 AI 产品上线前必须可度量的核心能力——大多数 demo 只会“能跑”，不会“可衡量”。
  */
 const EVAL_REF_DATE = '2026-07-28';
-const EVAL_CASES = [
+const EVAL_CASES = window.__EVAL_CASES__ || [
   { cat: '正常完整', input: '每月底导出月度报表要等将近 2 分钟，数据量大时还会超时失败，只能反复重试。', expect: { emotion: 'negative', source: '导出' } },
   { cat: '含时间+类型', input: '昨天导出报表又超时了，我是企业版用户，真的很着急。', expect: { emotion: 'negative', time: '2026-07-27', source: '导出' } },
   { cat: '内容过短', input: '导出好慢。', expect: { emotion: 'negative', source: '导出' } },
@@ -467,6 +467,7 @@ async function runEvalSuite({ mode = 'current' } = {}) {
     onProgress: (d, t) => { if (meta) meta.textContent = `评估中（${modelLabel}） ${d}/${t} …`; },
   });
   lastEvalRuns = runs;
+  window.__lastEvalRuns = runs;
   renderEval(runs, modelLabel);
   return runs;
 }
