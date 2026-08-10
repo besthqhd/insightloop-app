@@ -10,7 +10,7 @@
  * 依赖：ai-contract.js 导出的 CAPABILITY / callModel / regenerate / getHistory
  */
 
-import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel, getModelConfig, SCHEMAS, validate } from './ai-contract.js?v=2.2.8';
+import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel, getModelConfig, SCHEMAS, validate, pushVersion } from './ai-contract.js?v=2.3.0';
 
 /* ============================ 能力中文标签 ============================ */
 const LABELS = {
@@ -23,6 +23,11 @@ const LABELS = {
   [CAPABILITY.AI_REVIEW]: 'AI 复盘结论',
   [CAPABILITY.AI_SUGGEST]: '下轮优化建议',
   [CAPABILITY.AI_SCORE]: 'AI 优先级评分',
+  [CAPABILITY.AGENT_USER_RESEARCH]: '用户研究 Agent',
+  [CAPABILITY.AGENT_DATA_ANALYSIS]: '数据分析 Agent',
+  [CAPABILITY.AGENT_PRODUCT_STRATEGY]: '产品策略 Agent',
+  [CAPABILITY.AGENT_TECH_REVIEW]: '技术评估 Agent',
+  [CAPABILITY.AGENT_COORDINATOR]: '协调 Agent',
 };
 
 /* ============================ 模拟异常模式 ============================
@@ -123,6 +128,84 @@ const MOCK = {
     ],
     context_iteration: 'v1.3',
   }),
+  /* ── 多智能体链路：5 个 Agent 各自返回中间产物 ── */
+  [CAPABILITY.AGENT_USER_RESEARCH]: () => ({
+    themes: [
+      { name: '导出报表耗时过长', count: 412, sentiment: 'negative', severity: 'P0', evidence_ids: ['fb_8821', 'fb_2043', 'fb_3155'], main_complaint: '大报表导出同步阻塞，最长 40s 无进度，用户误判失败后重复点击' },
+      { name: '移动端登录偶发失败', count: 286, sentiment: 'negative', severity: 'P1', evidence_ids: ['fb_7712'], main_complaint: '弱网或 token 过期时登录静默失败，无明确报错' },
+      { name: '搜索结果不准确', count: 218, sentiment: 'neutral', severity: 'P1', evidence_ids: ['fb_6681'], main_complaint: '关键词与语义混合排序，长尾 query 命中差' },
+      { name: '批量操作无进度提示', count: 154, sentiment: 'negative', severity: 'P2', evidence_ids: ['fb_5530'], main_complaint: '批量导出/删除无进度，用户不知道是否成功' },
+      { name: '通知中心加载慢', count: 98, sentiment: 'negative', severity: 'P2', evidence_ids: ['fb_4490'], main_complaint: '通知列表首屏白屏，冷启动慢' },
+      { name: '深色模式对比度不足', count: 72, sentiment: 'positive', severity: 'P3', evidence_ids: ['fb_3370'], main_complaint: '暗色下次要文字几乎不可读' },
+    ],
+    notes: '聚类基于反馈文本语义相似度，count 为合理估算',
+  }),
+  [CAPABILITY.AGENT_DATA_ANALYSIS]: (ctx) => {
+    const themes = (ctx && ctx.context && ctx.context.artifacts && ctx.context.artifacts[0] && ctx.context.artifacts[0].themes) || [];
+    const total = themes.reduce((s, t) => s + (t.count || 0), 0) || 1240;
+    return {
+      themes: themes.map(t => ({
+        name: t.name, count: t.count,
+        share_pct: Math.round((t.count / total) * 1000) / 10,
+        severity: t.severity,
+        quant_evidence: t.name.includes('导出') ? 'P95≈118s，超时率 6.3%，峰值集中在月末' :
+          t.name.includes('登录') ? '弱网复现率约 12%，客诉占比 9%' :
+          t.name.includes('搜索') ? '长尾 query 首条命中率 41%' :
+          t.name.includes('批量') ? '批量任务平均等待 23s 无反馈' :
+          t.name.includes('通知') ? '冷启动首屏 2.8s' : '占比偏低，频次稳定',
+        trend: t.name.includes('导出') || t.name.includes('登录') ? '上升' : '持平',
+      })),
+      overall_summary: '导出类主题占反馈总量约 33%，且 severity 最高，应优先治理',
+    };
+  },
+  [CAPABILITY.AGENT_PRODUCT_STRATEGY]: (ctx) => {
+    const themes = (ctx && ctx.context && ctx.context.artifacts && ctx.context.artifacts[0] && ctx.context.artifacts[0].themes) || [];
+    return {
+      opportunities: [
+        { title: '导出报表异步化（流式 + 进度）', priority: 8.6, rationale: '占比最高且 P0，P95 118s→8s 可显著降重复点击', target_theme: '导出报表耗时过长', expected_impact: 'P95 从 118s 降至 8s，重复点击率 -71%' },
+        { title: '移动端登录失败自愈与重试', priority: 8.2, rationale: 'P1 阻断核心路径，弱网复现率 12%', target_theme: '移动端登录偶发失败', expected_impact: '登录失败率 -90%' },
+        { title: '搜索语义重排 + 相关性加权', priority: 7.0, rationale: '长尾 query 首条命中率仅 41%，提升可承接正面新增用户', target_theme: '搜索结果不准确', expected_impact: '首条命中率 41%→65%' },
+        { title: '批量操作实时进度条', priority: 6.5, rationale: '复用导出异步化组件，成本低', target_theme: '批量操作无进度提示', expected_impact: '批量任务取消率 -40%' },
+      ],
+      notes: '按影响面 × 严重度排序，未纳入 P3 深色模式（优化项非阻塞）',
+    };
+  },
+  [CAPABILITY.AGENT_TECH_REVIEW]: (ctx) => {
+    const opps = (ctx && ctx.context && ctx.context.artifacts && ctx.context.artifacts[0] && ctx.context.artifacts[0].opportunities) || [];
+    const map = {
+      '导出报表异步化（流式 + 进度）': { feasibility: 'high', cost: 'medium', risk: 'medium', approach: 'SSE 流式导出 + 前端分块渲染，支持取消', pre: ['需接入消息队列或异步任务'] },
+      '移动端登录失败自愈与重试': { feasibility: 'high', cost: 'low', risk: 'low', approach: 'token 过期自动刷新 + 失败指数退避重试', pre: ['需统一鉴权 SDK'] },
+      '搜索语义重排 + 相关性加权': { feasibility: 'medium', cost: 'high', risk: 'medium', approach: '引入向量召回 + 精排模型，双路融合', pre: ['需向量检索服务', '需标注语料'] },
+      '批量操作实时进度条': { feasibility: 'high', cost: 'low', risk: 'low', approach: '复用导出进度组件，轮询/WebSocket 上报', pre: [] },
+    };
+    return {
+      reviews: opps.map(o => {
+        const m = map[o.title] || { feasibility: 'medium', cost: 'medium', risk: 'medium', approach: '按需评估', pre: [] };
+        return { opportunity_title: o.title, ...m };
+      }),
+      notes: '搜索语义重排成本最高，建议二期再做',
+    };
+  },
+  [CAPABILITY.AGENT_COORDINATOR]: (ctx) => {
+    // ctx.artifacts = [{research_themes}, {analysis_themes}, {opportunities}, {tech_reviews}]
+    const A = (ctx && ctx.context && ctx.context.artifacts) || [];
+    const research = A[0] || {};
+    const strategy = A[2] || {};
+    const reviews = A[3] || {};
+    const rt = (research.research_themes && research.research_themes.themes) || [];
+    const oppsIn = (strategy.opportunities && strategy.opportunities.opportunities) || [];
+    const revs = (reviews.tech_reviews && reviews.tech_reviews.reviews) || [];
+    const opps = oppsIn.filter(o => {
+      const r = revs.find(x => x.opportunity_title === o.title);
+      return !(r && r.feasibility === 'low' && r.cost === 'high');
+    });
+    return {
+      summary: '用户研究识别 6 个主题，数据分析确认导出占比最高（约 33%），产品策略建议异步化，技术评估认为 2 周内可落地。',
+      themes: rt.map(t => ({ name: t.name, count: t.count, sentiment: t.sentiment, severity: t.severity, evidence_ids: t.evidence_ids || [] })),
+      suggested_opportunities: opps.map(o => ({ title: o.title, priority: o.priority, rationale: o.rationale })),
+      agent_chain_digest: '用户研究识别 6 主题 → 数据分析确认导出占比最高 → 产品策略建议异步化 → 技术评估认为高可行、2 周可落地',
+    };
+  },
   /* 单条反馈 PM 视角分类：原型阶段不接真实模型，按「能判断才填、不能判断一律待确认」演示 */
   [CAPABILITY.ANALYZE_FEEDBACK]: (ctx) => {
     const txt = (ctx && ctx.context && ctx.context.artifacts && ctx.context.artifacts[0] && ctx.context.artifacts[0].feedback_text) || '';
@@ -621,16 +704,109 @@ async function mockModel(sysPrompt, ctx, opts) {
 }
 
 /* ============================ 2. 多 Agent 追溯流 ============================
- * 与设计稿「洞察看板 · AI 分析过程」一致；任意能力复用同一协同结构。
+ * 与设计稿「洞察看板 · AI 分析过程」一致；BATCH_ANALYZE 真正由 5 个 Agent 串行接力。
+ * agentFlowState 是运行时状态：wait / progress / done / failed；openDrawer 时渲染。
  */
+const AGENT_ORDER = [
+  CAPABILITY.AGENT_USER_RESEARCH,
+  CAPABILITY.AGENT_DATA_ANALYSIS,
+  CAPABILITY.AGENT_PRODUCT_STRATEGY,
+  CAPABILITY.AGENT_TECH_REVIEW,
+  CAPABILITY.AGENT_COORDINATOR,
+];
+const AGENT_META = {
+  [CAPABILITY.AGENT_USER_RESEARCH]: { name: '用户研究 Agent', desc: '聚类反馈、提炼主诉' },
+  [CAPABILITY.AGENT_DATA_ANALYSIS]: { name: '数据分析 Agent', desc: '量化影响与趋势' },
+  [CAPABILITY.AGENT_PRODUCT_STRATEGY]: { name: '产品策略 Agent', desc: '评估优先级与机会' },
+  [CAPABILITY.AGENT_TECH_REVIEW]: { name: '技术评估 Agent', desc: '评估可行性方案' },
+  [CAPABILITY.AGENT_COORDINATOR]: { name: '协调 Agent', desc: '汇总结论并生成草案' },
+};
+let agentFlowState = {}; // cap -> 'wait'|'progress'|'done'|'failed'
+
+function resetAgentFlow() {
+  agentFlowState = {};
+  AGENT_ORDER.forEach((cap, i) => { agentFlowState[cap] = i === 0 ? 'progress' : 'wait'; });
+}
+function setAgentStatus(cap, status) {
+  agentFlowState[cap] = status;
+  if (drawerCap === CAPABILITY.BATCH_ANALYZE) renderAgentFlow();
+}
 function agentFlow() {
-  return [
-    { name: '用户研究 Agent', desc: '聚类反馈、提炼主诉', status: 'done' },
-    { name: '数据分析 Agent', desc: '量化影响与趋势', status: 'done' },
-    { name: '产品策略 Agent', desc: '评估优先级与机会', status: 'progress' },
-    { name: '技术评估 Agent', desc: '评估可行性方案', status: 'wait' },
-    { name: '协调 Agent', desc: '汇总结论并生成草案', status: 'done' },
-  ];
+  return AGENT_ORDER.map(cap => ({ cap, ...AGENT_META[cap], status: agentFlowState[cap] || 'wait' }));
+}
+
+/* 抽屉内渲染 5 个 Agent 卡片（实时状态：排队中 / 进行中 / 已完成 / 失败） */
+function renderAgentFlow() {
+  const body = $('#agent-drawer-body');
+  if (!body) return;
+  const flow = agentFlow();
+  body.innerHTML = flow.map(a => {
+    const s = a.status === 'done' ? 'done' : a.status === 'progress' ? 'progress' : a.status === 'failed' ? 'failed' : 'wait';
+    const stxt = a.status === 'done' ? '已完成' : a.status === 'progress' ? '进行中' : a.status === 'failed' ? '失败' : '排队中';
+    return `<div class="agent-card">
+      <div class="agent-card-left">
+        <div class="agent-icon">${a.name[0]}</div>
+        <div class="agent-info"><span class="agent-name">${a.name}</span><span class="agent-desc">${a.desc}</span></div>
+      </div>
+      <span class="agent-status ${s}"><span>●</span> ${stxt}</span>
+    </div>`;
+  }).join('');
+}
+
+/* ============================ 2.1 真正的多 Agent 串行链路 ============================
+ * BATCH_ANALYZE 不再单次调用，而是 5 个 Agent 接力：
+ *   用户研究 → 数据分析 → 产品策略 → 技术评估 → 协调（输出最终报告）
+ * 每一步模型输出作为下一步的 artifacts 输入；抽屉状态实时推进。
+ */
+function envelopeBatch(r, data) {
+  return {
+    request_id: `req_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    capability: CAPABILITY.BATCH_ANALYZE,
+    status: r.status,
+    data: data || r.data,
+    error: r.error,
+    meta: { model: 'agent-pipeline', ...(r.meta || {}) },
+  };
+}
+async function runAgentPipeline(opts = {}) {
+  const { seed = Date.now(), instruction = '' } = opts;
+  const forceFail = FAIL_MODE && String(FAIL_MODE) !== '0';
+  const modelFn = forceFail ? mockModel : (useRealModel() ? callRealModel : mockModel);
+
+  resetAgentFlow();
+  renderAgentFlow();
+
+  const feedbacks = (typeof FEEDBACKS !== 'undefined' && Array.isArray(FEEDBACKS)) ? FEEDBACKS : [];
+  const feedbackList = feedbacks.slice(0, 60).map((f, i) => ({ id: f.id || `fb_${i}`, text: (f.quote || f.text || '') }));
+
+  const callStep = async (cap, artifacts) => {
+    setAgentStatus(cap, 'progress');
+    const r = await callModel(cap, {
+      artifacts,
+      userInstruction: instruction,
+      constraints: { _seed: seed },
+      history: [],
+    }, { requestModel: modelFn, fallbackModel: modelFn, key: cap });
+    setAgentStatus(cap, r.status === 'failed' ? 'failed' : 'done');
+    return r;
+  };
+
+  const r1 = await callStep(CAPABILITY.AGENT_USER_RESEARCH, [{ feedback_list: feedbackList }]);
+  if (r1.status === 'failed') return envelopeBatch(r1);
+  const r2 = await callStep(CAPABILITY.AGENT_DATA_ANALYSIS, [{ themes: r1.data.themes }]);
+  if (r2.status === 'failed') return envelopeBatch(r2);
+  const r3 = await callStep(CAPABILITY.AGENT_PRODUCT_STRATEGY, [{ themes: r2.data.themes }]);
+  if (r3.status === 'failed') return envelopeBatch(r3);
+  const r4 = await callStep(CAPABILITY.AGENT_TECH_REVIEW, [{ opportunities: r3.data.opportunities }]);
+  if (r4.status === 'failed') return envelopeBatch(r4);
+  const r5 = await callStep(CAPABILITY.AGENT_COORDINATOR, [
+    { research_themes: r1.data },
+    { analysis_themes: r2.data },
+    { opportunities: r3.data },
+    { tech_reviews: r4.data },
+  ]);
+  pushVersion(CAPABILITY.BATCH_ANALYZE, r5.data, r5.status, seed);
+  return envelopeBatch(r5, r5.data);
 }
 
 /* ============================ 3. 三层展示法：状态管理 ============================ */
@@ -755,18 +931,7 @@ function openDrawer(cap) {
   if (!drawer) return;
   drawer.classList.add('open');
   $('#agent-drawer-title').textContent = `${LABELS[cap] || cap} · 多智能体追溯`;
-  const flow = agentFlow();
-  $('#agent-drawer-body').innerHTML = flow.map(a => {
-    const s = a.status === 'done' ? 'done' : a.status === 'progress' ? 'progress' : 'wait';
-    const stxt = a.status === 'done' ? '已完成' : a.status === 'progress' ? '进行中' : '排队中';
-    return `<div class="agent-card">
-      <div class="agent-card-left">
-        <div class="agent-icon">${a.name[0]}</div>
-        <div class="agent-info"><span class="agent-name">${a.name}</span><span class="agent-desc">${a.desc}</span></div>
-      </div>
-      <span class="agent-status ${s}"><span>●</span> ${stxt}</span>
-    </div>`;
-  }).join('');
+  renderAgentFlow();
   $('#agent-drawer-error').style.display = 'none';
 }
 function closeDrawer() { $('#agent-drawer') && $('#agent-drawer').classList.remove('open'); }
@@ -878,20 +1043,33 @@ async function runAI(cap, opts = {}) {
   const modelFn = forceFail ? mockModel : (useRealModel() ? callRealModel : mockModel);
   inFlight.add(cap);
   try {
-    const result = await regenerate(cap, params, {
-      requestModel: modelFn,
-      fallbackModel: modelFn,
-      key: cap,
-      variationSeed: seed,
-      adjustConstraints: opts.adjust || {},
-    });
+    let result;
+    if (cap === CAPABILITY.BATCH_ANALYZE) {
+      // 真·多 Agent 链路：5 个 Agent 串行接力
+      result = await runAgentPipeline({ seed, instruction: opts.instruction || '' });
+    } else {
+      result = await regenerate(cap, params, {
+        requestModel: modelFn,
+        fallbackModel: modelFn,
+        key: cap,
+        variationSeed: seed,
+        adjustConstraints: opts.adjust || {},
+      });
+    }
 
     // 渲染结果
     if (result.status !== 'failed' && targetSel) renderResult(cap, result, targetSel);
     if (cap === CAPABILITY.ANALYZE_FEEDBACK) {
       renderFeedbackAnalysis(result, triggerEl);
     } else if (cap === CAPABILITY.BATCH_ANALYZE && result.status !== 'failed') {
-      toast('分析完成 · 聚类出 6 个主题，已跳转洞察看板', 'success');
+      // 协调 Agent 的最终结论落到洞察看板（覆盖静态占位文案）
+      const conclEl = $('[data-edit-cap="batch_analyze"]');
+      if (conclEl && result.data && result.data.summary) {
+        conclEl.innerHTML = `<strong>AI 结论</strong><br>${result.data.summary}` +
+          (result.data.agent_chain_digest ? `<br><span style="color:#6B7280;font-size:12px">${result.data.agent_chain_digest}</span>` : '');
+      }
+      const themeCount = (result.data && result.data.themes) ? result.data.themes.length : 0;
+      toast(`分析完成 · 5 个 Agent 协同聚类出 ${themeCount} 个主题，已跳转洞察看板`, 'success');
       const insightsTab = $('.tab[data-page="insights"]');
       insightsTab && insightsTab.click();
       openDrawer(cap);

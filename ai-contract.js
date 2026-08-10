@@ -16,7 +16,7 @@
 /* ============================ 0. 能力枚举 ============================ */
 // 与设计稿中四处 AI 入口一一对应
 export const CAPABILITY = {
-  BATCH_ANALYZE: 'batch_analyze',        // 反馈中心：批量 AI 分析
+  BATCH_ANALYZE: 'batch_analyze',        // 反馈中心：批量 AI 分析（最终由协调 Agent 输出）
   ANALYZE_FEEDBACK: 'analyze_feedback',  // 反馈中心：单条反馈智能体分类（PM 视角）
   GENERATE_PRD: 'generate_prd',          // 机会工作区：AI 生成 PRD
   GEN_ACCEPTANCE: 'gen_acceptance',      // 机会工作区：生成验收标准
@@ -25,6 +25,12 @@ export const CAPABILITY = {
   AI_SCORE: 'ai_score',                  // 机会工作区：AI 优先级评分
   AI_REVIEW: 'ai_review',                // 上线效果：AI 复盘结论
   AI_SUGGEST: 'ai_suggest',              // 上线效果：下轮优化建议
+  // 多智能体链路：批量分析由 5 个 Agent 串行接力完成
+  AGENT_USER_RESEARCH: 'agent_user_research',     // 用户研究 Agent：聚类反馈、提炼主诉
+  AGENT_DATA_ANALYSIS: 'agent_data_analysis',     // 数据分析 Agent：量化影响与趋势
+  AGENT_PRODUCT_STRATEGY: 'agent_product_strategy', // 产品策略 Agent：评估优先级与机会
+  AGENT_TECH_REVIEW: 'agent_tech_review',         // 技术评估 Agent：评估可行性方案
+  AGENT_COORDINATOR: 'agent_coordinator',         // 协调 Agent：汇总结论并生成最终报告
 };
 
 /* ====================== 1. 固定 JSON Schema 定义 ======================
@@ -122,6 +128,44 @@ export const SCHEMAS = {
       context_iteration: 'string',
     },
   },
+  // ── 多智能体链路 schema ──
+  [CAPABILITY.AGENT_USER_RESEARCH]: {
+    required: ['themes'],
+    fields: {
+      themes: 'array<{name:string, count:number, sentiment:enum(positive|neutral|negative), severity:enum(P0|P1|P2|P3), evidence_ids:array<string>, main_complaint:string}>',
+      notes: 'string',
+    },
+  },
+  [CAPABILITY.AGENT_DATA_ANALYSIS]: {
+    required: ['themes'],
+    fields: {
+      themes: 'array<{name:string, count:number, share_pct:number, severity:enum(P0|P1|P2|P3), quant_evidence:string, trend:string}>',
+      overall_summary: 'string',
+    },
+  },
+  [CAPABILITY.AGENT_PRODUCT_STRATEGY]: {
+    required: ['opportunities'],
+    fields: {
+      opportunities: 'array<{title:string, priority:number, rationale:string, target_theme:string, expected_impact:string}>',
+      notes: 'string',
+    },
+  },
+  [CAPABILITY.AGENT_TECH_REVIEW]: {
+    required: ['reviews'],
+    fields: {
+      reviews: 'array<{opportunity_title:string, feasibility:enum(high|medium|low), cost:enum(high|medium|low), risk:enum(high|medium|low), suggested_approach:string, prerequisites:array<string>}>',
+      notes: 'string',
+    },
+  },
+  [CAPABILITY.AGENT_COORDINATOR]: {
+    required: ['summary', 'themes', 'suggested_opportunities'],
+    fields: {
+      summary: 'string',
+      themes: 'array<{name:string, count:number, sentiment:enum(positive|neutral|negative), severity:enum(P0|P1|P2|P3), evidence_ids:array<string>}>',
+      suggested_opportunities: 'array<{title:string, priority:number, rationale:string}>',
+      agent_chain_digest: 'string',
+    },
+  },
 };
 
 /* ====================== 2. 输入内容如何组织 ======================
@@ -169,6 +213,92 @@ export function buildSystemPrompt(capability, ctx) {
     .join('\n');
   const refDate = (ctx && ctx.context && ctx.context.constraints && ctx.context.constraints.reference_date)
     || (ctx && ctx.reference_date) || '';
+
+  // 多智能体链路：批量分析由 5 个 Agent 串行接力，每个 Agent 只看自己这一步
+  if (capability === CAPABILITY.AGENT_USER_RESEARCH) {
+    return [
+      '你是 InsightLoop 的用户研究 Agent。任务：阅读一批用户反馈，按主题聚类，提炼每个主题的主诉。',
+      '输入 artefacts[0].feedback_list 是用户反馈数组，每条含 id 与 text。',
+      '输出 JSON 必须严格满足字段契约：',
+      fieldLines,
+      `必填字段：${schema.required.join(', ')}。`,
+      '判定规则：',
+      '1. themes 数组：每个主题代表一类用户反馈。name 用 4-12 字概括（如「导出报表耗时过长」）。',
+      '2. count：属于该主题的反馈条数（允许基于文本合理估算，但要诚实）。',
+      '3. sentiment：该主题整体情绪（positive/neutral/negative）。',
+      '4. severity：P0=阻断核心路径/大量投诉；P1=高频功能受损；P2=体验受损；P3=优化建议。',
+      '5. evidence_ids：支撑该主题的代表性反馈 id 数组（3-6 条）。',
+      '6. main_complaint：用一句话凝练该主题下用户最核心的抱怨或诉求。',
+      '7. notes：聚类时的假设或不确定点。',
+      '严禁输出解释性文字，只输出合法 JSON。',
+    ].join('\n');
+  }
+  if (capability === CAPABILITY.AGENT_DATA_ANALYSIS) {
+    return [
+      '你是 InsightLoop 的数据分析 Agent。任务：接用户研究 Agent 输出的 themes，做量化影响评估。',
+      '输入 artefacts[0].themes 是用户研究 Agent 的主题数组。',
+      '输出 JSON 必须严格满足字段契约：',
+      fieldLines,
+      `必填字段：${schema.required.join(', ')}。`,
+      '计算规则：',
+      '1. share_pct：该主题反馈量占总反馈的百分比（0-100）。',
+      '2. quant_evidence：为该主题补充可量化的描述，如「P95≈118s」「超时率 6.3%」「峰值集中在月末」。若文本无具体数字，可写「高频出现但未给出具体数值」。',
+      '3. trend：该问题是「上升」「下降」还是「持平」。无法判断写「未知」。',
+      '4. severity 沿用或基于量化证据调整。',
+      '严禁输出解释性文字，只输出合法 JSON。',
+    ].join('\n');
+  }
+  if (capability === CAPABILITY.AGENT_PRODUCT_STRATEGY) {
+    return [
+      '你是 InsightLoop 的产品策略 Agent。任务：接数据分析 Agent 的量化主题，评估优先级并给出产品机会建议。',
+      '输入 artefacts[0].themes 是数据分析 Agent 输出的量化主题数组。',
+      '输出 JSON 必须严格满足字段契约：',
+      fieldLines,
+      `必填字段：${schema.required.join(', ')}。`,
+      '评估规则：',
+      '1. opportunities 数组：每个机会对应一个高优先级主题，title 用动宾结构（如「导出报表异步化」）。',
+      '2. priority：0-10，综合考虑影响面（share_pct）、严重程度（severity）、用户情绪。',
+      '3. rationale：为什么做、不做会怎样，引用数据。',
+      '4. target_theme：关联到输入中的 theme.name。',
+      '5. expected_impact：预期收益，如「预计 P95 从 118s 降至 8s」「降低重复点击率」。',
+      '严禁输出解释性文字，只输出合法 JSON。',
+    ].join('\n');
+  }
+  if (capability === CAPABILITY.AGENT_TECH_REVIEW) {
+    return [
+      '你是 InsightLoop 的技术评估 Agent。任务：接产品策略 Agent 的机会建议，评估每个机会的技术可行性与成本。',
+      '输入 artefacts[0].opportunities 是产品策略 Agent 的机会数组。',
+      '输出 JSON 必须严格满足字段契约：',
+      fieldLines,
+      `必填字段：${schema.required.join(', ')}。`,
+      '评估规则：',
+      '1. feasibility：high（现有架构可支持，1-2 周内可落地）/ medium（需中等改造，1 个月内）/ low（需架构升级或跨团队）。',
+      '2. cost：high/medium/low，综合人力与资源。',
+      '3. risk：high/medium/low，技术风险与线上影响面。',
+      '4. suggested_approach：建议的技术实现路径，50 字以内。',
+      '5. prerequisites：落地前必须满足的条件数组（如「需接入消息队列」「需埋点 SDK」）。',
+      '严禁输出解释性文字，只输出合法 JSON。',
+    ].join('\n');
+  }
+  if (capability === CAPABILITY.AGENT_COORDINATOR) {
+    return [
+      '你是 Insight Loop 的协调 Agent。任务：汇总前 4 个 Agent 的输出，生成最终批量分析报告。',
+      '输入 artefacts：',
+      '  artefacts[0].research_themes — 用户研究 Agent 的主题',
+      '  artefacts[1].analysis_themes — 数据分析 Agent 的量化主题',
+      '  artefacts[2].opportunities   — 产品策略 Agent 的机会建议',
+      '  artefacts[3].tech_reviews    — 技术评估 Agent 的可行性评估',
+      '输出 JSON 必须严格满足字段契约（与 BATCH_ANALYZE 兼容）：',
+      fieldLines,
+      `必填字段：${schema.required.join(', ')}。`,
+      '生成规则：',
+      '1. summary：一句话总结最高频/最严重的问题及建议。',
+      '2. themes：最终主题列表，从 research_themes 精炼而来，保留 name/count/sentiment/severity/evidence_ids。',
+      '3. suggested_opportunities：最终机会建议，综合 product_strategy 与 tech_review，剔除 feasibility=low 且 cost=high 的方案，priority 保留 0-10。',
+      '4. agent_chain_digest：一句话概括 5 个 Agent 的协作结论，如「用户研究识别 6 个主题 → 数据分析确认导出占比最高 → 产品策略建议异步化 → 技术评估认为 2 周可落地」。',
+      '严禁输出解释性文字，只输出合法 JSON。',
+    ].join('\n');
+  }
 
   // 单条反馈分类：使用 PM 视角专用提示词，强制「信息不足即待确认，绝不编造」
   if (capability === CAPABILITY.ANALYZE_FEEDBACK) {
@@ -389,6 +519,14 @@ export async function regenerate(capability, params, opts = {}) {
 loadPersistedHistory();
 
 export function getHistory(key) { return historyStore.get(key) || []; }
+
+/* 供多智能体链路把最终协调结果作为 BATCH_ANALYZE 的一个版本落盘，复用版本对比能力 */
+export function pushVersion(key, data, status, seed) {
+  const list = historyStore.get(key) || [];
+  list.push({ ts: Date.now(), data, status: status || 'success', seed: seed || Date.now() });
+  historyStore.set(key, list.slice(-5));
+  persistHistory();
+}
 
 /* ============================ 内部辅助 ============================ */
 function envelope(capability, status, data, error, meta = {}) {
