@@ -473,6 +473,54 @@ const EVAL_CASES = window.__EVAL_CASES__ || [
 ];
 
 let lastEvalRuns = [];
+let lastEvalCompare = null;
+
+function auditCase(run) {
+  if (!run) return;
+  if (run.mock || run.real) {
+    window.alert(JSON.stringify({
+      expected: run.mock?.expect || run.real?.expect || null,
+      input: run.mock?.input || run.real?.input || '',
+      mock_output: run.mock?.data || null,
+      real_output: run.real?.data || null,
+      mock_result: { format_stable: run.mock?.fmt, at_least_one_field_match: run.mock?.understood, actionable_proxy_pass: run.mock?.helpful },
+      real_result: { format_stable: run.real?.fmt, at_least_one_field_match: run.real?.understood, actionable_proxy_pass: run.real?.helpful },
+    }, null, 2));
+    return;
+  }
+  const payload = {
+    input: run.input,
+    expected: run.expect,
+    model_output: run.data || null,
+    status: run.status,
+    error: run.error || null,
+    format_stable: run.fmt,
+    at_least_one_field_match: run.understood,
+    actionable_proxy_pass: run.helpful,
+  };
+  window.alert(JSON.stringify(payload, null, 2));
+}
+
+function exportEvalAudit() {
+  const cfg = getModelConfig() || {};
+  const payload = {
+    exported_at: new Date().toISOString(),
+    dataset: { name: '公开竞品评论评测集', case_count: EVAL_CASES.length, reference_date: EVAL_REF_DATE },
+    model_config: { model: cfg.model || 'mock', proxy_configured: Boolean(cfg.proxyUrl), use_real_model: useRealModel() },
+    metric_definitions: {
+      format_stable: '调用结果非 failed；调用链包含解析与契约校验。',
+      at_least_one_field_match: '情绪、风险、多意图、来源、时间中至少一项命中预期。',
+      actionable_proxy_pass: '格式成功且置信度非 low，或命中风险升级；不是人工有帮助率。',
+    },
+    runs: lastEvalCompare || { current: lastEvalRuns },
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `insightloop-eval-audit-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
 
 // 单条用例评估：复用 callModel 链路（mock 或真实模型由 modelFn 决定）
 async function evalOne(c, modelFn) {
@@ -545,7 +593,10 @@ async function runEvalSuite({ mode = 'current' } = {}) {
     onProgress: (d, t) => { if (meta) meta.textContent = `评估中（${modelLabel}） ${d}/${t} …`; },
   });
   lastEvalRuns = runs;
+  lastEvalCompare = null;
   window.__lastEvalRuns = runs;
+  const exportBtn = document.getElementById('eval-export-btn');
+  if (exportBtn) exportBtn.disabled = false;
   renderEval(runs, modelLabel);
   return runs;
 }
@@ -609,12 +660,16 @@ function renderEval(runs, modelLabel) {
       <td>${st}${errTip}</td>
       <td>${assert}</td>
       <td><span class="fb-ai-conf ${confCls}">${conf}</span></td>
+      <td><button type="button" class="btn btn-outline eval-audit-btn" data-eval-audit="current" data-eval-index="${i}">预期/输出</button></td>
     </tr>`;
   }).join('');
 }
 
 // 对比渲染：Mock vs 真实模型 的汇总 + 逐用例差异
 function renderEvalCompare(mockRuns, realRuns, realLabel) {
+  lastEvalCompare = { mock: mockRuns, real: realRuns };
+  const exportBtn = document.getElementById('eval-export-btn');
+  if (exportBtn) exportBtn.disabled = false;
   const total = mockRuns.length;
   const pct = (arr, key) => (total ? Math.round((arr.filter(r => r[key]).length / total) * 100) : 0) + '%';
   const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
@@ -650,6 +705,7 @@ function renderEvalCompare(mockRuns, realRuns, realLabel) {
       <td>${mark(m.understood)} / ${mark(m.helpful)}</td>
       <td>${realCell}</td>
       <td>${delta}</td>
+      <td><button type="button" class="btn btn-outline eval-audit-btn" data-eval-audit="compare" data-eval-index="${i}">预期/输出</button></td>
     </tr>`;
   }).join('');
 }
@@ -1717,6 +1773,18 @@ function init() {
       toast('评估失败：' + (e.message || e), 'error');
     } finally {
       evalBtn.disabled = false; evalBtn.textContent = orig;
+    }
+  });
+  const exportEvalBtn = $('#eval-export-btn');
+  exportEvalBtn && exportEvalBtn.addEventListener('click', exportEvalAudit);
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.eval-audit-btn');
+    if (!btn) return;
+    const index = Number(btn.dataset.evalIndex);
+    if (btn.dataset.evalAudit === 'compare') {
+      auditCase({ mock: lastEvalCompare?.mock?.[index], real: lastEvalCompare?.real?.[index] });
+    } else {
+      auditCase(lastEvalRuns[index]);
     }
   });
 

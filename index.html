@@ -2353,6 +2353,7 @@ export_start / export_progress / export_cancel / export_success。
             <button class="seg active" data-mode="current">当前模型</button>
             <button class="seg" data-mode="compare">对比 Mock vs 真实</button>
           </div>
+          <button class="btn btn-outline" id="eval-export-btn" disabled>导出审计结果</button>
           <button class="btn btn-primary" id="eval-run-btn">运行评估</button>
         </div>
 
@@ -2366,9 +2367,9 @@ export_start / export_progress / export_cancel / export_success。
 
         <div class="eval-table-wrap" id="eval-single-wrap">
           <table class="eval-table">
-            <thead><tr><th>#</th><th>类别</th><th>输入</th><th>状态</th><th>关键断言</th><th>把握度</th></tr></thead>
+            <thead><tr><th>#</th><th>类别</th><th>输入</th><th>状态</th><th>关键断言</th><th>把握度</th><th>审计</th></tr></thead>
             <tbody id="eval-rows">
-              <tr><td colspan="6" class="eval-empty">尚未运行评估。点击右上角「运行评估」将用固定 15 条测试集跑真实 callModel 链路并统计上述指标。</td></tr>
+              <tr><td colspan="7" class="eval-empty">尚未运行评估。运行后可查看预期与模型输出，并导出逐例审计 JSON。</td></tr>
             </tbody>
           </table>
         </div>
@@ -2376,13 +2377,13 @@ export_start / export_progress / export_cancel / export_success。
         <div class="eval-compare" id="eval-compare" style="display:none">
           <div class="eval-compare-head">逐用例对比：<span class="eval-muted">Mock（演示基线）</span> vs <span class="eval-muted">真实模型</span>（✓ 命中 / ✗ 未命中 · 理解/帮助）</div>
           <table class="eval-compare-table">
-            <thead><tr><th>#</th><th>类别</th><th>Mock 理解/帮助</th><th>真实 理解/帮助</th><th>差异</th></tr></thead>
+            <thead><tr><th>#</th><th>类别</th><th>Mock 理解/帮助</th><th>真实 理解/帮助</th><th>差异</th><th>审计</th></tr></thead>
             <tbody id="eval-compare-rows"></tbody>
           </table>
         </div>
         <div class="eval-note">
-          <b>指标说明</b>：格式稳定率 = 输出可被解析且通过 schema 校验的占比；任务理解率 = 至少命中一个预期维度（情绪/风险/时间还原/多意图/来源）的占比；有帮助率 = 格式稳定且模型把握度非 low、可据此直接行动的占比。<br>
-          <b>如何解读</b>：当前为 Mock（演示基线）跑 15 条固定用例，格式稳定率 100%、任务理解率 100%；有帮助率约 80% 并非缺陷——其余 3 条为「空输入 / 无语义乱码 / 信息缺失」，模型正确地把把握度判为 low 并 abstain（不臆测），这正是评测要暴露的「何时不该自信」。在右上角切换到「对比 Mock vs 真实」并配置 GLM-4-Flash 等真实 Key 后，「运行评估」会同一套固定用例分别跑 Mock 与真实模型，并排出逐用例对比表——可直观比较模型质量与 prompt 迭代效果。
+          <b>指标说明</b>：格式稳定率 = 输出可被解析且通过 schema 校验的占比；至少一项字段命中率 = 命中任一预期维度的比例；可行动代理通过率 = 格式稳定且模型把握度非 low、或命中风险升级的比例，<b>不等于正确率或人工有帮助率</b>。<br>
+          <b>审计方法</b>：点击每行「预期/输出」查看模型实际输出；运行后点击「导出审计结果」保存逐例 JSON。Prompt 调整只能基于已导出的错例归因进行，并应保留调整前基线和未参与调参的复测集。
         </div>
       </section>
 
@@ -2816,7 +2817,7 @@ export_start / export_progress / export_cancel / export_success。
   <!-- 真实竞品评论覆盖数据：经典脚本先于下方 module 执行，设置 window.__EVAL_CASES__ / window.__FEEDBACKS__，
        使评估看板与反馈中心默认即跑这 143 条真实跨 App 评论（而非内置 15 条 demo）。来源/偏差见 reviews-pipeline/DATA_README.md -->
   <script src="reviews-pipeline/real-data.js?v=eval143"></script>
-  <script type="module" src="ai-integration.js?v=2.3.0"></script>
+  <script type="module" src="ai-integration.js?v=2.3.1-audit"></script>
   <script>
   /* 死按钮补齐：让每个可点击元素点击后都有真实结果（导航 / 展开 / 弹窗 / 提示）
      与 ai-integration.js 互不干扰（本段只处理无 data-ai-cap 的元素）。 */
