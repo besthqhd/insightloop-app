@@ -25,7 +25,7 @@ function cors(resp) {
   const h = new Headers(resp.headers);
   h.set('Access-Control-Allow-Origin', '*');
   h.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  h.set('Access-Control-Allow-Headers', 'Content-Type');
+  h.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   return new Response(resp.body, { status: resp.status, statusText: resp.statusText, headers: h });
 }
 
@@ -35,7 +35,7 @@ export default {
 
     // 健康检查 / 探活
     if (url.pathname === '/' || url.pathname === '/health') {
-      return new Response('InsightLoop key-custody backend OK', { status: 200 });
+      return cors(new Response('InsightLoop key-custody backend OK', { status: 200 }));
     }
 
     // 预检
@@ -66,7 +66,9 @@ export default {
       model: incoming.model || 'glm-4-flash',
       messages: Array.isArray(incoming.messages) ? incoming.messages : [],
       temperature: typeof incoming.temperature === 'number' ? incoming.temperature : 0.7,
-      response_format: incoming.response_format || { type: 'json_object' },
+      // Preserve a caller-supplied JSON contract (InsightLoop); ordinary chat
+      // callers such as Warm Todo can omit it and receive normal text replies.
+      ...(incoming.response_format ? { response_format: incoming.response_format } : {}),
     };
 
     // 用 Worker 自己保存的 Key 调用智谱（服务器对服务器，无 CORS 限制）
