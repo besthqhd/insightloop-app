@@ -52,8 +52,7 @@ const MOCK = {
       { name: '深色模式对比度不足', count: 72, sentiment: 'positive', severity: 'P3', evidence_ids: ['fb_3370'] },
     ],
     suggested_opportunities: [
-      { title: '导出报表异步化（流式 + 进度）', priority: 8.6, rationale: '412 条负反馈，P95≈118s' },
-      { title: '移动端登录失败自愈与重试', priority: 8.2, rationale: '286 条，偶发阻断核心路径' },
+      { title: '高风险输出的证据核验与人工签核', priority: 6.0, rationale: '待验证机会：9 / 143 条公开评测素材出现相关信号。' },
     ],
     charts: { sentiment_dist: { negative: 0.38, neutral: 0.33, positive: 0.29 } },
   }),
@@ -131,43 +130,31 @@ const MOCK = {
   /* ── 多智能体链路：5 个 Agent 各自返回中间产物 ── */
   [CAPABILITY.AGENT_USER_RESEARCH]: () => ({
     themes: [
-      { name: '导出报表耗时过长', count: 412, sentiment: 'negative', severity: 'P0', evidence_ids: ['fb_8821', 'fb_2043', 'fb_3155'], main_complaint: '大报表导出同步阻塞，最长 40s 无进度，用户误判失败后重复点击' },
-      { name: '移动端登录偶发失败', count: 286, sentiment: 'negative', severity: 'P1', evidence_ids: ['fb_7712'], main_complaint: '弱网或 token 过期时登录静默失败，无明确报错' },
-      { name: '搜索结果不准确', count: 218, sentiment: 'neutral', severity: 'P1', evidence_ids: ['fb_6681'], main_complaint: '关键词与语义混合排序，长尾 query 命中差' },
-      { name: '批量操作无进度提示', count: 154, sentiment: 'negative', severity: 'P2', evidence_ids: ['fb_5530'], main_complaint: '批量导出/删除无进度，用户不知道是否成功' },
-      { name: '通知中心加载慢', count: 98, sentiment: 'negative', severity: 'P2', evidence_ids: ['fb_4490'], main_complaint: '通知列表首屏白屏，冷启动慢' },
-      { name: '深色模式对比度不足', count: 72, sentiment: 'positive', severity: 'P3', evidence_ids: ['fb_3370'], main_complaint: '暗色下次要文字几乎不可读' },
+      { name: '准确性 / 幻觉风险', count: 9, sentiment: 'negative', severity: 'P1', evidence_ids: ['49', '50', '107', '108', '109', '110', '121', '122', '123'], main_complaint: '公开评论中出现事实错误、虚构内容与人工返工信号。' },
     ],
-    notes: '聚类基于反馈文本语义相似度，count 为合理估算',
+    notes: 'Mock 仅演示已审计的 n=9 主题；这不是 InsightLoop 用户需求或发生率结论。',
   }),
   [CAPABILITY.AGENT_DATA_ANALYSIS]: (ctx) => {
     const themes = (ctx && ctx.context && ctx.context.artifacts && ctx.context.artifacts[0] && ctx.context.artifacts[0].themes) || [];
-    const total = themes.reduce((s, t) => s + (t.count || 0), 0) || 1240;
+    const total = 143;
     return {
       themes: themes.map(t => ({
         name: t.name, count: t.count,
         share_pct: Math.round((t.count / total) * 1000) / 10,
         severity: t.severity,
-        quant_evidence: t.name.includes('导出') ? 'P95≈118s，超时率 6.3%，峰值集中在月末' :
-          t.name.includes('登录') ? '弱网复现率约 12%，客诉占比 9%' :
-          t.name.includes('搜索') ? '长尾 query 首条命中率 41%' :
-          t.name.includes('批量') ? '批量任务平均等待 23s 无反馈' :
-          t.name.includes('通知') ? '冷启动首屏 2.8s' : '占比偏低，频次稳定',
-        trend: t.name.includes('导出') || t.name.includes('登录') ? '上升' : '持平',
+        quant_evidence: '9 / 143 条评测素材命中该主题；无行为指标或时间序列。',
+        trend: '未知',
       })),
-      overall_summary: '导出类主题占反馈总量约 33%，且 severity 最高，应优先治理',
+      overall_summary: '准确性 / 幻觉风险为 n=9 的待验证高风险信号，不能推断需求规模或趋势。',
     };
   },
   [CAPABILITY.AGENT_PRODUCT_STRATEGY]: (ctx) => {
     const themes = (ctx && ctx.context && ctx.context.artifacts && ctx.context.artifacts[0] && ctx.context.artifacts[0].themes) || [];
     return {
       opportunities: [
-        { title: '导出报表异步化（流式 + 进度）', priority: 8.6, rationale: '占比最高且 P0，P95 118s→8s 可显著降重复点击', target_theme: '导出报表耗时过长', expected_impact: 'P95 从 118s 降至 8s，重复点击率 -71%' },
-        { title: '移动端登录失败自愈与重试', priority: 8.2, rationale: 'P1 阻断核心路径，弱网复现率 12%', target_theme: '移动端登录偶发失败', expected_impact: '登录失败率 -90%' },
-        { title: '搜索语义重排 + 相关性加权', priority: 7.0, rationale: '长尾 query 首条命中率仅 41%，提升可承接正面新增用户', target_theme: '搜索结果不准确', expected_impact: '首条命中率 41%→65%' },
-        { title: '批量操作实时进度条', priority: 6.5, rationale: '复用导出异步化组件，成本低', target_theme: '批量操作无进度提示', expected_impact: '批量任务取消率 -40%' },
+        { title: '高风险输出的证据核验与人工签核', priority: 6.0, rationale: '主题后果较高但仅有 n=9 公开评测素材，建议优先验证而非直接立项。', target_theme: '准确性 / 幻觉风险', expected_impact: '待验证是否减少错误采纳与人工返工。' },
       ],
-      notes: '按影响面 × 严重度排序，未纳入 P3 深色模式（优化项非阻塞）',
+      notes: '优先级是待人工审核的验证建议，不是自动决策。',
     };
   },
   [CAPABILITY.AGENT_TECH_REVIEW]: (ctx) => {
@@ -200,10 +187,10 @@ const MOCK = {
       return !(r && r.feasibility === 'low' && r.cost === 'high');
     });
     return {
-      summary: '用户研究识别 6 个主题，数据分析确认导出占比最高（约 33%），产品策略建议异步化，技术评估认为 2 周内可落地。',
+      summary: '发现准确性 / 幻觉风险信号（9 / 143）；证据强度中低，建议先验证证据核验与人工签核流程。',
       themes: rt.map(t => ({ name: t.name, count: t.count, sentiment: t.sentiment, severity: t.severity, evidence_ids: t.evidence_ids || [] })),
       suggested_opportunities: opps.map(o => ({ title: o.title, priority: o.priority, rationale: o.rationale })),
-      agent_chain_digest: '用户研究识别 6 主题 → 数据分析确认导出占比最高 → 产品策略建议异步化 → 技术评估认为高可行、2 周可落地',
+      agent_chain_digest: '用户研究识别 n=9 信号 → 数据分析标记无行为指标 → 产品策略建议验证 → 技术评估仅作方案假设',
     };
   },
   /* 单条反馈 PM 视角分类：原型阶段不接真实模型，按「能判断才填、不能判断一律待确认」演示 */
@@ -776,8 +763,10 @@ async function runAgentPipeline(opts = {}) {
   resetAgentFlow();
   renderAgentFlow();
 
-  const feedbacks = (typeof FEEDBACKS !== 'undefined' && Array.isArray(FEEDBACKS)) ? FEEDBACKS : [];
-  const feedbackList = feedbacks.slice(0, 60).map((f, i) => ({ id: f.id || `fb_${i}`, text: (f.quote || f.text || '') }));
+  // ES module 无法读取 index.html 的 const FEEDBACKS；统一从公开的窗口数据取值。
+  // 该数据集是公开竞品评论评测素材，不是 InsightLoop 用户反馈。
+  const feedbacks = Array.isArray(window.__FEEDBACKS__) ? window.__FEEDBACKS__ : [];
+  const feedbackList = feedbacks.slice(0, 60).map((f, i) => ({ id: f.id || `fb_${i}`, text: (f.quote || f.text || ''), topic: f.topic || '待确认' }));
 
   const callStep = async (cap, artifacts) => {
     setAgentStatus(cap, 'progress');

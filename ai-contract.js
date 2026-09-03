@@ -224,7 +224,7 @@ export function buildSystemPrompt(capability, ctx) {
       `必填字段：${schema.required.join(', ')}。`,
       '判定规则：',
       '1. themes 数组：每个主题代表一类用户反馈。name 用 4-12 字概括（如「导出报表耗时过长」）。',
-      '2. count：属于该主题的反馈条数（允许基于文本合理估算，但要诚实）。',
+      '2. count：只能统计输入 feedback_list 中可实际归入该主题的反馈条数；无法完成归类时填 0，并在 notes 说明，严禁估算。',
       '3. sentiment：该主题整体情绪（positive/neutral/negative）。',
       '4. severity：P0=阻断核心路径/大量投诉；P1=高频功能受损；P2=体验受损；P3=优化建议。',
       '5. evidence_ids：支撑该主题的代表性反馈 id 数组（3-6 条）。',
@@ -242,8 +242,8 @@ export function buildSystemPrompt(capability, ctx) {
       `必填字段：${schema.required.join(', ')}。`,
       '计算规则：',
       '1. share_pct：该主题反馈量占总反馈的百分比（0-100）。',
-      '2. quant_evidence：为该主题补充可量化的描述，如「P95≈118s」「超时率 6.3%」「峰值集中在月末」。若文本无具体数字，可写「高频出现但未给出具体数值」。',
-      '3. trend：该问题是「上升」「下降」还是「持平」。无法判断写「未知」。',
+      '2. quant_evidence：只能引用输入中已有的数字或由输入 count 直接计算的占比；不得编造 P95、超时率、用户数或行为指标。无具体数字时写「反馈文本未提供行为指标」。',
+      '3. trend：只有输入包含可比较的时间序列时才可写「上升」「下降」或「持平」；否则写「未知」。',
       '4. severity 沿用或基于量化证据调整。',
       '严禁输出解释性文字，只输出合法 JSON。',
     ].join('\n');
@@ -260,7 +260,7 @@ export function buildSystemPrompt(capability, ctx) {
       '2. priority：0-10，综合考虑影响面（share_pct）、严重程度（severity）、用户情绪。',
       '3. rationale：为什么做、不做会怎样，引用数据。',
       '4. target_theme：关联到输入中的 theme.name。',
-      '5. expected_impact：预期收益，如「预计 P95 从 118s 降至 8s」「降低重复点击率」。',
+      '5. expected_impact：只写待验证的方向性假设（如「待验证是否减少重复操作」）；不得生成未观测的提升百分比、P95 或转化收益。',
       '严禁输出解释性文字，只输出合法 JSON。',
     ].join('\n');
   }

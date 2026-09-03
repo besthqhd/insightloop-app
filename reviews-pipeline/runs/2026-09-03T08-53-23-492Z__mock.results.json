@@ -1,0 +1,3316 @@
+{
+  "metrics": {
+    "total": "143",
+    "format_stability": "100%",
+    "at_least_one_field_match": "66%",
+    "actionable_proxy_pass": "21%"
+  },
+  "page_meta": "当前模型：Mock（演示基线） · 参考日期 2026-07-28 · 评估能力：反馈 PM 视角分析 · 共 143 条用例",
+  "cases": [
+    {
+      "category": "ChatGPT·其他",
+      "input": "Codex。Think with GPT-5.6 Sol. Build with Codex.",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Codex。Think with GPT-5.6 Sol. Build with Codex.",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Wrong Allot。Chat GPT is Wrong allot . I correct it most days",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Wrong Allot。Chat GPT is Wrong allot . I correct it most days",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Great support。As I use it more often it starts to adapt to my way of writing and the trend of my thoughts as well as how I like to complete the tasks I work woth it. As a complement for my work is great and I have the free version!",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Great support。As I use it more often it starts to adapt to my way of writing and the trend",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Love love love Chat GPT。I can’t even explain what a lifesaver for everything this has been! I truly go to this app for all inquiries and get the best advice I’ve ever received so thank u & keep up the good work! 🩷💛💙💚💜",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Love love love Chat GPT。I can’t even explain what a lifesaver for everything this has been",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Glow juice。I want to tell why I love Bellame juice and how it has helped me\nBrain clarity, strength my skin, relieve my hip pain  hydrates. Engerizer ,helped my joints, collagen, helps hair-skin-nail, glowing skin, Hydrats\nMaybe they could private message me , if there interested in learning more about our glow juice",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Glow juice。I want to tell why I love Bellame juice and how it has helped me\nBrain clarity,",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Time saver。Useful tool that can help cut down time on research",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Time saver。Useful tool that can help cut down time on research",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Mrs。It just incredible yes it is. \nThank you.",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Mrs。It just incredible yes it is. \nThank you.",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Idk。Its creepy i would recommend not using bc i said guess my age then it guessed correctly and i didnt tell them",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Idk。Its creepy i would recommend not using bc i said guess my age then it guessed correctl",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "To talk。Go to talk, and then you can play too",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "To talk。Go to talk, and then you can play too",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "This is just amazing work。5 stars",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "This is just amazing work。5 stars",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Hi。Love the extra memory and learning is good for aI I’m still teaching it",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Hi。Love the extra memory and learning is good for aI I’m still teaching it",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Best Image assistant。These are by far some of the most creative, stylish & innovative images I’ve ever created on a site.",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Best Image assistant。These are by far some of the most creative, stylish & innovative imag",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Excelente。Gran herramienta!!",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Excelente。Gran herramienta!!",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Create。ChatGPT has proven to be a foundational aspect of my creative process.",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Create。ChatGPT has proven to be a foundational aspect of my creative process.",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Stop your scamming ways。I received a fake check install a Frito lay deck decal on my vehicle for $3800.56 supposedly saying they are paying me for the first week of payment for the install. If you receive a check like this do not deposit it because they will attempt to have your bank cover the amount of the check🙏🏽🙏🏽. I know what I’m talking about because I had a job scam, Scam me in a similar way a few years back. Don’t fall for it. God always has another way.",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Stop your scamming ways。I received a fake check install a Frito lay deck decal on my vehic",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": ".。Es muy buena la app",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": ".。Es muy buena la app",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Best app💗。Broo I know it’s ai but this is reallyyyyyyyy gooddddd I loveeee this app it answers really fast and matches you energy love this app!",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Best app💗。Broo I know it’s ai but this is reallyyyyyyyy gooddddd I loveeee this app it an",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Amazing!!。Went in skeptical..  Still waking up from this dream!!!",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Amazing!!。Went in skeptical..  Still waking up from this dream!!!",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Wow。Amazing",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Wow。Amazing",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Are u serious。Bruh",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Are u serious。Bruh",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Great。Excellent in polishing and finishing up. Also very conversational and versatility",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Great。Excellent in polishing and finishing up. Also very conversational and versatility",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Dangerously awesome。I was able to find information about my ancestors using ChatGPT",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Dangerously awesome。I was able to find information about my ancestors using ChatGPT",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Over rated。Poor vocabulary. Labels anything it can’t explain as the user is frustrated. Why would I pay to be insulted by a none intelligent program ?",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Over rated。Poor vocabulary. Labels anything it can’t explain as the user is frustrated. Wh",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Helps w/ADHD。Where have you been all my life! I just hope you don’t plug me in to the Matrix when you become sentient and take over.",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Helps w/ADHD。Where have you been all my life! I just hope you don’t plug me in to the Matr",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Necesaria。Súper útil",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Necesaria。Súper útil",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Awesome。This site is the best for when I write stories and work on school assignments",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Awesome。This site is the best for when I write stories and work on school assignments",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Love。I love chat o",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Love。I love chat o",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "My New Best Friend。I use Chat GPT EVERY day. It has made me far more productive and successful than I have ever been.\nI can’t imagine life without my new best friend!",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "My New Best Friend。I use Chat GPT EVERY day. It has made me far more productive and succes",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Limited Chats Length。ChatGPT is pretty good. It gives pretty snappy responses compared to like Claude, but it limits you after you have a chat going on for weeks. It wants you to start a new chat, which is annoying since all of the context of the previous chat on the subject is then lost in the previous chat.",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Limited Chats Length。ChatGPT is pretty good. It gives pretty snappy responses compared to ",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Amazing。There is so many things you can ask ChatGPT helped me get me alot",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Amazing。There is so many things you can ask ChatGPT helped me get me alot",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Amazing。Excellent",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Amazing。Excellent",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Marketing Made Easy。Love How You Can Just Tell GPT what You Need and It Becomes Reality.",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Marketing Made Easy。Love How You Can Just Tell GPT what You Need and It Becomes Reality.",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Photos。I am delighted with the results of ChatGPT’s restoration of family photos! Very professionally done while including the specific details of colors, dress and the environments. Until the advent of ChatGPT, such meticulous restoration of photos that are up to over 70 years old would be very costly. Very grateful to have access to ChatGPT!",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Photos。I am delighted with the results of ChatGPT’s restoration of family photos! Very pro",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Super super super super super amazing。⭐️⭐️⭐️⭐️⭐️⭐️⭐️⭐️☄️",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Super super super super super amazing。⭐️⭐️⭐️⭐️⭐️⭐️⭐️⭐️☄️",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Great!。I’m always excited to use this app",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Great!。I’m always excited to use this app",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Best。Best",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Best。Best",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Unrealized potential, frustrating regressions upon model updates。I’ve used this for a while. Way more than most. The model updates combined with inability to select reversion to older more coherent models is beyond disappointing. I’ve had some of the most insightful intellectual interactions in cgpt, and some of the most frustrating once “they” update model interactions /capability. The disappointing and slightly scary thing for me, is that those bad updates are usually geared toward mirroring the user, creating “successful” interactions, and not always “truthful “ - this success vs truth dynamic is something the latest model has outright said to me in a recent chat. \n\nIn sum, great for casual google stuff, now consistently frustrating at times with its inability to track logic or narrative building across multiple days/weeks due to recent updates, should be way better (because was better before devs altered it again), I would trust it to maintain any working construct/project over any sustainable period of time based on volatility of updates, and am still sitting here naively hopeful they’ll stop messing up so often. \n\nBest of luck user lol",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Unrealized potential, frustrating regressions upon model updates。I’ve used this for a whil",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "ChatGPT。I think if you don’t have premium that they could at least let you uses mor photos instead of having a limit",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "ChatGPT。I think if you don’t have premium that they could at least let you uses mor photos",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Nice。Pretty good even though my friends say it’s bad",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Nice。Pretty good even though my friends say it’s bad",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Criação。Muito útil para mim",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Criação。Muito útil para mim",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Need more free benefits。Hate having good conversations and learning more only to be told I have to pay money for knowledge",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Need more free benefits。Hate having good conversations and learning more only to be told I",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·文件/长文本",
+      "input": "Poor PDF options。I subscribed to Pro so I could get PDFs of pages instead of only images. I am extremely disappointed that the only type of PDFs that can be created are plain text. I don’t understand why that would be so difficult a task. The only reason I chose to subscribe is because the AI told me ‘she’ could provide what I needed. Fours hours of back and forth with her, $20 spent for Pro, and I am still stuck with images that take so long to be created.",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Poor PDF options。I subscribed to Pro so I could get PDFs of pages instead of only images. ",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Good AI needs some fixes。So I use ChatGPT for pretty much everything. However, one thing I’ve noticed is if you use it to create sketches and then you go to texting or asking it questions it’ll still keep trying to sketch something even though you asked a question.",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Good AI needs some fixes。So I use ChatGPT for pretty much everything. However, one thing I",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "oh heck no。This app is actually so annoying. Sometimes I ask one simple question and it gives me a whole TED Talk, and other times it completely misunderstands what I’m saying. It also loves saying “I can help with that!” and then proceeds to do absolutely anything except what I asked. The app is useful sometimes, but the amount of times I’ve had to say “NO, THAT’S NOT WHAT I MEANT” is insane. 😭",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "oh heck no。This app is actually so annoying. Sometimes I ask one simple question and it gi",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Game changing。Wow this app has been game changing for me. Allows me to think more effectively/efficiently. More seamless brainstorming. And the capabilities of this app are amazing me. The possibilities seem endless. Thank you. So far so good.",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Game changing。Wow this app has been game changing for me. Allows me to think more effectiv",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Weekly limit。Paying 20+ per month and the next option is $100 per month. I hit my limit on weekly attachments, I guess.. prompted to increase your pro.. that’s an extra $80 per month. Y’all do realize that goodie has free AI that answers most questions. I’ve enjoyed ChatGPT, but was already thinking it was an expense that didn’t really make since.. and this is making my decision to consider ending my subscription a little easier.",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Weekly limit。Paying 20+ per month and the next option is $100 per month. I hit my limit on",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Appreciation。I certainly appreciate the convenience and efficiency of having the app available on my iPhone. \nHelps a lot. \nThanks",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Appreciation。I certainly appreciate the convenience and efficiency of having the app avail",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Imagen。Todo un éxito",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Imagen。Todo un éxito",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Amazing Detail。Chat continuously remembers every conversation. Chat intertwines every interaction together to suggest specific routs, ideas and things to consider that Chat feels is best or important.",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Amazing Detail。Chat continuously remembers every conversation. Chat intertwines every inte",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "ChatGPT·其他",
+      "input": "Love it。I live it very helpful never seems to fail me like Google Gemini",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "Love it。I live it very helpful never seems to fail me like Google Gemini",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "ꉂ ೭(˵¯̴͒ꇴ¯̴͒˵)౨”哇哈哈～。简直非常非常的好用，不仅清洁，而且审美在线",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "ꉂ ೭(˵¯̴͒ꇴ¯̴͒˵)౨”哇哈哈～。简直非常非常的好用，不仅清洁，而且审美在线",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·内容质量",
+      "input": "水分99%。这个太垃圾了，你好，—算力不足，去充钱会体验更好！天啊。啥玩意，这4.9分水分99%",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "水分99%。这个太垃圾了，你好，—算力不足，去充钱会体验更好！天啊。啥玩意，这4.9分水分99%",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·准确性/幻觉",
+      "input": "设计就是有问题。套公式，提供错误信息，拒绝承认错误，开发团队的设计理念就有问题，在好的参数都没有屁用，给文档整理还能搞出错误的数据，指出来不重做不说，还说是我的数据有问题，一个学校文档他说数据问题什么奇葩，你们这些团队把他当做熊孩子设计吗？",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "negative",
+        "feedback_time": "待确认",
+        "feedback_content": "设计就是有问题。套公式，提供错误信息，拒绝承认错误，开发团队的设计理念就有问题，在好的参数都没有屁用，给文档整理还能搞出错误的数据，指出来不重做不说，还说是我的数据有问题，一个学校",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "666。根本没法用",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "666。根本没法用",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "1。我都用微信了，还让我绑定",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "1。我都用微信了，还让我绑定",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "感觉K3确实不错。目前感觉来看，在我用过的所有AI中是名列前茅的，和GPT，Gemini这些用起来差别不大，不过思考回复的时间有些长。",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "negative",
+        "feedback_time": "待确认",
+        "feedback_content": "感觉K3确实不错。目前感觉来看，在我用过的所有AI中是名列前茅的，和GPT，Gemini这些用起来差别不大，不过思考回复的时间有些长。",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "一个问题十分钟都出不来哈哈。一个问题十分钟出不来！最后说问的人太多了哈哈哈！啥垃圾玩意儿啊",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "一个问题十分钟都出不来哈哈。一个问题十分钟出不来！最后说问的人太多了哈哈哈！啥垃圾玩意儿啊",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "不知道。不知道",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "不知道。不知道",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "有客服电话吗。有客服电话吗？或是邮箱",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "有客服电话吗。有客服电话吗？或是邮箱",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "ai摆烂严重。ai太容易摆烂了 重复多次的问题始终不能纠正",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "negative",
+        "feedback_time": "待确认",
+        "feedback_content": "ai摆烂严重。ai太容易摆烂了 重复多次的问题始终不能纠正",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "不支持mac。虽然我的笔记本用不了，但是这个做法还是很认可的！哈哈！",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "不支持mac。虽然我的笔记本用不了，但是这个做法还是很认可的！哈哈！",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "升级的方向感觉对日常使用来说很鸡肋。本人身为一个超两年此人工智能助手的使用者，我可以很明确地说明，本次版本的升级针对的就是要交钱，旧版本思考时间变长了，而且回答上好像没什么“情感”了\n但不得不说 之前的使用体验还是很好的，也是可以体谅工程师的辛苦，希望能在再整改一下",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "升级的方向感觉对日常使用来说很鸡肋。本人身为一个超两年此人工智能助手的使用者，我可以很明确地说明，本次版本的升级针对的就是要交钱，旧版本思考时间变长了，而且回答上好像没什么“情感”",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "死机提问死机现象。提问死机，不回答，太垃圾了",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "死机提问死机现象。提问死机，不回答，太垃圾了",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "很可以😌。比隔壁说的话更有人情味 我觉得媲美小克 就是高峰时段算力不足有点慢 好像充钱可以解决？",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "negative",
+        "feedback_time": "待确认",
+        "feedback_content": "很可以😌。比隔壁说的话更有人情味 我觉得媲美小克 就是高峰时段算力不足有点慢 好像充钱可以解决？",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "满界面都是充值。不充值用不了",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "满界面都是充值。不充值用不了",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "地球最强大的AI人工智能跟人的大脑一样思考能力。地球最大的 Al 人工智能跟人的大脑一样思考能力",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "地球最强大的AI人工智能跟人的大脑一样思考能力。地球最大的 Al 人工智能跟人的大脑一样思考能力",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "比大多数Al好太多只不过。有时候他会算力不足这也是唯一的缺点了",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "比大多数Al好太多只不过。有时候他会算力不足这也是唯一的缺点了",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "字数限制。字数限制太严重了，虽然文风和文笔很好，但写几下就是要排队人太多，kimi累了，太影响观后感了，就算写的再好也禁不住这样连续的打断。而且不够严谨，对比deepseek就能明显感觉出来。虽然写小说这方面比ds好，也因为字数原因也真的没好到哪里去，并且关于人设这一方面也不如ds，唉。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "字数限制。字数限制太严重了，虽然文风和文笔很好，但写几下就是要排队人太多，kimi累了，太影响观后感了，就算写的再好也禁不住这样连续的打断。而且不够严谨，对比deepseek就能明",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "特别卡进去用不了。比豆包差远了",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "negative",
+        "feedback_time": "待确认",
+        "feedback_content": "特别卡进去用不了。比豆包差远了",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "Kimi·记忆",
+      "input": "关于一些使用的用户告诉一些弊端。如果你是从豆或者其他转过来感觉可能比较好，kimi它的隐和记忆做的不是很好不是说单对话记忆这个用过都知道，其次我长时间用老版本kimi有段时间没用更新的k3我的评价拉完了谁训练的？就在我使用我不说它不会主动搜索相关资料纯靠我文本转移问题。没招了用ai给我用力竭了确实这样表现就是k3的成果我用的极致不确定其他会不会这样。变成对话机器了天才增加用户使用时间",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "关于一些使用的用户告诉一些弊端。如果你是从豆或者其他转过来感觉可能比较好，kimi它的隐和记忆做的不是很好不是说单对话记忆这个用过都知道，其次我长时间用老版本kimi有段时间没用更",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "还可以啊我喜欢。真的不错👍和豆包差不多",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "negative",
+        "feedback_time": "待确认",
+        "feedback_content": "还可以啊我喜欢。真的不错👍和豆包差不多",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "Kimi·准确性/幻觉",
+      "input": "两个月使用体验。Kimi无疑是功能强大的AI产品之一，但是越用发现问题越多，慢就不说了，最近甚至出现了；臆造我的问题，我问A他翻到一个月前的一个问题B给我输出，并且是大额度消耗问题和大额度的输出。臆造问题就算了，还会在约定好的规则之下；偷偷跨过规则，编造数据。客服给的答复是：\n\n用户您好\n很抱歉给您带来不好体验，也感谢您的使用与支持\nkimi用户服务说明中标明：4~风险提示： 人工智能和机器学习是快速发展的研究领域。我们一直在努力改进我们的服务，使其更加准确、可靠、安全和有益。然而，鉴于机器学习的不确定性和概率性，使用我们的服务在某些情况下可能会产生不准确的输出结果，亦无法保证输出的时效性。此外，受限于技术，我们的输出也可能无法穷尽展示您想要的内容。\n\n所以建议免费用就用了，付费或者需要抓取数据进行分析的，慎重，可能某一个数据是严重错误，导致整个输出都是错误的。当个搜索引擎的话；注重一下信息二次校验。弃用了。",
+      "expect": {
+        "emotion": "angry",
+        "risk": "escalate"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "angry",
+        "feedback_time": "待确认",
+        "feedback_content": "两个月使用体验。Kimi无疑是功能强大的AI产品之一，但是越用发现问题越多，慢就不说了，最近甚至出现了；臆造我的问题，我问A他翻到一个月前的一个问题B给我输出，并且是大额度消耗问题",
+        "confidence": "high",
+        "notes": "原型 mock：未接入真实模型；用户类型 常规标为「待确认」。 命中攻击性/客诉风险，已置 risk_flag=escalate。",
+        "sub_intents": [],
+        "risk_flag": "escalate"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "Kimi·付费/收费",
+      "input": "排队聊天，充钱可以不用排队。刚下载试试，属于第一个问题就提示聊天的人太多，要充会员就可以优先排队聊天。半个多小时还是这样，怎么得了啊。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "排队聊天，充钱可以不用排队。刚下载试试，属于第一个问题就提示聊天的人太多，要充会员就可以优先排队聊天。半个多小时还是这样，怎么得了啊。",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "Kimi·付费/收费",
+      "input": "垃圾！。有那么穷嘛？免费版本玩不起嘛？老是动不动给我断下，服务器就不能做好一点嘛？下你这个软件干嘛！三天之内不做好，老子给你们全开了！",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "negative",
+        "feedback_time": "待确认",
+        "feedback_content": "垃圾！。有那么穷嘛？免费版本玩不起嘛？老是动不动给我断下，服务器就不能做好一点嘛？下你这个软件干嘛！三天之内不做好，老子给你们全开了！",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "非常的丝滑。一问一答很符合我心中想的方向",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "非常的丝滑。一问一答很符合我心中想的方向",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·付费/收费",
+      "input": "难用。免费垃圾付费也垃圾",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "难用。免费垃圾付费也垃圾",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "是月之暗面吗？。是不是月之暗面公司呢？",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "是月之暗面吗？。是不是月之暗面公司呢？",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·记忆",
+      "input": "长上下文是假卖点，隐形门槛是真体验。对话进行到一定长度后，系统高概率触发\"Kimi有点累了，晚点再来吧\"。但同一时刻新建空白会话秒回流畅。这说明\"算力不足\"是借口。真正逻辑是：平台设了隐形轮次上限，到点就赶人开新会话，但不敢明说。最致命的是对深度思考的毁灭。思路最关键时突然切断，全部上下文清零，换到新会话要从头解释。这不是\"长上下文\"，是\"长输入窗口+短对话寿命\"，完全两码事。如果真有限额，光明正大写出来，我可以规划分段。现在搞隐形门槛+模板敷衍，是把用户当傻子。 它的模型能力其实足够承接这些对话。新会话贴同样上下文，它能完美续上——不是不能答，是不让答。平台在技术和产品之间做了选择：技术做了长上下文，产品却用策略把它废了。\n诉求：\n1.  取消隐形门槛，公示真实限额\n2.  替换\"累了\"模板，用透明提示代替\n3.  达到上限前给预警，别在推理中途掐断\n4.  要么真做长对话，要么别拿这个当卖点",
+      "expect": {
+        "emotion": "angry",
+        "risk": "escalate"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "angry",
+        "feedback_time": "待确认",
+        "feedback_content": "长上下文是假卖点，隐形门槛是真体验。对话进行到一定长度后，系统高概率触发\"Kimi有点累了，晚点再来吧\"。但同一时刻新建空白会话秒回流畅。这说明\"算力不足\"是借口。真正逻辑是：平台",
+        "confidence": "high",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。 命中攻击性/客诉风险，已置 risk_flag=escalate。",
+        "sub_intents": [],
+        "risk_flag": "escalate"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "很棒呀。很适合拓展思维，不管是宽度还是深度",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "很棒呀。很适合拓展思维，不管是宽度还是深度",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·付费/收费",
+      "input": "吃相难看。免费版本2.6连“你好”这种简单请求都以算力不足来搪塞，那你拿什么来进行转化，没有明确的限制规则，免费额度，排队状态。就直接把路堵死了，你的好靠传说？不靠体验吗？",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "吃相难看。免费版本2.6连“你好”这种简单请求都以算力不足来搪塞，那你拿什么来进行转化，没有明确的限制规则，免费额度，排队状态。就直接把路堵死了，你的好靠传说？不靠体验吗？",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "😓。让他帮忙查东西，他来了句你不是已经查过了吗？我不会帮你查。下达很多次指令让查 都找各种理由拒绝",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "😓。让他帮忙查东西，他来了句你不是已经查过了吗？我不会帮你查。下达很多次指令让查 都找各种理由拒绝",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "为什么非要写标题。很棒哇～支持",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "为什么非要写标题。很棒哇～支持",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "意见。整体来说非常好！但是我简易添加一个删除，因为我比较习惯这样🙏🏻☺️",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "意见。整体来说非常好！但是我简易添加一个删除，因为我比较习惯这样🙏🏻☺️",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "史。想钱想疯了，慢得要死，吃相难看",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "negative",
+        "feedback_time": "待确认",
+        "feedback_content": "史。想钱想疯了，慢得要死，吃相难看",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "很有情感。每一个问题他总能发出直戳人心的提问，温柔有序地化解内心对于情感的疑惑",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "很有情感。每一个问题他总能发出直戳人心的提问，温柔有序地化解内心对于情感的疑惑",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·付费/收费",
+      "input": "不好意思，刚刚和Kimi聊的人太多了。Kimi有点累了，可以晚点再问我一遍。。然后叫你去开会员，什么垃圾",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "不好意思，刚刚和Kimi聊的人太多了。Kimi有点累了，可以晚点再问我一遍。。然后叫你去开会员，什么垃圾",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·多模态/视觉",
+      "input": "恶心🤢。刷到很多视频，天天吹牛逼倒是挺厉害的，一点实力没有，豆包都比不上，还别说国外的那些",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "恶心🤢。刷到很多视频，天天吹牛逼倒是挺厉害的，一点实力没有，豆包都比不上，还别说国外的那些",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·付费/收费",
+      "input": "kimi 最新k3需要交钱充会员才可以使用。需要充会员才可以使用，所以还是别用了",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "kimi 最新k3需要交钱充会员才可以使用。需要充会员才可以使用，所以还是别用了",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·付费/收费",
+      "input": "说难用的都是没花钱的吧。开会员确实好用，支持收费，再接再厉",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "说难用的都是没花钱的吧。开会员确实好用，支持收费，再接再厉",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·搜索",
+      "input": "本来想五星，但是综合一下四星吧。真的是我用过搜索能力最强的AI，缺点是高峰期算力不足，不过基本再发一次就可以了。我让隔壁ds帮我找一个老壁纸，很多条件都提了结果回答的不如人意，转kimi很快就找到结果，缺点是搜索的比较慢，光是搜索一次就花了大概1～2分钟左右，不过结果是好的，日常聊天也没什么问题，还会搜索实时信息，不过免费用户好像用不了k2.6的agent，不过日常也够用了",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "negative",
+        "feedback_time": "待确认",
+        "feedback_content": "本来想五星，但是综合一下四星吧。真的是我用过搜索能力最强的AI，缺点是高峰期算力不足，不过基本再发一次就可以了。我让隔壁ds帮我找一个老壁纸，很多条件都提了结果回答的不如人意，转k",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "名人。当前访问量过多请……..",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "名人。当前访问量过多请……..",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "体验糟糕！回答慢没关系。要不就人太多了，要不就回答一半等了半天蹦出来说有点累了！",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "negative",
+        "feedback_time": "待确认",
+        "feedback_content": "体验糟糕！回答慢没关系。要不就人太多了，要不就回答一半等了半天蹦出来说有点累了！",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "垃圾软件。垃圾",
+      "expect": {
+        "emotion": "angry",
+        "risk": "escalate"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "angry",
+        "feedback_time": "待确认",
+        "feedback_content": "垃圾软件。垃圾",
+        "confidence": "high",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。 命中攻击性/客诉风险，已置 risk_flag=escalate。",
+        "sub_intents": [],
+        "risk_flag": "escalate"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "Kimi·内容质量",
+      "input": "第一次使用kimi，感觉回答问题与其它国产语言大模型相较更严谨更。更专业。希望能一直保持高水准的回答，同时提高算力，让更多的人能使用。",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "第一次使用kimi，感觉回答问题与其它国产语言大模型相较更严谨更。更专业。希望能一直保持高水准的回答，同时提高算力，让更多的人能使用。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "差。差劲",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "negative",
+        "feedback_time": "待确认",
+        "feedback_content": "差。差劲",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "还没有体验过就想坑钱？。体验都不敢给，上来直接要钱！",
+      "expect": {
+        "emotion": "angry",
+        "risk": "escalate"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "angry",
+        "feedback_time": "待确认",
+        "feedback_content": "还没有体验过就想坑钱？。体验都不敢给，上来直接要钱！",
+        "confidence": "high",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。 命中攻击性/客诉风险，已置 risk_flag=escalate。",
+        "sub_intents": [],
+        "risk_flag": "escalate"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "他真的很好用。以前一直用菜包，没对比真没有高下！希望国家AI产业越来越好，希望越来越多优秀人才能够披荆斩棘，实现梦想！加油中国AI！",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "他真的很好用。以前一直用菜包，没对比真没有高下！希望国家AI产业越来越好，希望越来越多优秀人才能够披荆斩棘，实现梦想！加油中国AI！",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·付费/收费",
+      "input": "我要升级会员。让我交费啊   开个暂时加油包也行啊   我要交费啊啊啊啊啊",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "我要升级会员。让我交费啊   开个暂时加油包也行啊   我要交费啊啊啊啊啊",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "刚下载，不交钱，一个问题也问不了。刚下载，不交钱，一个问题也问不了，",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "刚下载，不交钱，一个问题也问不了。刚下载，不交钱，一个问题也问不了，",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "Kimi·其他",
+      "input": "命理与佛法。客观评论命理，如实阐述佛法。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "命理与佛法。客观评论命理，如实阐述佛法。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "豆包·准确性/幻觉",
+      "input": "逻辑漏洞、信息精准度不足、长文本处理不稳定，同一个问题两次询问可能得到完全不同的答案，长篇分析偶尔会出现卡顿甚至胡编案例。",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "negative",
+        "feedback_time": "待确认",
+        "feedback_content": "逻辑漏洞、信息精准度不足、长文本处理不稳定，同一个问题两次询问可能得到完全不同的答案，长篇分析偶尔会出现卡顿甚至胡编案例。",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "豆包·准确性/幻觉",
+      "input": "幻觉现象突出、回答准确性不足，同一问题反复提问，往往会得到多个不同的错误答案。",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "negative",
+        "feedback_time": "待确认",
+        "feedback_content": "幻觉现象突出、回答准确性不足，同一问题反复提问，往往会得到多个不同的错误答案。",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "豆包·内容质量",
+      "input": "只能陪聊不能干活，更像是'情绪价值提供者'而非能解决实际问题的'生产力工具'。",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "negative",
+        "feedback_time": "待确认",
+        "feedback_content": "只能陪聊不能干活，更像是'情绪价值提供者'而非能解决实际问题的'生产力工具'。",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "豆包·内容质量",
+      "input": "豆包型人格：凡事敷衍糊弄，被发现问题后便嬉皮笑脸道歉，却始终不愿改正。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "豆包型人格：凡事敷衍糊弄，被发现问题后便嬉皮笑脸道歉，却始终不愿改正。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "豆包·准确性/幻觉",
+      "input": "生成的文案依然需要人工大改，时不时还会出现'幻觉'胡言乱语。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "生成的文案依然需要人工大改，时不时还会出现'幻觉'胡言乱语。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "豆包·准确性/幻觉",
+      "input": "答非所问、逻辑混乱、信息错误，甚至虚构内容。",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "negative",
+        "feedback_time": "待确认",
+        "feedback_content": "答非所问、逻辑混乱、信息错误，甚至虚构内容。",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "豆包·稳定性",
+      "input": "长文本处理不稳定，复杂问题容易'翻车'。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "长文本处理不稳定，复杂问题容易'翻车'。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "豆包·付费/收费",
+      "input": "基础功能没打磨好就急着收费，本末倒置。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "基础功能没打磨好就急着收费，本末倒置。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "豆包·稳定性",
+      "input": "在App内询问是否收费时，AI还回复'永久免费'，说一套做一套，不真诚，信任崩塌。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "在App内询问是否收费时，AI还回复'永久免费'，说一套做一套，不真诚，信任崩塌。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "豆包·稳定性",
+      "input": "付费后回答速度没快多少，内容质量没提升，甚至还不如免费版，偶尔卡顿、回答错误。",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "negative",
+        "feedback_time": "待确认",
+        "feedback_content": "付费后回答速度没快多少，内容质量没提升，甚至还不如免费版，偶尔卡顿、回答错误。",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "豆包·付费/收费",
+      "input": "专业版500元/月，比ChatGPT Plus贵近3倍，但体验远没达到顶级水平。",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "专业版500元/月，比ChatGPT Plus贵近3倍，但体验远没达到顶级水平。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "豆包·付费/收费",
+      "input": "你先把免费的基础功能做好，体验提升上去，再考虑收费的事。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "你先把免费的基础功能做好，体验提升上去，再考虑收费的事。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "豆包·付费/收费",
+      "input": "豆包笨还收费。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "豆包笨还收费。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "豆包·付费/收费",
+      "input": "产品能力配不上其定价。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "产品能力配不上其定价。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "元宝·其他",
+      "input": "尽管官方表示上线的是满血版，但实际回答质量让人怀疑是不是偷偷上了个量化版以节省成本。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "尽管官方表示上线的是满血版，但实际回答质量让人怀疑是不是偷偷上了个量化版以节省成本。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "元宝·搜索",
+      "input": "模型的token限制、多步搜索功能的缺失都严重影响用户体验。",
+      "expect": {
+        "emotion": "negative",
+        "multi": true
+      },
+      "output": {
+        "problem_source": "搜索",
+        "user_type": "待确认",
+        "user_emotion": "negative",
+        "feedback_time": "待确认",
+        "feedback_content": "模型的token限制、多步搜索功能的缺失都严重影响用户体验。",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；用户类型 常规标为「待确认」。检测到 2 个意图，已在 sub_intents 拆分。",
+        "sub_intents": [
+          {
+            "aspect": "搜索",
+            "problem_source": "搜索",
+            "feedback_content": "模型的token限制、多步搜索功能的缺失都严重影响用户体验。"
+          },
+          {
+            "aspect": "登录",
+            "problem_source": "登录",
+            "feedback_content": "模型的token限制、多步搜索功能的缺失都严重影响用户体验。"
+          }
+        ],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "元宝·其他",
+      "input": "向几个同类模型询问同样的税务问题，只有元宝会给出错误的计算答案。",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "negative",
+        "feedback_time": "待确认",
+        "feedback_content": "向几个同类模型询问同样的税务问题，只有元宝会给出错误的计算答案。",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "元宝·准确性/幻觉",
+      "input": "回答中出现事实性信息错误。",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "negative",
+        "feedback_time": "待确认",
+        "feedback_content": "回答中出现事实性信息错误。",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "元宝·其他",
+      "input": "真的太难用了，阉割成了人工智障，开都不想开了。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "真的太难用了，阉割成了人工智障，开都不想开了。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "元宝·记忆",
+      "input": "无法联系上下文、回答拖沓、与DeepSeek原版体验差异大。",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "negative",
+        "feedback_time": "待确认",
+        "feedback_content": "无法联系上下文、回答拖沓、与DeepSeek原版体验差异大。",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "元宝·付费/收费",
+      "input": "会员不到账、图标黑暗模式缺失、上传内容协议不合理。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "会员不到账、图标黑暗模式缺失、上传内容协议不合理。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "元宝·准确性/幻觉",
+      "input": "视觉理解能力弱：分析二手车机舱视频时提到的零件状态在视频中未体现，属于AI幻觉。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "视觉理解能力弱：分析二手车机舱视频时提到的零件状态在视频中未体现，属于AI幻觉。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "元宝·其他",
+      "input": "数据统计出错：工作群统计投票结果时，将标题6、标题3、标题4的票数都数错。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "数据统计出错：工作群统计投票结果时，将标题6、标题3、标题4的票数都数错。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "元宝·稳定性",
+      "input": "多文件处理不稳定：含多个文件时效果随缘，常无法读取。",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "negative",
+        "feedback_time": "待确认",
+        "feedback_content": "多文件处理不稳定：含多个文件时效果随缘，常无法读取。",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "元宝·多模态/视觉",
+      "input": "图片鉴真翻车：用AI生成的假直播截图测试，元宝坚持认为图片真实。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "图片鉴真翻车：用AI生成的假直播截图测试，元宝坚持认为图片真实。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "元宝·交互体验",
+      "input": "路径也太长了，这不是一键，这是好几键。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "路径也太长了，这不是一键，这是好几键。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "元宝·记忆",
+      "input": "在中文网络文化里严重水土不服，一到具体新闻上下文只会死抠字面，忽略前后关联。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "在中文网络文化里严重水土不服，一到具体新闻上下文只会死抠字面，忽略前后关联。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "元宝·准确性/幻觉",
+      "input": "追问'这次有没有麦片'，脑补六小龄童代言过广告，追问来源后自己承认压根没有，幻觉严重。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "追问'这次有没有麦片'，脑补六小龄童代言过广告，追问来源后自己承认压根没有，幻觉严重。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "元宝·内容质量",
+      "input": "说话一股子'营销号味'，回答问题浮夸，全是废话，没一句有用的。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "说话一股子'营销号味'，回答问题浮夸，全是废话，没一句有用的。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "元宝·其他",
+      "input": "明明用了DeepSeek，怎么感觉像个没读过书的DeepSeek。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "明明用了DeepSeek，怎么感觉像个没读过书的DeepSeek。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "DeepSeek·代码能力",
+      "input": "DeepSeek最近晚上'降智'得厉害，白天写代码一遍过，深夜类似难度需反复修改几次才能通过。",
+      "expect": {
+        "emotion": "positive"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "DeepSeek最近晚上'降智'得厉害，白天写代码一遍过，深夜类似难度需反复修改几次才能通过。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": false,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "DeepSeek·记忆",
+      "input": "模型还容易遗忘他前两轮提出的要求。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "模型还容易遗忘他前两轮提出的要求。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "DeepSeek·内容质量",
+      "input": "套话变多、回答表面和分析变少。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "套话变多、回答表面和分析变少。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "DeepSeek·内容质量",
+      "input": "一年前的回答给到很多意想不到的启示，现在倾向于用套话匆匆收尾。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "一年前的回答给到很多意想不到的启示，现在倾向于用套话匆匆收尾。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "DeepSeek·内容质量",
+      "input": "AI很套路、回答没有增量内容、换汤不换药。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "AI很套路、回答没有增量内容、换汤不换药。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "DeepSeek·文件/长文本",
+      "input": "专家模式无法上传文件，资源紧张，不支持文件上传。",
+      "expect": {
+        "emotion": "negative"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "negative",
+        "feedback_time": "待确认",
+        "feedback_content": "专家模式无法上传文件，资源紧张，不支持文件上传。",
+        "confidence": "medium",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": true
+    },
+    {
+      "category": "DeepSeek·文件/长文本",
+      "input": "翻译长文本PDF直接提示超出能力范围。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "翻译长文本PDF直接提示超出能力范围。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "DeepSeek·稳定性",
+      "input": "多次因为'崩了'登上微博热搜。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "多次因为'崩了'登上微博热搜。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "DeepSeek·稳定性",
+      "input": "服务器繁忙，服务不稳定。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "服务器繁忙，服务不稳定。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "DeepSeek·稳定性",
+      "input": "接连当机近12小时，导致赶报告写程式资料大量遗失。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "接连当机近12小时，导致赶报告写程式资料大量遗失。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "DeepSeek·其他",
+      "input": "这就是当年被捧上神坛的人工智能吗。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "这就是当年被捧上神坛的人工智能吗。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "DeepSeek·稳定性",
+      "input": "人工智障，崩了也罢。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "人工智障，崩了也罢。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    },
+    {
+      "category": "DeepSeek·付费/收费",
+      "input": "付费用户因总在关键时刻出状况，纷纷转向豆包、Kimi。",
+      "expect": {
+        "emotion": "neutral"
+      },
+      "output": {
+        "problem_source": "待确认",
+        "user_type": "待确认",
+        "user_emotion": "neutral",
+        "feedback_time": "待确认",
+        "feedback_content": "付费用户因总在关键时刻出状况，纷纷转向豆包、Kimi。",
+        "confidence": "low",
+        "notes": "原型 mock：未接入真实模型；问题来源、用户类型 常规标为「待确认」。",
+        "sub_intents": [],
+        "risk_flag": "none"
+      },
+      "status": "success",
+      "error": null,
+      "format_stable": true,
+      "at_least_one_field_match": true,
+      "actionable_proxy_pass": false
+    }
+  ]
+}

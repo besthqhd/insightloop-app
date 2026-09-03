@@ -1,77 +1,68 @@
+/* Reproducible Evals runner. Defaults to Mock; real calls require explicit env vars. */
 const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
+const { execFileSync } = require('child_process');
 
-const ROOT = 'C:/Users/BestMM/WorkBuddy/2026-07-26-18-19-49';
-const PIPE = path.join(ROOT, 'reviews-pipeline');
-const URL = 'http://127.0.0.1:8139/index.html';
-const initJs = fs.readFileSync(path.join(PIPE, 'real-data.js'), 'utf-8');
+const ROOT = path.resolve(__dirname, '..');
+const URL = process.env.INSIGHTLOOP_URL || 'http://127.0.0.1:8139/index.html';
+const RUNS = path.join(__dirname, 'runs');
+const useReal = process.env.INSIGHTLOOP_USE_REAL === '1';
+const model = process.env.INSIGHTLOOP_MODEL || (useReal ? 'UNSPECIFIED_REAL_MODEL' : 'mock');
+const runId = `${new Date().toISOString().replace(/[:.]/g, '-') }__${model.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+const sha = () => { try { return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: ROOT, encoding: 'utf8' }).trim(); } catch { return 'unavailable'; } };
+
+if (useReal && !process.env.INSIGHTLOOP_PROXY_URL && !process.env.INSIGHTLOOP_API_KEY) {
+  throw new Error('真实模型运行需设置 INSIGHTLOOP_PROXY_URL（推荐）或 INSIGHTLOOP_API_KEY；密钥不会写入运行产物。');
+}
 
 (async () => {
+  fs.mkdirSync(RUNS, { recursive: true });
   const browser = await chromium.launch({
-    headless: true,
-    executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe',
+    headless: true, executablePath: process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe',
     args: ['--no-sandbox', '--disable-gpu'],
   });
   const page = await browser.newPage({ viewport: { width: 1440, height: 1200 }, deviceScaleFactor: 2 });
-  await page.addInitScript(initJs);
-  page.on('pageerror', e => console.log('[pageerror]', e.message));
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  await page.addInitScript((cfg) => {
+    localStorage.setItem('insightloop_use_real', cfg.useReal ? '1' : '0');
+    if (cfg.useReal) localStorage.setItem('insightloop_ai_config', JSON.stringify(cfg));
+  }, { useReal, baseUrl: process.env.INSIGHTLOOP_API_BASE_URL || '', model, apiKey: process.env.INSIGHTLOOP_API_KEY || '', proxyUrl: process.env.INSIGHTLOOP_PROXY_URL || '' });
   await page.goto(URL, { waitUntil: 'networkidle' });
-  await page.evaluate(() => document.documentElement.style.setProperty('--scale', '1'));
-
-  // ===== Phase B: 评估看板（真实评论 Eval）=====
   await page.click('.tab[data-page="eval"]');
-  await page.waitForTimeout(400);
   await page.click('#eval-run-btn');
-  try {
-    await page.waitForFunction(
-      () => { const e = document.getElementById('eval-total'); return e && e.textContent.trim() !== '—'; },
-      { timeout: 60000 }
-    );
-  } catch (e) {
-    console.log('eval wait timeout:', e.message);
-  }
-  await page.waitForTimeout(600);
-  const metrics = await page.evaluate(() => ({
-    total: document.getElementById('eval-total').textContent.trim(),
-    fmt: document.getElementById('eval-fmt').textContent.trim(),
-    under: document.getElementById('eval-under').textContent.trim(),
-    help: document.getElementById('eval-help').textContent.trim(),
-    meta: document.getElementById('eval-meta').textContent.trim(),
+  await page.waitForFunction(() => document.getElementById('eval-total')?.textContent.trim() !== '—', { timeout: 10 * 60 * 1000 });
+  const payload = await page.evaluate(() => ({
+    metrics: {
+      total: document.getElementById('eval-total')?.textContent.trim(),
+      format_stability: document.getElementById('eval-fmt')?.textContent.trim(),
+      at_least_one_field_match: document.getElementById('eval-under')?.textContent.trim(),
+      actionable_proxy_pass: document.getElementById('eval-help')?.textContent.trim(),
+    },
+    page_meta: document.getElementById('eval-meta')?.textContent.trim(),
+    cases: (window.__lastEvalRuns || []).map(r => ({
+      category: r.cat, input: r.input, expect: r.expect, output: r.data || null, status: r.status, error: r.error || null,
+      format_stable: r.fmt, at_least_one_field_match: r.understood, actionable_proxy_pass: r.helpful,
+    })),
   }));
-  console.log('EVAL METRICS:', JSON.stringify(metrics));
-  // 逐条审计 dump（用于核验 19% 是否由标注错误 vs Mock 真实盲区导致）
-  const runs = await page.evaluate(() => (window.__lastEvalRuns || []).map(r => ({
-    cat: r.cat, input: r.input, expect: r.expect,
-    got: { user_emotion: r.data && r.data.user_emotion, confidence: r.data && r.data.confidence,
-           risk_flag: r.data && r.data.risk_flag, problem_source: r.data && r.data.problem_source,
-           sub_intents: (r.data && Array.isArray(r.data.sub_intents)) ? r.data.sub_intents.length : 0 },
-    fmt: r.fmt, understood: r.understood, helpful: r.helpful,
-  })));
-  fs.writeFileSync(path.join(PIPE, 'eval-results-real.json'), JSON.stringify(runs, null, 2));
-  console.log('saved eval-results-real.json (' + runs.length + ' cases)');
-  const el = await page.$('.app-root');
-  await el.screenshot({ path: path.join(PIPE, 'eval-dashboard-real.png') });
-  console.log('saved eval-dashboard-real.png');
-
-  // ===== Phase C: 反馈中心批量分析 -> 洞察看板 / 机会工作区 =====
-  await page.click('.tab[data-page="feedback"]');
-  await page.waitForTimeout(500);
-  const fbCount = await page.evaluate(() => document.querySelectorAll('#feedback-cards .feedback-card').length);
-  console.log('feedback cards rendered:', fbCount);
-  await page.click('button[data-ai-cap="batch_analyze"]');
-  await page.waitForTimeout(9000); // 等待多智能体分析
-  // 洞察看板
-  const insightsEl = await page.$('.app-root');
-  await insightsEl.screenshot({ path: path.join(PIPE, 'insights-real.png') });
-  console.log('saved insights-real.png');
-  // 机会工作区
-  await page.click('.tab[data-page="opportunities"]');
-  await page.waitForTimeout(1200);
-  const oppEl = await page.$('.app-root');
-  await oppEl.screenshot({ path: path.join(PIPE, 'opportunities-real.png') });
-  console.log('saved opportunities-real.png');
-
+  const metadata = {
+    run_id: runId, executed_at: new Date().toISOString(),
+    dataset: { name: '公开竞品评论评测集', case_count: payload.cases.length, data_file: 'reviews-pipeline/real-data.js' },
+    model: { mode: useReal ? 'real' : 'mock', name: model, api_base_url: process.env.INSIGHTLOOP_API_BASE_URL || null, proxy_configured: Boolean(process.env.INSIGHTLOOP_PROXY_URL) },
+    evaluator: { git_sha: sha(), script: 'reviews-pipeline/run_real_eval.cjs', concurrency: 2 },
+    metric_definitions: {
+      format_stability: '模型调用结果非 failed 的比例；调用链包含解析与契约校验。',
+      at_least_one_field_match: '情绪、风险、多意图、来源、时间中至少一项命中预期的比例。',
+      actionable_proxy_pass: '格式成功且置信度非 low，或命中风险升级；不是人工有帮助率。',
+    },
+    limitations: ['公开竞品评论，不是 InsightLoop 用户数据。', '评测标签并非独立人工金标。', '运行产物不含 API Key。'],
+    page_errors: errors,
+  };
+  const base = path.join(RUNS, runId);
+  fs.writeFileSync(`${base}.metadata.json`, JSON.stringify(metadata, null, 2));
+  fs.writeFileSync(`${base}.results.json`, JSON.stringify(payload, null, 2));
+  await page.screenshot({ path: `${base}.png`, fullPage: false });
   await browser.close();
-  console.log('DONE');
-})().catch(e => { console.error('FATAL', e); process.exit(1); });
+  console.log(JSON.stringify({ runId, mode: metadata.model.mode, metrics: payload.metrics, files: [`${base}.metadata.json`, `${base}.results.json`, `${base}.png`] }, null, 2));
+})().catch(e => { console.error('FATAL', e.message); process.exit(1); });

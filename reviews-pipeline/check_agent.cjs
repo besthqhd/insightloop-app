@@ -2,9 +2,9 @@ const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
 
-const ROOT = 'C:/Users/BestMM/WorkBuddy/2026-07-26-18-19-49';
+const ROOT = path.resolve(__dirname, '..');
 const PIPE = path.join(ROOT, 'reviews-pipeline');
-const URL = 'http://127.0.0.1:8141/index.html';
+const URL = process.env.INSIGHTLOOP_URL || 'http://127.0.0.1:8141/index.html';
 const initJs = fs.readFileSync(path.join(PIPE, 'real-data.js'), 'utf-8');
 
 (async () => {

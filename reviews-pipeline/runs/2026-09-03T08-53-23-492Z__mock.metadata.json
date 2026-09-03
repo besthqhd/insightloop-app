@@ -1,0 +1,31 @@
+{
+  "run_id": "2026-09-03T08-53-23-492Z__mock",
+  "executed_at": "2026-09-03T08:53:34.303Z",
+  "dataset": {
+    "name": "公开竞品评论评测集",
+    "case_count": 143,
+    "data_file": "reviews-pipeline/real-data.js"
+  },
+  "model": {
+    "mode": "mock",
+    "name": "mock",
+    "api_base_url": null,
+    "proxy_configured": false
+  },
+  "evaluator": {
+    "git_sha": "251de01593f2f329af3de0c598320decc1ba6761",
+    "script": "reviews-pipeline/run_real_eval.cjs",
+    "concurrency": 2
+  },
+  "metric_definitions": {
+    "format_stability": "模型调用结果非 failed 的比例；调用链包含解析与契约校验。",
+    "at_least_one_field_match": "情绪、风险、多意图、来源、时间中至少一项命中预期的比例。",
+    "actionable_proxy_pass": "格式成功且置信度非 low，或命中风险升级；不是人工有帮助率。"
+  },
+  "limitations": [
+    "公开竞品评论，不是 InsightLoop 用户数据。",
+    "评测标签并非独立人工金标。",
+    "运行产物不含 API Key。"
+  ],
+  "page_errors": []
+}
