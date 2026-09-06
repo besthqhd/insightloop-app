@@ -200,7 +200,7 @@ window.__EVAL_CASES__ = [
   "cat": "ChatGPT·其他",
   "input": "Limited Chats Length。ChatGPT is pretty good. It gives pretty snappy responses compared to like Claude, but it limits you after you have a chat going on for weeks. It wants you to start a new chat, which is annoying since all of the context of the previous chat on the subject is then lost in the previous chat.",
   "expect": {
-   "emotion": "negative"
+   "emotion": "mixed"
   }
  },
  {
@@ -389,7 +389,7 @@ window.__EVAL_CASES__ = [
   "cat": "Kimi·其他",
   "input": "感觉K3确实不错。目前感觉来看，在我用过的所有AI中是名列前茅的，和GPT，Gemini这些用起来差别不大，不过思考回复的时间有些长。",
   "expect": {
-   "emotion": "negative"
+   "emotion": "mixed"
   }
  },
  {
@@ -1023,7 +1023,7 @@ window.__FEEDBACKS__ = [
   "quote": "Wrong Allot。Chat GPT is Wrong allot . I correct it most days",
   "source": "App Store(us)",
   "topic": "其他",
-  "emotion": "负面",
+  "emotion": "混合",
   "date": "2026-08-03",
   "user": "#U6002",
   "userType": "免费版"
@@ -1053,7 +1053,7 @@ window.__FEEDBACKS__ = [
   "quote": "Glow juice。I want to tell why I love Bellame juice and how it has helped me\nBrain clarity, strength my skin, relieve my hip pain  hydrates. Engerizer ,helped my joints, collagen, helps hair-skin-nail, glowing skin, Hydrats\nMaybe they could private message me , if there interested in learning more about our glow juice",
   "source": "App Store(us)",
   "topic": "其他",
-  "emotion": "负面",
+  "emotion": "混合",
   "date": "2026-08-03",
   "user": "#U6005",
   "userType": "免费版"

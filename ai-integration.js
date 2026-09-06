@@ -10,7 +10,7 @@
  * 依赖：ai-contract.js 导出的 CAPABILITY / callModel / regenerate / getHistory
  */
 
-import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel, getModelConfig, SCHEMAS, validate, pushVersion } from './ai-contract.js?v=2.3.0';
+import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel, getModelConfig, SCHEMAS, validate, pushVersion } from './ai-contract.js?v=2.3.2';
 
 /* ============================ 能力中文标签 ============================ */
 const LABELS = {
@@ -200,8 +200,9 @@ const MOCK = {
 
     // 攻击性 / 客诉风险
     const angry = /(垃圾软件|愤怒|投诉|退款|骗|傻|滚|起诉|威胁|弃用|拉黑|再也不|曝光|投诉电话|消协|315|坑钱)/i.test(txt);
-    const neg = /(慢|崩溃|卡|报错|失败|烦|差|bug|错误|无法|不能|打不开|超时|等不及|白屏|转好几秒|反复重试|401|token|oauth|鉴权|认证|授权)/i.test(txt);
-    const emotion = angry ? 'angry' : neg ? 'negative' : (txt ? 'neutral' : '待确认');
+    const neg = /(慢|崩溃|卡|报错|失败|烦|差|bug|错误|无法|不能|不支持|限制|打不开|超时|等不及|白屏|转好几秒|反复重试|401|token|oauth|鉴权|认证|授权)/i.test(txt);
+    const pos = /(好用|满意|喜欢|赞|棒|不错|名列前茅|love|great|excellent|pretty good)/i.test(txt);
+    const emotion = angry ? 'angry' : (pos && neg) ? 'mixed' : neg ? 'negative' : (txt ? 'neutral' : '待确认');
     const risk_flag = angry ? 'escalate' : 'none';
 
     // 时间还原：相对时间 -> 绝对日期（结合 reference_date）
@@ -1367,7 +1368,7 @@ function openFeedbackHumanModal(fbId, preset, triggerEl) {
   const html =
     '<div class="modal-form-row"><label>问题来源</label><input type="text" id="fbh-source" value="' + escapeHtml(p.problem_source || '') + '" placeholder="如：导出报表 / 搜索（未知填 待确认）"></div>' +
     '<div class="modal-form-row"><label>用户类型</label><input type="text" id="fbh-type" value="' + escapeHtml(p.user_type || '') + '" placeholder="如：付费版 / 企业版（未知填 待确认）"></div>' +
-    '<div class="modal-form-row"><label>用户情绪</label><input type="text" id="fbh-emotion" value="' + escapeHtml(p.user_emotion || '') + '" placeholder="positive / neutral / negative / angry / 待确认"></div>' +
+    '<div class="modal-form-row"><label>用户情绪</label><input type="text" id="fbh-emotion" value="' + escapeHtml(p.user_emotion || '') + '" placeholder="positive / neutral / negative / mixed / angry / 待确认"></div>' +
     '<div class="modal-form-row"><label>反馈时间</label><input type="text" id="fbh-time" value="' + escapeHtml(p.feedback_time || '') + '" placeholder="绝对日期 YYYY-MM-DD 或 待确认"></div>' +
     '<div class="modal-form-row"><label>反馈内容</label><textarea id="fbh-content" placeholder="一句话凝练用户真实诉求">' + escapeHtml(p.feedback_content || '') + '</textarea></div>' +
     '<div class="modal-form-row"><label>客诉风险</label><select id="fbh-risk"><option value="none"' + (p.risk_flag !== 'escalate' ? ' selected' : '') + '>none（无）</option><option value="escalate"' + (p.risk_flag === 'escalate' ? ' selected' : '') + '>escalate（转客诉）</option></select></div>' +

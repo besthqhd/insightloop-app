@@ -44,7 +44,7 @@ export const SCHEMAS = {
     fields: {
       problem_source: 'string',   // 问题来源模块/功能，信息不足填 '待确认'
       user_type: 'string',        // 用户类型/角色，信息不足填 '待确认'
-      user_emotion: 'enum(positive|neutral|negative|angry|待确认)',
+      user_emotion: 'enum(positive|neutral|negative|mixed|angry|待确认)',
       feedback_time: 'string',    // 已还原的绝对日期 YYYY-MM-DD；相对时间需结合“今天”还原；无线索填 '待确认'
       feedback_content: 'string', // 凝练后的用户真实诉求/问题
       confidence: 'enum(high|medium|low)', // 模型对整体判断的把握度
@@ -309,8 +309,8 @@ export function buildSystemPrompt(capability, ctx) {
       '【判定规则】',
       '1. user_emotion（用户情绪）：',
       '   - angry：出现辱骂、威胁、强烈愤怒词（如"垃圾、骗子、垃圾软件、智障、滚、投诉、起诉、曝光、再也不用了"）。',
-      '   - negative：明确表达功能缺陷、负面体验、不满，但未达愤怒（如"慢、卡、崩溃、报错、不准、答非所问、失望、难用、不好用"）。',
-      '   - 若文本明确表示任务无法完成、不支持、受限，或「先肯定、后给出具体阻断缺陷」，按 negative；不要因为前半句有赞美而忽略具体缺陷。',
+      '   - negative：用户的净态度是不满，明确表达功能缺陷、任务受阻、服务失败或负面体验，但未达愤怒（如"慢、卡、崩溃、报错、不准、答非所问、失望、难用、不好用"）。明确表示任务无法完成或不支持，通常按 negative。',
+      '   - mixed：同一条文本同时有明确肯定和明确问题 / 改进建议，两者都不能忽略（如“整体不错，但回复慢”）。不要按语序只取前半句或后半句。',
       '   - neutral：无明显情绪，或只是客观描述 / 轻微吐槽 / 建议。',
       '   - positive：明确好评（如"好用、满意、喜欢、赞、棒、love、great"）。',
       '2. risk_flag（客诉风险）：',
@@ -320,7 +320,7 @@ export function buildSystemPrompt(capability, ctx) {
       '',
       '  - problem_source（问题来源）：反馈指向的产品模块 / 功能 / 链路，例如「导出报表」「搜索」「移动端登录」。若文本无法判断，填 "待确认"，不要猜测。',
       '  - user_type（用户类型）：例如「免费个人用户」「企业管理员」「开发者」。信息不足填 "待确认"。',
-      '  - user_emotion（用户情绪）：positive / neutral / negative / angry。无法判断填 "待确认"。',
+      '  - user_emotion（用户情绪）：positive / neutral / negative / mixed / angry。mixed 仅用于同条中有明确正面与明确问题/建议；无法判断填 "待确认"。',
       '  - feedback_time（反馈时间）：若文本含相对时间（如「昨天 / 前天 / 3天前 / 上周 / 上个月」），' + (refDate ? '结合【今天日期】' : '结合当前日期') + '还原为绝对日期 YYYY-MM-DD（例如 2026-07-27）；无线索填 "待确认"。',
       '  - feedback_content（反馈内容）：用一句话凝练用户真实诉求 / 问题，保留关键事实，不展开。',
       '  - confidence：衡量“产品经理能否仅凭这条文本直接行动”，不是衡量你能否识别一个情绪词。high：文本明确给出具体任务/模块、问题或诉求，且关键判断有直接原文支撑；medium：可识别明确问题或情绪，但问题来源、用户角色、诉求等仍有重要缺口；low：纯表扬/辱骂/泛泛评价、信息冲突且无主诉、或无法提出具体后续动作。不得因为识别到一个情绪词就给 medium/high；信息不足字段仍须填「待确认」。',
