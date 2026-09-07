@@ -598,6 +598,9 @@ export async function callRealModel(systemPrompt, context, { signal, cfgOverride
   // proxyUrl 优先：用于绕过智谱等国内 API 对浏览器端直连的 CORS 限制
   const baseUrl = (cfg.proxyUrl || cfg.baseUrl || 'https://api.openai.com/v1').replace(/\/+$/, '');
   const model = cfg.model || 'gpt-4o-mini';
+  // Evals 可在内部约束中固定采样，线上交互仍默认保留 0.7 的探索性。
+  const requestedTemperature = context?.context?.constraints?._eval_temperature;
+  const temperature = Number.isFinite(requestedTemperature) ? Math.max(0, Math.min(1, requestedTemperature)) : 0.7;
   const userContent = JSON.stringify(context?.context ?? context, null, 2);
 
   let resp;
@@ -613,7 +616,7 @@ export async function callRealModel(systemPrompt, context, { signal, cfgOverride
       signal: signal || ctrl.signal,
       body: JSON.stringify({
         model,
-        temperature: 0.7,
+        temperature,
         response_format: { type: 'json_object' },
         messages: [
           { role: 'system', content: systemPrompt },

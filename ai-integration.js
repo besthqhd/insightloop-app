@@ -10,7 +10,7 @@
  * 依赖：ai-contract.js 导出的 CAPABILITY / callModel / regenerate / getHistory
  */
 
-import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel, getModelConfig, SCHEMAS, validate, pushVersion } from './ai-contract.js?v=2.3.2';
+import { CAPABILITY, callModel, regenerate, getHistory, useRealModel, callRealModel, getModelConfig, SCHEMAS, validate, pushVersion } from './ai-contract.js?v=2.3.3';
 
 /* ============================ 能力中文标签 ============================ */
 const LABELS = {
@@ -475,6 +475,8 @@ const EVAL_CASES = window.__EVAL_CASES__ || [
 
 let lastEvalRuns = [];
 let lastEvalCompare = null;
+// Evals 不应把采样随机性误判为 Prompt 效果；交互链路不使用这个配置。
+const EVAL_RUN_CONFIG = Object.freeze({ temperature: 0, concurrency: 2, prompt_version: 'mixed-v1' });
 
 function auditCase(run) {
   if (!run) return;
@@ -508,6 +510,7 @@ function exportEvalAudit() {
     exported_at: new Date().toISOString(),
     dataset: { name: '公开竞品评论评测集', case_count: EVAL_CASES.length, reference_date: EVAL_REF_DATE },
     model_config: { model: cfg.model || 'mock', proxy_configured: Boolean(cfg.proxyUrl), use_real_model: useRealModel() },
+    eval_run_config: EVAL_RUN_CONFIG,
     metric_definitions: {
       format_stable: '调用结果非 failed；调用链包含解析与契约校验。',
       at_least_one_field_match: '情绪、风险、多意图、来源、时间中至少一项命中预期。',
@@ -530,7 +533,7 @@ async function evalOne(c, modelFn) {
   try {
     res = await callModel(cap, {
       artifacts: [{ feedback_text: c.input }],
-      constraints: { tone: '专业', detail: '高', _seed: 1, reference_date: EVAL_REF_DATE },
+      constraints: { tone: '专业', detail: '高', _seed: 1, reference_date: EVAL_REF_DATE, _eval_temperature: EVAL_RUN_CONFIG.temperature },
       history: [],
     }, { requestModel: modelFn, fallbackModel: modelFn, maxRetry: 1, timeoutMs: 25000 });
   } catch (e) {
