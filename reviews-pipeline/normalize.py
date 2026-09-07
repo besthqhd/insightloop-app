@@ -14,6 +14,7 @@ import json, re, os
 HERE = os.path.dirname(os.path.abspath(__file__))
 RAW = os.path.join(HERE, "reviews-raw.json")
 OUT_JS = os.path.join(HERE, "real-data.js")
+LABEL_REVISIONS = os.path.join(HERE, "label-revisions-2026-09-07.json")
 OUT_MERGED = os.path.join(HERE, "reviews-raw.merged.json")
 
 # 方面关键词 -> 统一标签（用于 source/topic）
@@ -112,7 +113,7 @@ def mock_aspect_count(text):
 
 
 def emo_to_cn(e):
-    return {"angry": "负面", "negative": "负面", "neutral": "中性", "positive": "正面"}[e]
+    return {"angry": "负面", "negative": "负面", "neutral": "中性", "positive": "正面", "mixed": "混合"}[e]
 
 
 def make_expect(text):
@@ -191,6 +192,7 @@ def main():
     feedbacks = []
     merged_rows = list(rows)
     fid = 1
+    revision_doc = None
 
     # 1) 抓到的真实 App Store 评论
     for r in rows:
@@ -237,10 +239,33 @@ def main():
         })
         fid += 1
 
+    # 人工复核修订覆盖启发式标签；保留独立 revision 文件作为变更依据。
+    if os.path.exists(LABEL_REVISIONS):
+        revision_doc = json.load(open(LABEL_REVISIONS, encoding="utf-8"))
+        for revision in revision_doc.get("records", []):
+            idx = int(revision["id"]) - 1
+            if idx < 0 or idx >= len(eval_cases):
+                raise ValueError(f"标签修订 id 越界: {revision['id']}")
+            current = eval_cases[idx]["expect"].get("emotion")
+            if current != revision["old"]:
+                raise ValueError(
+                    f"标签修订基线不一致 id={revision['id']}: expected old={revision['old']}, actual={current}"
+                )
+            eval_cases[idx]["expect"]["emotion"] = revision["new"]
+            feedbacks[idx]["emotion"] = emo_to_cn(revision["new"])
+
     # 输出 real-data.js
     js = "/* 真实竞品评论覆盖数据（自动生成，仅用于本地 Eval/Demo，非线上数据） */\n"
     js += "window.__EVAL_CASES__ = " + json.dumps(eval_cases, ensure_ascii=False, indent=1) + ";\n"
     js += "window.__FEEDBACKS__ = " + json.dumps(feedbacks, ensure_ascii=False, indent=1) + ";\n"
+    if revision_doc:
+        revision_meta = {
+            "revision_id": revision_doc.get("revision_id"),
+            "reviewed_at": revision_doc.get("reviewed_at"),
+            "method": revision_doc.get("method"),
+            "record_count": len(revision_doc.get("records", [])),
+        }
+        js += "window.__EVAL_LABEL_REVISION__ = " + json.dumps(revision_meta, ensure_ascii=False, indent=1) + ";\n"
     with open(OUT_JS, "w", encoding="utf-8") as f:
         f.write(js)
 

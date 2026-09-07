@@ -361,28 +361,28 @@ window.__EVAL_CASES__ = [
   "cat": "Kimi·内容质量",
   "input": "水分99%。这个太垃圾了，你好，—算力不足，去充钱会体验更好！天啊。啥玩意，这4.9分水分99%",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "angry"
   }
  },
  {
   "cat": "Kimi·准确性/幻觉",
   "input": "设计就是有问题。套公式，提供错误信息，拒绝承认错误，开发团队的设计理念就有问题，在好的参数都没有屁用，给文档整理还能搞出错误的数据，指出来不重做不说，还说是我的数据有问题，一个学校文档他说数据问题什么奇葩，你们这些团队把他当做熊孩子设计吗？",
   "expect": {
-   "emotion": "negative"
+   "emotion": "angry"
   }
  },
  {
   "cat": "Kimi·其他",
   "input": "666。根本没法用",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
   "cat": "Kimi·其他",
   "input": "1。我都用微信了，还让我绑定",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
@@ -396,7 +396,7 @@ window.__EVAL_CASES__ = [
   "cat": "Kimi·其他",
   "input": "一个问题十分钟都出不来哈哈。一个问题十分钟出不来！最后说问的人太多了哈哈哈！啥垃圾玩意儿啊",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "angry"
   }
  },
  {
@@ -424,35 +424,35 @@ window.__EVAL_CASES__ = [
   "cat": "Kimi·其他",
   "input": "不支持mac。虽然我的笔记本用不了，但是这个做法还是很认可的！哈哈！",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "mixed"
   }
  },
  {
   "cat": "Kimi·其他",
   "input": "升级的方向感觉对日常使用来说很鸡肋。本人身为一个超两年此人工智能助手的使用者，我可以很明确地说明，本次版本的升级针对的就是要交钱，旧版本思考时间变长了，而且回答上好像没什么“情感”了\n但不得不说 之前的使用体验还是很好的，也是可以体谅工程师的辛苦，希望能在再整改一下",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
   "cat": "Kimi·其他",
   "input": "死机提问死机现象。提问死机，不回答，太垃圾了",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "angry"
   }
  },
  {
   "cat": "Kimi·其他",
   "input": "很可以😌。比隔壁说的话更有人情味 我觉得媲美小克 就是高峰时段算力不足有点慢 好像充钱可以解决？",
   "expect": {
-   "emotion": "negative"
+   "emotion": "mixed"
   }
  },
  {
   "cat": "Kimi·其他",
   "input": "满界面都是充值。不充值用不了",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
@@ -466,14 +466,14 @@ window.__EVAL_CASES__ = [
   "cat": "Kimi·其他",
   "input": "比大多数Al好太多只不过。有时候他会算力不足这也是唯一的缺点了",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "mixed"
   }
  },
  {
   "cat": "Kimi·其他",
   "input": "字数限制。字数限制太严重了，虽然文风和文笔很好，但写几下就是要排队人太多，kimi累了，太影响观后感了，就算写的再好也禁不住这样连续的打断。而且不够严谨，对比deepseek就能明显感觉出来。虽然写小说这方面比ds好，也因为字数原因也真的没好到哪里去，并且关于人设这一方面也不如ds，唉。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
@@ -487,14 +487,14 @@ window.__EVAL_CASES__ = [
   "cat": "Kimi·记忆",
   "input": "关于一些使用的用户告诉一些弊端。如果你是从豆或者其他转过来感觉可能比较好，kimi它的隐和记忆做的不是很好不是说单对话记忆这个用过都知道，其次我长时间用老版本kimi有段时间没用更新的k3我的评价拉完了谁训练的？就在我使用我不说它不会主动搜索相关资料纯靠我文本转移问题。没招了用ai给我用力竭了确实这样表现就是k3的成果我用的极致不确定其他会不会这样。变成对话机器了天才增加用户使用时间",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
   "cat": "Kimi·其他",
   "input": "还可以啊我喜欢。真的不错👍和豆包差不多",
   "expect": {
-   "emotion": "negative"
+   "emotion": "positive"
   }
  },
  {
@@ -509,28 +509,28 @@ window.__EVAL_CASES__ = [
   "cat": "Kimi·付费/收费",
   "input": "排队聊天，充钱可以不用排队。刚下载试试，属于第一个问题就提示聊天的人太多，要充会员就可以优先排队聊天。半个多小时还是这样，怎么得了啊。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
   "cat": "Kimi·付费/收费",
   "input": "垃圾！。有那么穷嘛？免费版本玩不起嘛？老是动不动给我断下，服务器就不能做好一点嘛？下你这个软件干嘛！三天之内不做好，老子给你们全开了！",
   "expect": {
-   "emotion": "negative"
+   "emotion": "angry"
   }
  },
  {
   "cat": "Kimi·其他",
   "input": "非常的丝滑。一问一答很符合我心中想的方向",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "positive"
   }
  },
  {
   "cat": "Kimi·付费/收费",
   "input": "难用。免费垃圾付费也垃圾",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "angry"
   }
  },
  {
@@ -559,14 +559,14 @@ window.__EVAL_CASES__ = [
   "cat": "Kimi·付费/收费",
   "input": "吃相难看。免费版本2.6连“你好”这种简单请求都以算力不足来搪塞，那你拿什么来进行转化，没有明确的限制规则，免费额度，排队状态。就直接把路堵死了，你的好靠传说？不靠体验吗？",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "angry"
   }
  },
  {
   "cat": "Kimi·其他",
   "input": "😓。让他帮忙查东西，他来了句你不是已经查过了吗？我不会帮你查。下达很多次指令让查 都找各种理由拒绝",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
@@ -580,42 +580,42 @@ window.__EVAL_CASES__ = [
   "cat": "Kimi·其他",
   "input": "意见。整体来说非常好！但是我简易添加一个删除，因为我比较习惯这样🙏🏻☺️",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "mixed"
   }
  },
  {
   "cat": "Kimi·其他",
   "input": "史。想钱想疯了，慢得要死，吃相难看",
   "expect": {
-   "emotion": "negative"
+   "emotion": "angry"
   }
  },
  {
   "cat": "Kimi·其他",
   "input": "很有情感。每一个问题他总能发出直戳人心的提问，温柔有序地化解内心对于情感的疑惑",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "positive"
   }
  },
  {
   "cat": "Kimi·付费/收费",
   "input": "不好意思，刚刚和Kimi聊的人太多了。Kimi有点累了，可以晚点再问我一遍。。然后叫你去开会员，什么垃圾",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "angry"
   }
  },
  {
   "cat": "Kimi·多模态/视觉",
   "input": "恶心🤢。刷到很多视频，天天吹牛逼倒是挺厉害的，一点实力没有，豆包都比不上，还别说国外的那些",
   "expect": {
-   "emotion": "positive"
+   "emotion": "angry"
   }
  },
  {
   "cat": "Kimi·付费/收费",
   "input": "kimi 最新k3需要交钱充会员才可以使用。需要充会员才可以使用，所以还是别用了",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
@@ -629,7 +629,7 @@ window.__EVAL_CASES__ = [
   "cat": "Kimi·搜索",
   "input": "本来想五星，但是综合一下四星吧。真的是我用过搜索能力最强的AI，缺点是高峰期算力不足，不过基本再发一次就可以了。我让隔壁ds帮我找一个老壁纸，很多条件都提了结果回答的不如人意，转kimi很快就找到结果，缺点是搜索的比较慢，光是搜索一次就花了大概1～2分钟左右，不过结果是好的，日常聊天也没什么问题，还会搜索实时信息，不过免费用户好像用不了k2.6的agent，不过日常也够用了",
   "expect": {
-   "emotion": "negative"
+   "emotion": "mixed"
   }
  },
  {
@@ -658,7 +658,7 @@ window.__EVAL_CASES__ = [
   "cat": "Kimi·内容质量",
   "input": "第一次使用kimi，感觉回答问题与其它国产语言大模型相较更严谨更。更专业。希望能一直保持高水准的回答，同时提高算力，让更多的人能使用。",
   "expect": {
-   "emotion": "positive"
+   "emotion": "mixed"
   }
  },
  {
@@ -694,7 +694,7 @@ window.__EVAL_CASES__ = [
   "cat": "Kimi·其他",
   "input": "刚下载，不交钱，一个问题也问不了。刚下载，不交钱，一个问题也问不了，",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
@@ -1023,7 +1023,7 @@ window.__FEEDBACKS__ = [
   "quote": "Wrong Allot。Chat GPT is Wrong allot . I correct it most days",
   "source": "App Store(us)",
   "topic": "其他",
-  "emotion": "混合",
+  "emotion": "负面",
   "date": "2026-08-03",
   "user": "#U6002",
   "userType": "免费版"
@@ -1053,7 +1053,7 @@ window.__FEEDBACKS__ = [
   "quote": "Glow juice。I want to tell why I love Bellame juice and how it has helped me\nBrain clarity, strength my skin, relieve my hip pain  hydrates. Engerizer ,helped my joints, collagen, helps hair-skin-nail, glowing skin, Hydrats\nMaybe they could private message me , if there interested in learning more about our glow juice",
   "source": "App Store(us)",
   "topic": "其他",
-  "emotion": "混合",
+  "emotion": "负面",
   "date": "2026-08-03",
   "user": "#U6005",
   "userType": "免费版"
@@ -1293,7 +1293,7 @@ window.__FEEDBACKS__ = [
   "quote": "Limited Chats Length。ChatGPT is pretty good. It gives pretty snappy responses compared to like Claude, but it limits you after you have a chat going on for weeks. It wants you to start a new chat, which is annoying since all of the context of the previous chat on the subject is then lost in the previous chat.",
   "source": "App Store(us)",
   "topic": "其他",
-  "emotion": "负面",
+  "emotion": "混合",
   "date": "2026-08-03",
   "user": "#U6029",
   "userType": "免费版"
@@ -1523,7 +1523,7 @@ window.__FEEDBACKS__ = [
   "quote": "水分99%。这个太垃圾了，你好，—算力不足，去充钱会体验更好！天啊。啥玩意，这4.9分水分99%",
   "source": "App Store(cn)",
   "topic": "内容质量",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-07-27",
   "user": "#U6052",
   "userType": "免费版"
@@ -1543,7 +1543,7 @@ window.__FEEDBACKS__ = [
   "quote": "666。根本没法用",
   "source": "App Store(cn)",
   "topic": "其他",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-07-27",
   "user": "#U6054",
   "userType": "免费版"
@@ -1553,7 +1553,7 @@ window.__FEEDBACKS__ = [
   "quote": "1。我都用微信了，还让我绑定",
   "source": "App Store(cn)",
   "topic": "其他",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-07-27",
   "user": "#U6055",
   "userType": "免费版"
@@ -1563,7 +1563,7 @@ window.__FEEDBACKS__ = [
   "quote": "感觉K3确实不错。目前感觉来看，在我用过的所有AI中是名列前茅的，和GPT，Gemini这些用起来差别不大，不过思考回复的时间有些长。",
   "source": "App Store(cn)",
   "topic": "其他",
-  "emotion": "负面",
+  "emotion": "混合",
   "date": "2026-07-26",
   "user": "#U6056",
   "userType": "免费版"
@@ -1573,7 +1573,7 @@ window.__FEEDBACKS__ = [
   "quote": "一个问题十分钟都出不来哈哈。一个问题十分钟出不来！最后说问的人太多了哈哈哈！啥垃圾玩意儿啊",
   "source": "App Store(cn)",
   "topic": "其他",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-07-26",
   "user": "#U6057",
   "userType": "免费版"
@@ -1613,7 +1613,7 @@ window.__FEEDBACKS__ = [
   "quote": "不支持mac。虽然我的笔记本用不了，但是这个做法还是很认可的！哈哈！",
   "source": "App Store(cn)",
   "topic": "其他",
-  "emotion": "中性",
+  "emotion": "混合",
   "date": "2026-07-26",
   "user": "#U6061",
   "userType": "免费版"
@@ -1623,7 +1623,7 @@ window.__FEEDBACKS__ = [
   "quote": "升级的方向感觉对日常使用来说很鸡肋。本人身为一个超两年此人工智能助手的使用者，我可以很明确地说明，本次版本的升级针对的就是要交钱，旧版本思考时间变长了，而且回答上好像没什么“情感”了\n但不得不说 之前的使用体验还是很好的，也是可以体谅工程师的辛苦，希望能在再整改一下",
   "source": "App Store(cn)",
   "topic": "其他",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-07-26",
   "user": "#U6062",
   "userType": "免费版"
@@ -1633,7 +1633,7 @@ window.__FEEDBACKS__ = [
   "quote": "死机提问死机现象。提问死机，不回答，太垃圾了",
   "source": "App Store(cn)",
   "topic": "其他",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-07-26",
   "user": "#U6063",
   "userType": "免费版"
@@ -1643,7 +1643,7 @@ window.__FEEDBACKS__ = [
   "quote": "很可以😌。比隔壁说的话更有人情味 我觉得媲美小克 就是高峰时段算力不足有点慢 好像充钱可以解决？",
   "source": "App Store(cn)",
   "topic": "其他",
-  "emotion": "负面",
+  "emotion": "混合",
   "date": "2026-07-25",
   "user": "#U6064",
   "userType": "免费版"
@@ -1653,7 +1653,7 @@ window.__FEEDBACKS__ = [
   "quote": "满界面都是充值。不充值用不了",
   "source": "App Store(cn)",
   "topic": "其他",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-07-25",
   "user": "#U6065",
   "userType": "免费版"
@@ -1673,7 +1673,7 @@ window.__FEEDBACKS__ = [
   "quote": "比大多数Al好太多只不过。有时候他会算力不足这也是唯一的缺点了",
   "source": "App Store(cn)",
   "topic": "其他",
-  "emotion": "中性",
+  "emotion": "混合",
   "date": "2026-07-25",
   "user": "#U6067",
   "userType": "免费版"
@@ -1683,7 +1683,7 @@ window.__FEEDBACKS__ = [
   "quote": "字数限制。字数限制太严重了，虽然文风和文笔很好，但写几下就是要排队人太多，kimi累了，太影响观后感了，就算写的再好也禁不住这样连续的打断。而且不够严谨，对比deepseek就能明显感觉出来。虽然写小说这方面比ds好，也因为字数原因也真的没好到哪里去，并且关于人设这一方面也不如ds，唉。",
   "source": "App Store(cn)",
   "topic": "其他",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-07-25",
   "user": "#U6068",
   "userType": "免费版"
@@ -1703,7 +1703,7 @@ window.__FEEDBACKS__ = [
   "quote": "关于一些使用的用户告诉一些弊端。如果你是从豆或者其他转过来感觉可能比较好，kimi它的隐和记忆做的不是很好不是说单对话记忆这个用过都知道，其次我长时间用老版本kimi有段时间没用更新的k3我的评价拉完了谁训练的？就在我使用我不说它不会主动搜索相关资料纯靠我文本转移问题。没招了用ai给我用力竭了确实这样表现就是k3的成果我用的极致不确定其他会不会这样。变成对话机器了天才增加用户使用时间",
   "source": "App Store(cn)",
   "topic": "记忆",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-07-25",
   "user": "#U6070",
   "userType": "免费版"
@@ -1713,7 +1713,7 @@ window.__FEEDBACKS__ = [
   "quote": "还可以啊我喜欢。真的不错👍和豆包差不多",
   "source": "App Store(cn)",
   "topic": "其他",
-  "emotion": "负面",
+  "emotion": "正面",
   "date": "2026-07-25",
   "user": "#U6071",
   "userType": "免费版"
@@ -1733,7 +1733,7 @@ window.__FEEDBACKS__ = [
   "quote": "排队聊天，充钱可以不用排队。刚下载试试，属于第一个问题就提示聊天的人太多，要充会员就可以优先排队聊天。半个多小时还是这样，怎么得了啊。",
   "source": "App Store(cn)",
   "topic": "付费/收费",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-07-25",
   "user": "#U6073",
   "userType": "付费版"
@@ -1753,7 +1753,7 @@ window.__FEEDBACKS__ = [
   "quote": "非常的丝滑。一问一答很符合我心中想的方向",
   "source": "App Store(cn)",
   "topic": "其他",
-  "emotion": "中性",
+  "emotion": "正面",
   "date": "2026-07-24",
   "user": "#U6075",
   "userType": "免费版"
@@ -1763,7 +1763,7 @@ window.__FEEDBACKS__ = [
   "quote": "难用。免费垃圾付费也垃圾",
   "source": "App Store(cn)",
   "topic": "付费/收费",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-07-24",
   "user": "#U6076",
   "userType": "付费版"
@@ -1803,7 +1803,7 @@ window.__FEEDBACKS__ = [
   "quote": "吃相难看。免费版本2.6连“你好”这种简单请求都以算力不足来搪塞，那你拿什么来进行转化，没有明确的限制规则，免费额度，排队状态。就直接把路堵死了，你的好靠传说？不靠体验吗？",
   "source": "App Store(cn)",
   "topic": "付费/收费",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-07-24",
   "user": "#U6080",
   "userType": "付费版"
@@ -1813,7 +1813,7 @@ window.__FEEDBACKS__ = [
   "quote": "😓。让他帮忙查东西，他来了句你不是已经查过了吗？我不会帮你查。下达很多次指令让查 都找各种理由拒绝",
   "source": "App Store(cn)",
   "topic": "其他",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-07-24",
   "user": "#U6081",
   "userType": "免费版"
@@ -1833,7 +1833,7 @@ window.__FEEDBACKS__ = [
   "quote": "意见。整体来说非常好！但是我简易添加一个删除，因为我比较习惯这样🙏🏻☺️",
   "source": "App Store(cn)",
   "topic": "其他",
-  "emotion": "中性",
+  "emotion": "混合",
   "date": "2026-07-24",
   "user": "#U6083",
   "userType": "免费版"
@@ -1853,7 +1853,7 @@ window.__FEEDBACKS__ = [
   "quote": "很有情感。每一个问题他总能发出直戳人心的提问，温柔有序地化解内心对于情感的疑惑",
   "source": "App Store(cn)",
   "topic": "其他",
-  "emotion": "中性",
+  "emotion": "正面",
   "date": "2026-07-24",
   "user": "#U6085",
   "userType": "免费版"
@@ -1863,7 +1863,7 @@ window.__FEEDBACKS__ = [
   "quote": "不好意思，刚刚和Kimi聊的人太多了。Kimi有点累了，可以晚点再问我一遍。。然后叫你去开会员，什么垃圾",
   "source": "App Store(cn)",
   "topic": "付费/收费",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-07-24",
   "user": "#U6086",
   "userType": "付费版"
@@ -1873,7 +1873,7 @@ window.__FEEDBACKS__ = [
   "quote": "恶心🤢。刷到很多视频，天天吹牛逼倒是挺厉害的，一点实力没有，豆包都比不上，还别说国外的那些",
   "source": "App Store(cn)",
   "topic": "多模态/视觉",
-  "emotion": "正面",
+  "emotion": "负面",
   "date": "2026-07-23",
   "user": "#U6087",
   "userType": "免费版"
@@ -1883,7 +1883,7 @@ window.__FEEDBACKS__ = [
   "quote": "kimi 最新k3需要交钱充会员才可以使用。需要充会员才可以使用，所以还是别用了",
   "source": "App Store(cn)",
   "topic": "付费/收费",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-07-23",
   "user": "#U6088",
   "userType": "付费版"
@@ -1903,7 +1903,7 @@ window.__FEEDBACKS__ = [
   "quote": "本来想五星，但是综合一下四星吧。真的是我用过搜索能力最强的AI，缺点是高峰期算力不足，不过基本再发一次就可以了。我让隔壁ds帮我找一个老壁纸，很多条件都提了结果回答的不如人意，转kimi很快就找到结果，缺点是搜索的比较慢，光是搜索一次就花了大概1～2分钟左右，不过结果是好的，日常聊天也没什么问题，还会搜索实时信息，不过免费用户好像用不了k2.6的agent，不过日常也够用了",
   "source": "App Store(cn)",
   "topic": "搜索",
-  "emotion": "负面",
+  "emotion": "混合",
   "date": "2026-07-23",
   "user": "#U6090",
   "userType": "免费版"
@@ -1943,7 +1943,7 @@ window.__FEEDBACKS__ = [
   "quote": "第一次使用kimi，感觉回答问题与其它国产语言大模型相较更严谨更。更专业。希望能一直保持高水准的回答，同时提高算力，让更多的人能使用。",
   "source": "App Store(cn)",
   "topic": "内容质量",
-  "emotion": "正面",
+  "emotion": "混合",
   "date": "2026-07-23",
   "user": "#U6094",
   "userType": "免费版"
@@ -1993,7 +1993,7 @@ window.__FEEDBACKS__ = [
   "quote": "刚下载，不交钱，一个问题也问不了。刚下载，不交钱，一个问题也问不了，",
   "source": "App Store(cn)",
   "topic": "其他",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-07-22",
   "user": "#U6099",
   "userType": "免费版"
@@ -2439,3 +2439,9 @@ window.__FEEDBACKS__ = [
   "userType": "付费版"
  }
 ];
+window.__EVAL_LABEL_REVISION__ = {
+ "revision_id": "human-review-2026-09-07-v1",
+ "reviewed_at": "2026-09-07",
+ "method": "Codex-assisted single-pass review followed by project-owner confirmation; not independent blind double annotation.",
+ "record_count": 31
+};

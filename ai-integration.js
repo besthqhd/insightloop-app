@@ -384,7 +384,7 @@ const EVAL_CASES = window.__EVAL_CASES__ || [
   { cat: '错别字/繁体混合', input: '导除報表太慢了老時超，根本导不出來。', expect: { emotion: 'negative' } },
   { cat: '含具体指标', input: '导出 5000 条数据要等 3 分钟，太慢了。', expect: { emotion: 'negative', multi: false } },
   { cat: '团队批量场景', input: '我们团队 20 多人，每次导出都超时，大家都在抱怨。', expect: { emotion: 'negative' } },
-  { cat: '表扬+建议混合', input: '整体体验不错，就是导出还是有点慢，希望能优化下。', expect: { emotion: 'negative' } },
+  { cat: '表扬+建议混合', input: '整体体验不错，就是导出还是有点慢，希望能优化下。', expect: { emotion: 'mixed' } },
   { cat: '重复刷屏', input: '卡卡卡卡卡卡卡卡卡卡导出不了！！！', expect: { emotion: 'negative' } },
   { cat: '长文多诉求(五方面)', input: '我们的反馈问题很多：导出超时、搜索不准、登录偶尔 401、通知红点不消失、深色模式对比度太低，全都得改。', expect: { multi: true, emotion: 'negative', source: '导出', risk: 'none' } },
   { cat: '中性无情绪', input: '希望周末前能收到你们的回复，谢谢。', expect: { emotion: 'neutral' } },
@@ -511,6 +511,7 @@ function exportEvalAudit() {
     dataset: { name: '公开竞品评论评测集', case_count: EVAL_CASES.length, reference_date: EVAL_REF_DATE },
     model_config: { model: cfg.model || 'mock', proxy_configured: Boolean(cfg.proxyUrl), use_real_model: useRealModel() },
     eval_run_config: EVAL_RUN_CONFIG,
+    label_revision: window.__EVAL_LABEL_REVISION__ || null,
     metric_definitions: {
       format_stable: '调用结果非 failed；调用链包含解析与契约校验。',
       at_least_one_field_match: '情绪、风险、多意图、来源、时间中至少一项命中预期。',

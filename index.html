@@ -405,6 +405,7 @@
     }
     .emotion-pill.negative.active { background: var(--error-light); color: var(--error); border-color: #FECACA; }
     .emotion-pill.neutral.active { background: #F3F4F6; color: var(--text-secondary); border-color: var(--border); }
+    .emotion-pill.mixed.active { background: #FFF7ED; color: #C2410C; border-color: #FED7AA; }
     .emotion-pill.positive.active { background: var(--success-light); color: var(--success); border-color: #BBF7D0; }
     .emotion-pill:not(.active) { background: transparent; color: var(--text-muted); border-color: var(--border); }
 
@@ -465,6 +466,7 @@
     }
     .emotion-tag.negative { background: var(--error-light); color: var(--error); }
     .emotion-tag.neutral { background: #F3F4F6; color: var(--text-secondary); }
+    .emotion-tag.mixed { background: #FFF7ED; color: #C2410C; }
     .emotion-tag.positive { background: var(--success-light); color: var(--success); }
 
     .topic-tag {
@@ -1791,6 +1793,7 @@
               <div class="emotion-toggle">
                 <span class="emotion-pill negative active" data-value="负面">负面</span>
                 <span class="emotion-pill neutral active" data-value="中性">中性</span>
+                <span class="emotion-pill mixed active" data-value="混合">混合</span>
                 <span class="emotion-pill positive active" data-value="正面">正面</span>
               </div>
             </div>
@@ -2816,8 +2819,8 @@ export_start / export_progress / export_cancel / export_success。
   </script>
   <!-- 真实竞品评论覆盖数据：经典脚本先于下方 module 执行，设置 window.__EVAL_CASES__ / window.__FEEDBACKS__，
        使评估看板与反馈中心默认即跑这 143 条真实跨 App 评论（而非内置 15 条 demo）。来源/偏差见 reviews-pipeline/DATA_README.md -->
-  <script src="reviews-pipeline/real-data.js?v=eval143"></script>
-  <script type="module" src="ai-integration.js?v=2.3.3-eval-temp0"></script>
+  <script src="reviews-pipeline/real-data.js?v=eval143-gold-v1"></script>
+  <script type="module" src="ai-integration.js?v=2.3.4-label-revision"></script>
   <script>
   /* 死按钮补齐：让每个可点击元素点击后都有真实结果（导航 / 展开 / 弹窗 / 提示）
      与 ai-integration.js 互不干扰（本段只处理无 data-ai-cap 的元素）。 */
@@ -2919,7 +2922,7 @@ export_start / export_progress / export_cancel / export_success。
         <div class="feedback-card" data-fb-id="${f.id}">
           <div class="feedback-card-header">
             <div class="feedback-tags">
-              <span class="emotion-tag ${f.emotion === '负面' ? 'negative' : f.emotion === '中性' ? 'neutral' : 'positive'}">${f.emotion}</span>
+              <span class="emotion-tag ${f.emotion === '负面' ? 'negative' : f.emotion === '中性' ? 'neutral' : f.emotion === '混合' ? 'mixed' : 'positive'}">${f.emotion}</span>
               <span class="topic-tag">${f.topic}</span>
             </div>
             <span class="feedback-date">${f.date}</span>
