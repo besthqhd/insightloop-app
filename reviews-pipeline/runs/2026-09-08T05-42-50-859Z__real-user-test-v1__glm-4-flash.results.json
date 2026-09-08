@@ -1,0 +1,20 @@
+{
+  "final": {
+    "request_id": "req_1788846260957_1cml8p",
+    "capability": "batch_analyze",
+    "status": "failed",
+    "data": null,
+    "error": {
+      "code": "TIMEOUT",
+      "message": "模型响应超时，请重试",
+      "retryable": true
+    },
+    "meta": {
+      "model": "primary",
+      "tokens": 0,
+      "elapsed_ms": 0,
+      "confidence": 0,
+      "sources": []
+    }
+  }
+}

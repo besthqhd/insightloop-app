@@ -1,0 +1,33 @@
+{
+  "run_id": "2026-09-08T05-42-50-859Z__real-user-test-v1__glm-4-flash",
+  "executed_at": "2026-09-08T05:44:20.959Z",
+  "dataset": {
+    "id": "real-user-test-v1",
+    "participant_count": 8,
+    "record_count": 23,
+    "unit": "按主题合并后的用户意见",
+    "limitations": [
+      "是真实测试研究记录，但不是逐字访谈原文。",
+      "同一参与者可出现在多条记录中，记录数不能当作用户数。",
+      "适合测试聚类、证据追溯、优先级与机会生成，不用于验证逐字情绪识别准确率。"
+    ]
+  },
+  "model": {
+    "mode": "real",
+    "name": "glm-4-flash",
+    "proxy_configured": true,
+    "api_base_url": null
+  },
+  "evaluator": {
+    "git_sha": "37d7b516d67bca811ece1c47588f078c1b431aaa",
+    "script": "reviews-pipeline/run_user_test_pipeline.cjs",
+    "seed": 20260908,
+    "pipeline": "5-agent-serial"
+  },
+  "page_errors": [],
+  "limitations": [
+    "单次真实模型运行，不代表总体模型能力。",
+    "输入是合并转述意见，不是逐字原始评论。",
+    "运行产物不含 API Key。"
+  ]
+}

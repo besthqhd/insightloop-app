@@ -1,0 +1,38 @@
+{
+  "dataset_id": "real-user-test-v1",
+  "created_at": "2026-09-08",
+  "participant_count": 8,
+  "record_count": 23,
+  "provenance": "项目负责人提供的 8 份测试汇总",
+  "unit": "按主题合并后的用户意见",
+  "limitations": [
+    "是真实测试研究记录，但不是逐字访谈原文。",
+    "同一参与者可出现在多条记录中，记录数不能当作用户数。",
+    "适合测试聚类、证据追溯、优先级与机会生成，不用于验证逐字情绪识别准确率。"
+  ],
+  "records": [
+    { "id": "ut_01", "participants": [1], "source_theme": "AI 拆解与细化", "text": "AI 只给出大致框架，不足以直接写入待办；希望在给框架后明确告诉用户还需要补充哪些资料，再帮助细化目标。" },
+    { "id": "ut_02", "participants": [2], "source_theme": "AI 拆解与细化", "text": "点击用这些信息细化后，先只显示收到，用户以为对话结束；应持续反馈正在思考或正在细化。" },
+    { "id": "ut_03", "participants": [3], "source_theme": "AI 拆解与细化", "text": "细化问题过于固定；应根据不同任务给出不同问题。" },
+    { "id": "ut_04", "participants": [4], "source_theme": "AI 拆解与细化", "text": "给出初版框架后，没有继续细化入口，也没有询问用户是否还想继续细化。" },
+    { "id": "ut_05", "participants": [5], "source_theme": "AI 拆解与细化", "text": "希望每个待拆解任务有独立对话，避免一个聊天窗口混入多个目标。" },
+    { "id": "ut_06", "participants": [7], "source_theme": "AI 拆解与细化", "text": "推荐习惯出现在任务拆解语境中容易被理解为根据当前任务新建习惯，实际却是已有习惯推荐，显得跑题。" },
+    { "id": "ut_07", "participants": [6], "source_theme": "AI 拆解与细化", "text": "AI 方案中的所有步骤都应可编辑，不应只允许编辑今天第一步。" },
+    { "id": "ut_08", "participants": [2,3,4,5,7,8], "source_theme": "AI 输出质量与确认体验", "text": "AI 步骤需要更贴合个人情境。6/8 位参与者提出，并将其选为优先改进项。" },
+    { "id": "ut_09", "participants": [4], "source_theme": "AI 输出质量与确认体验", "text": "今天第一步还可以更具体、更容易执行。" },
+    { "id": "ut_10", "participants": [1,2,4,6], "source_theme": "AI 输出质量与确认体验", "text": "写入待办前的确认方式需要更清晰。4/8 位参与者提出。" },
+    { "id": "ut_11", "participants": [2,3,6,8], "source_theme": "AI 输出质量与确认体验", "text": "任务树编辑需要更方便。4/8 位参与者提出。" },
+    { "id": "ut_12", "participants": [2,6,7,8], "source_theme": "AI 输出质量与确认体验", "text": "文案与视觉体验仍需优化。4/8 位参与者提出。" },
+    { "id": "ut_13", "participants": [7], "source_theme": "待办、习惯与总览", "text": "总览页没有明显的待办编辑或修改入口。" },
+    { "id": "ut_14", "participants": [8], "source_theme": "待办、习惯与总览", "text": "完成待办或习惯后，已完成和已打卡数字不更新。" },
+    { "id": "ut_15", "participants": [8], "source_theme": "待办、习惯与总览", "text": "习惯完成后，连续坚持次数不更新。" },
+    { "id": "ut_16", "participants": [6], "source_theme": "日期、日历与设置", "text": "页面日期、时间不是测试当天或当前时间，影响真实感。" },
+    { "id": "ut_17", "participants": [7], "source_theme": "日期、日历与设置", "text": "一周起点改为周一后，月视图和周视图仍从周日开始。" },
+    { "id": "ut_18", "participants": [7], "source_theme": "日期、日历与设置", "text": "切换为 12 小时制后，页面仍显示 24 小时制。" },
+    { "id": "ut_19", "participants": [7], "source_theme": "日期、日历与设置", "text": "周视图存在日 12这类星期标签异常。" },
+    { "id": "ut_20", "participants": [7], "source_theme": "日期、日历与设置", "text": "周视图日期标题出现重复或异常农历文字。" },
+    { "id": "ut_21", "participants": [7], "source_theme": "日期、日历与设置", "text": "周视图无法切换到其他周。" },
+    { "id": "ut_22", "participants": [7], "source_theme": "日期、日历与设置", "text": "修改首页欢迎语后，首页没有同步更新。" },
+    { "id": "ut_23", "participants": [8], "source_theme": "导航与界面一致性", "text": "AI 页面底部导航中的今日图标消失。" }
+  ]
+}

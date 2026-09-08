@@ -817,7 +817,7 @@ function envelopeBatch(r, data) {
   };
 }
 async function runAgentPipeline(opts = {}) {
-  const { seed = Date.now(), instruction = '' } = opts;
+  const { seed = Date.now(), instruction = '', timeoutMs = 20000, maxRetry = 2 } = opts;
   const forceFail = FAIL_MODE && String(FAIL_MODE) !== '0';
   const modelFn = forceFail ? mockModel : (useRealModel() ? callRealModel : mockModel);
 
@@ -826,8 +826,16 @@ async function runAgentPipeline(opts = {}) {
 
   // ES module 无法读取 index.html 的 const FEEDBACKS；统一从公开的窗口数据取值。
   // 该数据集是公开竞品评论评测素材，不是 InsightLoop 用户反馈。
-  const feedbacks = Array.isArray(window.__FEEDBACKS__) ? window.__FEEDBACKS__ : [];
-  const feedbackList = feedbacks.slice(0, 60).map((f, i) => ({ id: f.id || `fb_${i}`, text: (f.quote || f.text || ''), topic: f.topic || '待确认' }));
+  const auditFeedbacks = Array.isArray(window.__ANALYSIS_FEEDBACKS__) ? window.__ANALYSIS_FEEDBACKS__ : null;
+  const feedbacks = auditFeedbacks || (Array.isArray(window.__FEEDBACKS__) ? window.__FEEDBACKS__ : []);
+  const feedbackList = feedbacks.slice(0, 60).map((f, i) => ({
+    id: f.id || `fb_${i}`,
+    text: (f.quote || f.text || ''),
+    topic: f.topic || f.source_theme || '待确认',
+    participants: Array.isArray(f.participants) ? f.participants : undefined,
+  }));
+  const auditSteps = {};
+  window.__lastAgentPipelineAudit = { input_count: feedbackList.length, input_ids: feedbackList.map(f => f.id), steps: auditSteps };
 
   const callStep = async (cap, artifacts) => {
     setAgentStatus(cap, 'progress');
@@ -836,7 +844,8 @@ async function runAgentPipeline(opts = {}) {
       userInstruction: instruction,
       constraints: { _seed: seed },
       history: [],
-    }, { requestModel: modelFn, fallbackModel: modelFn, key: cap });
+    }, { requestModel: modelFn, fallbackModel: modelFn, key: cap, timeoutMs, maxRetry });
+    auditSteps[cap] = r;
     setAgentStatus(cap, r.status === 'failed' ? 'failed' : 'done');
     return r;
   };
@@ -858,6 +867,9 @@ async function runAgentPipeline(opts = {}) {
   pushVersion(CAPABILITY.BATCH_ANALYZE, r5.data, r5.status, seed);
   return envelopeBatch(r5, r5.data);
 }
+
+// 仅供可复核的本地测试脚本调用；产品按钮仍走同一 runCapability 入口。
+window.__runAgentPipelineForAudit = runAgentPipeline;
 
 /* ============================ 3. 三层展示法：状态管理 ============================ */
 const activities = []; // {ts, cap, status, requestId}

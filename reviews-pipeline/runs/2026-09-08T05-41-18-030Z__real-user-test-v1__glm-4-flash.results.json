@@ -1,0 +1,301 @@
+{
+  "final": {
+    "request_id": "req_1788846246060_0ylf8s",
+    "capability": "batch_analyze",
+    "status": "failed",
+    "data": null,
+    "error": {
+      "code": "TIMEOUT",
+      "message": "模型响应超时，请重试",
+      "retryable": true
+    },
+    "meta": {
+      "model": "primary",
+      "tokens": 0,
+      "elapsed_ms": 0,
+      "confidence": 0,
+      "sources": []
+    }
+  },
+  "audit": {
+    "input_count": 23,
+    "input_ids": [
+      "ut_01",
+      "ut_02",
+      "ut_03",
+      "ut_04",
+      "ut_05",
+      "ut_06",
+      "ut_07",
+      "ut_08",
+      "ut_09",
+      "ut_10",
+      "ut_11",
+      "ut_12",
+      "ut_13",
+      "ut_14",
+      "ut_15",
+      "ut_16",
+      "ut_17",
+      "ut_18",
+      "ut_19",
+      "ut_20",
+      "ut_21",
+      "ut_22",
+      "ut_23"
+    ],
+    "steps": {
+      "user_research": {
+        "request_id": "req_1788846123287_f2w1o8",
+        "capability": "agent_user_research",
+        "status": "success",
+        "data": {
+          "themes": [
+            {
+              "name": "AI 拆解与细化问题",
+              "count": 6,
+              "sentiment": "negative",
+              "severity": "P2",
+              "evidence_ids": [
+                "ut_01",
+                "ut_02",
+                "ut_03",
+                "ut_04",
+                "ut_05",
+                "ut_06",
+                "ut_07"
+              ],
+              "main_complaint": "AI 拆解与细化功能存在问题，如问题过于固定、缺乏细化入口、步骤不可编辑等。"
+            },
+            {
+              "name": "AI 输出质量与确认体验",
+              "count": 5,
+              "sentiment": "negative",
+              "severity": "P2",
+              "evidence_ids": [
+                "ut_08",
+                "ut_09",
+                "ut_10",
+                "ut_11",
+                "ut_12"
+              ],
+              "main_complaint": "AI 输出质量与确认体验不佳，如步骤不可编辑、确认方式不清晰、文案与视觉体验需优化等。"
+            },
+            {
+              "name": "待办、习惯与总览问题",
+              "count": 3,
+              "sentiment": "negative",
+              "severity": "P2",
+              "evidence_ids": [
+                "ut_13",
+                "ut_14",
+                "ut_15"
+              ],
+              "main_complaint": "待办、习惯与总览功能存在问题，如编辑入口不明显、数据不更新、连续坚持次数不更新等。"
+            },
+            {
+              "name": "日期、日历与设置问题",
+              "count": 5,
+              "sentiment": "negative",
+              "severity": "P2",
+              "evidence_ids": [
+                "ut_16",
+                "ut_17",
+                "ut_18",
+                "ut_19",
+                "ut_20",
+                "ut_21",
+                "ut_22"
+              ],
+              "main_complaint": "日期、日历与设置存在问题，如日期和时间显示错误、视图切换不便、欢迎语未同步更新等。"
+            },
+            {
+              "name": "导航与界面一致性",
+              "count": 1,
+              "sentiment": "negative",
+              "severity": "P3",
+              "evidence_ids": [
+                "ut_23"
+              ],
+              "main_complaint": "AI 页面底部导航中的今日图标消失，影响界面一致性。"
+            }
+          ],
+          "notes": "根据用户反馈，对主题进行了聚类，并统计了每个主题的反馈数量。由于反馈内容有限，可能存在聚类不准确的情况。"
+        },
+        "error": null,
+        "meta": {
+          "model": "fallback",
+          "tokens": 0,
+          "elapsed_ms": 0,
+          "confidence": 0.9,
+          "sources": []
+        }
+      },
+      "data_analysis": {
+        "request_id": "req_1788846137073_1l8gaw",
+        "capability": "agent_data_analysis",
+        "status": "success",
+        "data": {
+          "themes": [
+            {
+              "name": "AI 拆解与细化问题",
+              "count": 6,
+              "share_pct": 20,
+              "severity": "P2",
+              "quant_evidence": "反馈文本未提供行为指标",
+              "trend": "未知"
+            },
+            {
+              "name": "AI 输出质量与确认体验",
+              "count": 5,
+              "share_pct": 17,
+              "severity": "P2",
+              "quant_evidence": "反馈文本未提供行为指标",
+              "trend": "未知"
+            },
+            {
+              "name": "待办、习惯与总览问题",
+              "count": 3,
+              "share_pct": 10,
+              "severity": "P2",
+              "quant_evidence": "反馈文本未提供行为指标",
+              "trend": "未知"
+            },
+            {
+              "name": "日期、日历与设置问题",
+              "count": 5,
+              "share_pct": 17,
+              "severity": "P2",
+              "quant_evidence": "反馈文本未提供行为指标",
+              "trend": "未知"
+            },
+            {
+              "name": "导航与界面一致性",
+              "count": 1,
+              "share_pct": 3,
+              "severity": "P3",
+              "quant_evidence": "反馈文本未提供行为指标",
+              "trend": "未知"
+            }
+          ],
+          "overall_summary": ""
+        },
+        "error": null,
+        "meta": {
+          "model": "primary",
+          "tokens": 0,
+          "elapsed_ms": 0,
+          "confidence": 0.9,
+          "sources": []
+        }
+      },
+      "product_strategy": {
+        "request_id": "req_1788846151722_p7xu58",
+        "capability": "agent_product_strategy",
+        "status": "success",
+        "data": {
+          "opportunities": [
+            {
+              "title": "优化AI输出质量体验",
+              "priority": 8,
+              "rationale": "AI输出质量与确认体验主题占比17%，严重程度P2，且影响面较大。",
+              "target_theme": "AI 输出质量与确认体验",
+              "expected_impact": "待验证是否提升用户满意度"
+            },
+            {
+              "title": "改善待办、习惯与总览问题",
+              "priority": 7,
+              "rationale": "待办、习惯与总览问题主题占比10%，严重程度P2，用户反馈较多。",
+              "target_theme": "待办、习惯与总览问题",
+              "expected_impact": "待验证是否减少用户操作困扰"
+            },
+            {
+              "title": "提升日期、日历与设置问题处理",
+              "priority": 6,
+              "rationale": "日期、日历与设置问题主题占比17%，严重程度P2，影响范围较广。",
+              "target_theme": "日期、日历与设置问题",
+              "expected_impact": "待验证是否提高用户使用效率"
+            }
+          ],
+          "notes": "根据输入证据，优先处理用户反馈较多且影响面较大的主题。"
+        },
+        "error": null,
+        "meta": {
+          "model": "primary",
+          "tokens": 0,
+          "elapsed_ms": 0,
+          "confidence": 0.9,
+          "sources": []
+        }
+      },
+      "tech_review": {
+        "request_id": "req_1788846158623_txjjub",
+        "capability": "agent_tech_review",
+        "status": "success",
+        "data": {
+          "reviews": [
+            {
+              "opportunity_title": "优化AI输出质量体验",
+              "feasibility": "high",
+              "cost": "medium",
+              "risk": "medium",
+              "suggested_approach": "采用预训练模型优化AI输出",
+              "prerequisites": [
+                "需接入消息队列",
+                "需埋点 SDK"
+              ]
+            },
+            {
+              "opportunity_title": "改善待办、习惯与总览问题",
+              "feasibility": "medium",
+              "cost": "low",
+              "risk": "low",
+              "suggested_approach": "重构待办模块，优化用户界面",
+              "prerequisites": [
+                "需接入消息队列"
+              ]
+            },
+            {
+              "opportunity_title": "提升日期、日历与设置问题处理",
+              "feasibility": "high",
+              "cost": "medium",
+              "risk": "medium",
+              "suggested_approach": "升级日期处理模块，优化数据库结构",
+              "prerequisites": [
+                "需接入消息队列",
+                "需埋点 SDK"
+              ]
+            }
+          ],
+          "notes": ""
+        },
+        "error": null,
+        "meta": {
+          "model": "primary",
+          "tokens": 0,
+          "elapsed_ms": 0,
+          "confidence": 0.9,
+          "sources": []
+        }
+      },
+      "coordinator": {
+        "request_id": "req_1788846246058_1wzy73",
+        "capability": "agent_coordinator",
+        "status": "failed",
+        "data": null,
+        "error": {
+          "code": "TIMEOUT",
+          "message": "模型响应超时，请重试",
+          "retryable": true
+        },
+        "meta": {
+          "model": "primary",
+          "tokens": 0,
+          "elapsed_ms": 0,
+          "confidence": 0,
+          "sources": []
+        }
+      }
+    }
+  }
+}

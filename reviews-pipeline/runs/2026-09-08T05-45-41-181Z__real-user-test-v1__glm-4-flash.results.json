@@ -1,0 +1,464 @@
+{
+  "final": {
+    "request_id": "req_1788846436934_dytuoq",
+    "capability": "batch_analyze",
+    "status": "success",
+    "data": {
+      "summary": "AI 输出质量与确认体验问题反馈最多，严重程度为 P2，建议优先优化。",
+      "themes": [
+        {
+          "name": "AI 拆解与细化问题",
+          "count": 6,
+          "sentiment": "negative",
+          "severity": "P2",
+          "evidence_ids": [
+            "ut_01",
+            "ut_02",
+            "ut_03",
+            "ut_04",
+            "ut_05",
+            "ut_06",
+            "ut_07"
+          ]
+        },
+        {
+          "name": "AI 输出质量与确认体验",
+          "count": 5,
+          "sentiment": "negative",
+          "severity": "P2",
+          "evidence_ids": [
+            "ut_08",
+            "ut_09",
+            "ut_10",
+            "ut_11",
+            "ut_12"
+          ]
+        },
+        {
+          "name": "待办、习惯与总览问题",
+          "count": 3,
+          "sentiment": "negative",
+          "severity": "P2",
+          "evidence_ids": [
+            "ut_13",
+            "ut_14",
+            "ut_15"
+          ]
+        },
+        {
+          "name": "日期、日历与设置问题",
+          "count": 5,
+          "sentiment": "negative",
+          "severity": "P2",
+          "evidence_ids": [
+            "ut_16",
+            "ut_17",
+            "ut_18",
+            "ut_19",
+            "ut_20",
+            "ut_21",
+            "ut_22"
+          ]
+        },
+        {
+          "name": "导航与界面一致性",
+          "count": 1,
+          "sentiment": "negative",
+          "severity": "P3",
+          "evidence_ids": [
+            "ut_23"
+          ]
+        }
+      ],
+      "suggested_opportunities": [
+        {
+          "title": "优化 AI 输出质量与确认体验",
+          "priority": 9,
+          "rationale": "AI 输出质量与确认体验问题反馈占总反馈的33.33%，严重程度为P2，影响面较大。"
+        },
+        {
+          "title": "改善待办、习惯与总览问题",
+          "priority": 8,
+          "rationale": "待办、习惯与总览问题反馈占总反馈的20%，严重程度为P2，对用户体验有一定影响。"
+        },
+        {
+          "title": "增强日期、日历与设置功能",
+          "priority": 7,
+          "rationale": "日期、日历与设置问题反馈占总反馈的33.33%，严重程度为P2，用户需求较高。"
+        }
+      ],
+      "agent_chain_digest": "用户研究识别 6 个主题 → 数据分析确认 AI 输出质量与确认体验占比最高 → 产品策略建议优化 AI 输出质量与确认体验、待办、习惯与总览问题 → 技术评估认为优化 AI 输出质量与确认体验、改善待办、习惯与总览问题可行性中等。"
+    },
+    "error": null,
+    "meta": {
+      "model": "primary",
+      "tokens": 0,
+      "elapsed_ms": 0,
+      "confidence": 0.9,
+      "sources": []
+    }
+  },
+  "audit": {
+    "input_count": 23,
+    "input_ids": [
+      "ut_01",
+      "ut_02",
+      "ut_03",
+      "ut_04",
+      "ut_05",
+      "ut_06",
+      "ut_07",
+      "ut_08",
+      "ut_09",
+      "ut_10",
+      "ut_11",
+      "ut_12",
+      "ut_13",
+      "ut_14",
+      "ut_15",
+      "ut_16",
+      "ut_17",
+      "ut_18",
+      "ut_19",
+      "ut_20",
+      "ut_21",
+      "ut_22",
+      "ut_23"
+    ],
+    "steps": {
+      "agent_user_research": {
+        "request_id": "req_1788846364134_a2szqm",
+        "capability": "agent_user_research",
+        "status": "success",
+        "data": {
+          "themes": [
+            {
+              "name": "AI 拆解与细化问题",
+              "count": 6,
+              "sentiment": "negative",
+              "severity": "P2",
+              "evidence_ids": [
+                "ut_01",
+                "ut_02",
+                "ut_03",
+                "ut_04",
+                "ut_05",
+                "ut_06",
+                "ut_07"
+              ],
+              "main_complaint": "AI 拆解与细化功能存在问题，如问题过于固定、缺少细化入口、未明确告知用户补充资料等。"
+            },
+            {
+              "name": "AI 输出质量与确认体验",
+              "count": 5,
+              "sentiment": "negative",
+              "severity": "P2",
+              "evidence_ids": [
+                "ut_08",
+                "ut_09",
+                "ut_10",
+                "ut_11",
+                "ut_12"
+              ],
+              "main_complaint": "AI 输出质量与确认体验不佳，如步骤不可编辑、确认方式不清晰、文案与视觉体验需优化等。"
+            },
+            {
+              "name": "待办、习惯与总览问题",
+              "count": 3,
+              "sentiment": "negative",
+              "severity": "P2",
+              "evidence_ids": [
+                "ut_13",
+                "ut_14",
+                "ut_15"
+              ],
+              "main_complaint": "待办、习惯与总览功能存在问题，如待办编辑入口不明显、完成数不更新等。"
+            },
+            {
+              "name": "日期、日历与设置问题",
+              "count": 5,
+              "sentiment": "negative",
+              "severity": "P2",
+              "evidence_ids": [
+                "ut_16",
+                "ut_17",
+                "ut_18",
+                "ut_19",
+                "ut_20",
+                "ut_21",
+                "ut_22"
+              ],
+              "main_complaint": "日期、日历与设置存在问题，如日期时间显示错误、视图切换不便、欢迎语未同步更新等。"
+            },
+            {
+              "name": "导航与界面一致性",
+              "count": 1,
+              "sentiment": "negative",
+              "severity": "P3",
+              "evidence_ids": [
+                "ut_23"
+              ],
+              "main_complaint": "AI 页面底部导航中的今日图标消失，影响界面一致性。"
+            }
+          ],
+          "notes": "所有反馈均基于用户提供的证据，未进行估算或编造。"
+        },
+        "error": null,
+        "meta": {
+          "model": "primary",
+          "tokens": 0,
+          "elapsed_ms": 0,
+          "confidence": 0.9,
+          "sources": []
+        }
+      },
+      "agent_data_analysis": {
+        "request_id": "req_1788846388460_db0a29",
+        "capability": "agent_data_analysis",
+        "status": "success",
+        "data": {
+          "themes": [
+            {
+              "name": "AI 拆解与细化问题",
+              "count": 6,
+              "share_pct": 40,
+              "severity": "P2",
+              "quant_evidence": "AI 拆解与细化问题反馈占总反馈的40%",
+              "trend": "未知"
+            },
+            {
+              "name": "AI 输出质量与确认体验",
+              "count": 5,
+              "share_pct": 33.33,
+              "severity": "P2",
+              "quant_evidence": "AI 输出质量与确认体验问题反馈占总反馈的33.33%",
+              "trend": "未知"
+            },
+            {
+              "name": "待办、习惯与总览问题",
+              "count": 3,
+              "share_pct": 20,
+              "severity": "P2",
+              "quant_evidence": "待办、习惯与总览问题反馈占总反馈的20%",
+              "trend": "未知"
+            },
+            {
+              "name": "日期、日历与设置问题",
+              "count": 5,
+              "share_pct": 33.33,
+              "severity": "P2",
+              "quant_evidence": "日期、日历与设置问题反馈占总反馈的33.33%",
+              "trend": "未知"
+            },
+            {
+              "name": "导航与界面一致性",
+              "count": 1,
+              "share_pct": 6.67,
+              "severity": "P3",
+              "quant_evidence": "导航与界面一致性反馈占总反馈的6.67%",
+              "trend": "未知"
+            }
+          ],
+          "overall_summary": "本次用户研究反馈主要集中在AI拆解与细化问题、AI输出质量与确认体验、待办、习惯与总览问题以及日期、日历与设置问题上，这些问题反馈量占总反馈的80%。其中，导航与界面一致性问题的反馈量最少，但因其严重性较高，被标记为P3级问题。所有反馈均基于用户提供的证据，未编造任何数据。"
+        },
+        "error": null,
+        "meta": {
+          "model": "primary",
+          "tokens": 0,
+          "elapsed_ms": 0,
+          "confidence": 0.9,
+          "sources": []
+        }
+      },
+      "agent_product_strategy": {
+        "request_id": "req_1788846401757_0aihcv",
+        "capability": "agent_product_strategy",
+        "status": "success",
+        "data": {
+          "opportunities": [
+            {
+              "title": "优化 AI 输出质量与确认体验",
+              "priority": 9,
+              "rationale": "AI 输出质量与确认体验问题反馈占总反馈的33.33%，严重程度为P2，影响面较大。",
+              "target_theme": "AI 输出质量与确认体验",
+              "expected_impact": "待验证是否提升用户满意度"
+            },
+            {
+              "title": "改善待办、习惯与总览问题",
+              "priority": 8,
+              "rationale": "待办、习惯与总览问题反馈占总反馈的20%，严重程度为P2，对用户体验有一定影响。",
+              "target_theme": "待办、习惯与总览问题",
+              "expected_impact": "待验证是否提高用户留存率"
+            },
+            {
+              "title": "增强日期、日历与设置功能",
+              "priority": 7,
+              "rationale": "日期、日历与设置问题反馈占总反馈的33.33%，严重程度为P2，用户需求较高。",
+              "target_theme": "日期、日历与设置问题",
+              "expected_impact": "待验证是否简化用户操作流程"
+            }
+          ],
+          "notes": "以上建议基于当前数据，实际情况可能有所不同。"
+        },
+        "error": null,
+        "meta": {
+          "model": "primary",
+          "tokens": 0,
+          "elapsed_ms": 0,
+          "confidence": 0.9,
+          "sources": []
+        }
+      },
+      "agent_tech_review": {
+        "request_id": "req_1788846409824_6a5vwj",
+        "capability": "agent_tech_review",
+        "status": "success",
+        "data": {
+          "reviews": [
+            {
+              "opportunity_title": "优化 AI 输出质量与确认体验",
+              "feasibility": "medium",
+              "cost": "high",
+              "risk": "medium",
+              "suggested_approach": "引入预训练模型，优化反馈机制。",
+              "prerequisites": [
+                "需接入AI模型服务",
+                "需优化数据反馈流程"
+              ]
+            },
+            {
+              "opportunity_title": "改善待办、习惯与总览问题",
+              "feasibility": "medium",
+              "cost": "medium",
+              "risk": "low",
+              "suggested_approach": "重构前端界面，优化数据处理逻辑。",
+              "prerequisites": [
+                "需优化数据库结构",
+                "需更新前端框架"
+              ]
+            },
+            {
+              "opportunity_title": "增强日期、日历与设置功能",
+              "feasibility": "low",
+              "cost": "high",
+              "risk": "high",
+              "suggested_approach": "重构后端服务，引入新的日期处理库。",
+              "prerequisites": [
+                "需升级后端框架",
+                "需接入第三方日历服务"
+              ]
+            }
+          ],
+          "notes": ""
+        },
+        "error": null,
+        "meta": {
+          "model": "primary",
+          "tokens": 0,
+          "elapsed_ms": 0,
+          "confidence": 0.9,
+          "sources": []
+        }
+      },
+      "agent_coordinator": {
+        "request_id": "req_1788846436934_7k0qwg",
+        "capability": "agent_coordinator",
+        "status": "success",
+        "data": {
+          "summary": "AI 输出质量与确认体验问题反馈最多，严重程度为 P2，建议优先优化。",
+          "themes": [
+            {
+              "name": "AI 拆解与细化问题",
+              "count": 6,
+              "sentiment": "negative",
+              "severity": "P2",
+              "evidence_ids": [
+                "ut_01",
+                "ut_02",
+                "ut_03",
+                "ut_04",
+                "ut_05",
+                "ut_06",
+                "ut_07"
+              ]
+            },
+            {
+              "name": "AI 输出质量与确认体验",
+              "count": 5,
+              "sentiment": "negative",
+              "severity": "P2",
+              "evidence_ids": [
+                "ut_08",
+                "ut_09",
+                "ut_10",
+                "ut_11",
+                "ut_12"
+              ]
+            },
+            {
+              "name": "待办、习惯与总览问题",
+              "count": 3,
+              "sentiment": "negative",
+              "severity": "P2",
+              "evidence_ids": [
+                "ut_13",
+                "ut_14",
+                "ut_15"
+              ]
+            },
+            {
+              "name": "日期、日历与设置问题",
+              "count": 5,
+              "sentiment": "negative",
+              "severity": "P2",
+              "evidence_ids": [
+                "ut_16",
+                "ut_17",
+                "ut_18",
+                "ut_19",
+                "ut_20",
+                "ut_21",
+                "ut_22"
+              ]
+            },
+            {
+              "name": "导航与界面一致性",
+              "count": 1,
+              "sentiment": "negative",
+              "severity": "P3",
+              "evidence_ids": [
+                "ut_23"
+              ]
+            }
+          ],
+          "suggested_opportunities": [
+            {
+              "title": "优化 AI 输出质量与确认体验",
+              "priority": 9,
+              "rationale": "AI 输出质量与确认体验问题反馈占总反馈的33.33%，严重程度为P2，影响面较大。"
+            },
+            {
+              "title": "改善待办、习惯与总览问题",
+              "priority": 8,
+              "rationale": "待办、习惯与总览问题反馈占总反馈的20%，严重程度为P2，对用户体验有一定影响。"
+            },
+            {
+              "title": "增强日期、日历与设置功能",
+              "priority": 7,
+              "rationale": "日期、日历与设置问题反馈占总反馈的33.33%，严重程度为P2，用户需求较高。"
+            }
+          ],
+          "agent_chain_digest": "用户研究识别 6 个主题 → 数据分析确认 AI 输出质量与确认体验占比最高 → 产品策略建议优化 AI 输出质量与确认体验、待办、习惯与总览问题 → 技术评估认为优化 AI 输出质量与确认体验、改善待办、习惯与总览问题可行性中等。"
+        },
+        "error": null,
+        "meta": {
+          "model": "primary",
+          "tokens": 0,
+          "elapsed_ms": 0,
+          "confidence": 0.9,
+          "sources": []
+        }
+      }
+    }
+  }
+}
