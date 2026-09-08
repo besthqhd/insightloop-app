@@ -855,23 +855,21 @@ function normalizeQuantification(data, researchThemes, inputCount, totalParticip
 }
 
 function ensurePriorityCoverage(data, analysisThemes) {
-  const opportunities = Array.isArray(data?.opportunities) ? data.opportunities : [];
+  const modelOpportunities = Array.isArray(data?.opportunities) ? data.opportunities : [];
   const topThemes = [...analysisThemes]
     .filter(t => t.severity !== 'P3')
     .sort((a, b) => (b.participant_count - a.participant_count) || (b.count - a.count))
     .slice(0, 3);
-  topThemes.forEach(theme => {
-    if (!opportunities.some(o => o.target_theme === theme.name)) {
-      opportunities.push({
-        title: `改善${theme.name}`,
-        priority: Math.min(10, (severityBase[theme.severity] || 3) + Math.round(theme.participant_share_pct / 25)),
-        rationale: `${theme.count} 条合并意见，覆盖 ${theme.participant_count} 位去重参与者；由程序补入，需人工评审。`,
-        target_theme: theme.name,
-        expected_impact: '待验证是否改善对应任务体验',
-      });
-    }
-  });
-  data.opportunities = opportunities.sort((a, b) => b.priority - a.priority);
+  data.opportunities = topThemes.map(theme => {
+    const modelOpportunity = modelOpportunities.find(o => o.target_theme === theme.name) || {};
+    return {
+      title: `改善${theme.name}`,
+      priority: Math.min(10, (severityBase[theme.severity] || 3) + Math.round(theme.participant_share_pct / 25)),
+      rationale: `${theme.count} 条合并意见，覆盖 ${theme.participant_count} 位去重参与者；优先级由确定性规则生成，需人工评审。`,
+      target_theme: theme.name,
+      expected_impact: modelOpportunity.expected_impact || '待验证是否改善对应任务体验',
+    };
+  }).sort((a, b) => b.priority - a.priority);
   return data;
 }
 

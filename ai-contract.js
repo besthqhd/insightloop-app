@@ -258,7 +258,7 @@ export function buildSystemPrompt(capability, ctx) {
       fieldLines,
       `必填字段：${schema.required.join(', ')}。`,
       '评估规则：',
-      '1. opportunities 数组：每个机会对应一个高优先级主题，title 用动宾结构（如「导出报表异步化」）。',
+      '1. opportunities 数组：每个机会对应一个高优先级主题，title 只能复用输入主题中的业务概念，不得套用提示词示例或引入输入中没有的对象。',
       '2. priority：0-10，综合考虑影响面（share_pct）、严重程度（severity）、用户情绪。',
       '3. rationale：为什么做、不做会怎样，引用数据。',
       '4. target_theme：关联到输入中的 theme.name。',
@@ -279,7 +279,7 @@ export function buildSystemPrompt(capability, ctx) {
       '2. cost：high/medium/low，综合人力与资源。',
       '3. risk：high/medium/low，技术风险与线上影响面。',
       '4. suggested_approach：建议的技术实现路径，50 字以内。',
-      '5. prerequisites：落地前必须满足的条件数组（如「需接入消息队列」「需埋点 SDK」）。',
+      '5. prerequisites：只列输入证据能够支持的前置条件；没有代码或架构证据时填写「待代码与技术负责人核实」。',
       '6. 输入没有代码、架构或技术约束证据时，不得断言需要重构数据库、升级框架、接入第三方服务或更换模型；只能写「待代码与技术负责人核实」。',
       '严禁输出解释性文字，只输出合法 JSON。',
     ].join('\n');
