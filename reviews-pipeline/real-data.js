@@ -729,14 +729,14 @@ window.__EVAL_CASES__ = [
   "cat": "豆包·内容质量",
   "input": "豆包型人格：凡事敷衍糊弄，被发现问题后便嬉皮笑脸道歉，却始终不愿改正。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
   "cat": "豆包·准确性/幻觉",
   "input": "生成的文案依然需要人工大改，时不时还会出现'幻觉'胡言乱语。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
@@ -750,21 +750,21 @@ window.__EVAL_CASES__ = [
   "cat": "豆包·稳定性",
   "input": "长文本处理不稳定，复杂问题容易'翻车'。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
   "cat": "豆包·付费/收费",
   "input": "基础功能没打磨好就急着收费，本末倒置。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
   "cat": "豆包·稳定性",
   "input": "在App内询问是否收费时，AI还回复'永久免费'，说一套做一套，不真诚，信任崩塌。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
@@ -778,35 +778,35 @@ window.__EVAL_CASES__ = [
   "cat": "豆包·付费/收费",
   "input": "专业版500元/月，比ChatGPT Plus贵近3倍，但体验远没达到顶级水平。",
   "expect": {
-   "emotion": "positive"
+   "emotion": "negative"
   }
  },
  {
   "cat": "豆包·付费/收费",
   "input": "你先把免费的基础功能做好，体验提升上去，再考虑收费的事。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
   "cat": "豆包·付费/收费",
   "input": "豆包笨还收费。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "angry"
   }
  },
  {
   "cat": "豆包·付费/收费",
   "input": "产品能力配不上其定价。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
   "cat": "元宝·其他",
   "input": "尽管官方表示上线的是满血版，但实际回答质量让人怀疑是不是偷偷上了个量化版以节省成本。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
@@ -835,7 +835,7 @@ window.__EVAL_CASES__ = [
   "cat": "元宝·其他",
   "input": "真的太难用了，阉割成了人工智障，开都不想开了。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "angry"
   }
  },
  {
@@ -849,21 +849,21 @@ window.__EVAL_CASES__ = [
   "cat": "元宝·付费/收费",
   "input": "会员不到账、图标黑暗模式缺失、上传内容协议不合理。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
   "cat": "元宝·准确性/幻觉",
   "input": "视觉理解能力弱：分析二手车机舱视频时提到的零件状态在视频中未体现，属于AI幻觉。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
   "cat": "元宝·其他",
   "input": "数据统计出错：工作群统计投票结果时，将标题6、标题3、标题4的票数都数错。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
@@ -877,77 +877,77 @@ window.__EVAL_CASES__ = [
   "cat": "元宝·多模态/视觉",
   "input": "图片鉴真翻车：用AI生成的假直播截图测试，元宝坚持认为图片真实。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
   "cat": "元宝·交互体验",
   "input": "路径也太长了，这不是一键，这是好几键。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
   "cat": "元宝·记忆",
   "input": "在中文网络文化里严重水土不服，一到具体新闻上下文只会死抠字面，忽略前后关联。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
   "cat": "元宝·准确性/幻觉",
   "input": "追问'这次有没有麦片'，脑补六小龄童代言过广告，追问来源后自己承认压根没有，幻觉严重。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
   "cat": "元宝·内容质量",
   "input": "说话一股子'营销号味'，回答问题浮夸，全是废话，没一句有用的。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
   "cat": "元宝·其他",
   "input": "明明用了DeepSeek，怎么感觉像个没读过书的DeepSeek。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "angry"
   }
  },
  {
   "cat": "DeepSeek·代码能力",
   "input": "DeepSeek最近晚上'降智'得厉害，白天写代码一遍过，深夜类似难度需反复修改几次才能通过。",
   "expect": {
-   "emotion": "positive"
+   "emotion": "negative"
   }
  },
  {
   "cat": "DeepSeek·记忆",
   "input": "模型还容易遗忘他前两轮提出的要求。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
   "cat": "DeepSeek·内容质量",
   "input": "套话变多、回答表面和分析变少。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
   "cat": "DeepSeek·内容质量",
   "input": "一年前的回答给到很多意想不到的启示，现在倾向于用套话匆匆收尾。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
   "cat": "DeepSeek·内容质量",
   "input": "AI很套路、回答没有增量内容、换汤不换药。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
@@ -961,49 +961,49 @@ window.__EVAL_CASES__ = [
   "cat": "DeepSeek·文件/长文本",
   "input": "翻译长文本PDF直接提示超出能力范围。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
   "cat": "DeepSeek·稳定性",
   "input": "多次因为'崩了'登上微博热搜。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
   "cat": "DeepSeek·稳定性",
   "input": "服务器繁忙，服务不稳定。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
   "cat": "DeepSeek·稳定性",
   "input": "接连当机近12小时，导致赶报告写程式资料大量遗失。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
   "cat": "DeepSeek·其他",
   "input": "这就是当年被捧上神坛的人工智能吗。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  },
  {
   "cat": "DeepSeek·稳定性",
   "input": "人工智障，崩了也罢。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "angry"
   }
  },
  {
   "cat": "DeepSeek·付费/收费",
   "input": "付费用户因总在关键时刻出状况，纷纷转向豆包、Kimi。",
   "expect": {
-   "emotion": "neutral"
+   "emotion": "negative"
   }
  }
 ];
@@ -2043,7 +2043,7 @@ window.__FEEDBACKS__ = [
   "quote": "豆包型人格：凡事敷衍糊弄，被发现问题后便嬉皮笑脸道歉，却始终不愿改正。",
   "source": "公开报道/社媒",
   "topic": "内容质量",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-05-10",
   "user": "#U6104",
   "userType": "免费版"
@@ -2053,7 +2053,7 @@ window.__FEEDBACKS__ = [
   "quote": "生成的文案依然需要人工大改，时不时还会出现'幻觉'胡言乱语。",
   "source": "公开报道/社媒",
   "topic": "准确性/幻觉",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-05-10",
   "user": "#U6105",
   "userType": "免费版"
@@ -2073,7 +2073,7 @@ window.__FEEDBACKS__ = [
   "quote": "长文本处理不稳定，复杂问题容易'翻车'。",
   "source": "公开报道/社媒",
   "topic": "稳定性",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-05-12",
   "user": "#U6107",
   "userType": "免费版"
@@ -2083,7 +2083,7 @@ window.__FEEDBACKS__ = [
   "quote": "基础功能没打磨好就急着收费，本末倒置。",
   "source": "公开报道/社媒",
   "topic": "付费/收费",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-05-12",
   "user": "#U6108",
   "userType": "付费版"
@@ -2093,7 +2093,7 @@ window.__FEEDBACKS__ = [
   "quote": "在App内询问是否收费时，AI还回复'永久免费'，说一套做一套，不真诚，信任崩塌。",
   "source": "公开报道/社媒",
   "topic": "稳定性",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-05-12",
   "user": "#U6109",
   "userType": "免费版"
@@ -2113,7 +2113,7 @@ window.__FEEDBACKS__ = [
   "quote": "专业版500元/月，比ChatGPT Plus贵近3倍，但体验远没达到顶级水平。",
   "source": "公开报道/社媒",
   "topic": "付费/收费",
-  "emotion": "正面",
+  "emotion": "负面",
   "date": "2026-05-08",
   "user": "#U6111",
   "userType": "付费版"
@@ -2123,7 +2123,7 @@ window.__FEEDBACKS__ = [
   "quote": "你先把免费的基础功能做好，体验提升上去，再考虑收费的事。",
   "source": "公开报道/社媒",
   "topic": "付费/收费",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-05-12",
   "user": "#U6112",
   "userType": "付费版"
@@ -2133,7 +2133,7 @@ window.__FEEDBACKS__ = [
   "quote": "豆包笨还收费。",
   "source": "公开报道/社媒",
   "topic": "付费/收费",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-05-15",
   "user": "#U6113",
   "userType": "付费版"
@@ -2143,7 +2143,7 @@ window.__FEEDBACKS__ = [
   "quote": "产品能力配不上其定价。",
   "source": "公开报道/社媒",
   "topic": "付费/收费",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-05-08",
   "user": "#U6114",
   "userType": "付费版"
@@ -2153,7 +2153,7 @@ window.__FEEDBACKS__ = [
   "quote": "尽管官方表示上线的是满血版，但实际回答质量让人怀疑是不是偷偷上了个量化版以节省成本。",
   "source": "公开报道/社媒",
   "topic": "其他",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-01-31",
   "user": "#U6115",
   "userType": "免费版"
@@ -2193,7 +2193,7 @@ window.__FEEDBACKS__ = [
   "quote": "真的太难用了，阉割成了人工智障，开都不想开了。",
   "source": "公开报道/社媒",
   "topic": "其他",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-01-31",
   "user": "#U6119",
   "userType": "免费版"
@@ -2213,7 +2213,7 @@ window.__FEEDBACKS__ = [
   "quote": "会员不到账、图标黑暗模式缺失、上传内容协议不合理。",
   "source": "公开报道/社媒",
   "topic": "付费/收费",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-03-04",
   "user": "#U6121",
   "userType": "付费版"
@@ -2223,7 +2223,7 @@ window.__FEEDBACKS__ = [
   "quote": "视觉理解能力弱：分析二手车机舱视频时提到的零件状态在视频中未体现，属于AI幻觉。",
   "source": "公开报道/社媒",
   "topic": "准确性/幻觉",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-05-13",
   "user": "#U6122",
   "userType": "免费版"
@@ -2233,7 +2233,7 @@ window.__FEEDBACKS__ = [
   "quote": "数据统计出错：工作群统计投票结果时，将标题6、标题3、标题4的票数都数错。",
   "source": "公开报道/社媒",
   "topic": "其他",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-05-13",
   "user": "#U6123",
   "userType": "免费版"
@@ -2253,7 +2253,7 @@ window.__FEEDBACKS__ = [
   "quote": "图片鉴真翻车：用AI生成的假直播截图测试，元宝坚持认为图片真实。",
   "source": "公开报道/社媒",
   "topic": "多模态/视觉",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-05-13",
   "user": "#U6125",
   "userType": "免费版"
@@ -2263,7 +2263,7 @@ window.__FEEDBACKS__ = [
   "quote": "路径也太长了，这不是一键，这是好几键。",
   "source": "公开报道/社媒",
   "topic": "交互体验",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-05-13",
   "user": "#U6126",
   "userType": "免费版"
@@ -2273,7 +2273,7 @@ window.__FEEDBACKS__ = [
   "quote": "在中文网络文化里严重水土不服，一到具体新闻上下文只会死抠字面，忽略前后关联。",
   "source": "公开报道/社媒",
   "topic": "记忆",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-05-20",
   "user": "#U6127",
   "userType": "免费版"
@@ -2283,7 +2283,7 @@ window.__FEEDBACKS__ = [
   "quote": "追问'这次有没有麦片'，脑补六小龄童代言过广告，追问来源后自己承认压根没有，幻觉严重。",
   "source": "公开报道/社媒",
   "topic": "准确性/幻觉",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-05-20",
   "user": "#U6128",
   "userType": "免费版"
@@ -2293,7 +2293,7 @@ window.__FEEDBACKS__ = [
   "quote": "说话一股子'营销号味'，回答问题浮夸，全是废话，没一句有用的。",
   "source": "公开报道/社媒",
   "topic": "内容质量",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-05-22",
   "user": "#U6129",
   "userType": "免费版"
@@ -2303,7 +2303,7 @@ window.__FEEDBACKS__ = [
   "quote": "明明用了DeepSeek，怎么感觉像个没读过书的DeepSeek。",
   "source": "公开报道/社媒",
   "topic": "其他",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-05-22",
   "user": "#U6130",
   "userType": "免费版"
@@ -2313,7 +2313,7 @@ window.__FEEDBACKS__ = [
   "quote": "DeepSeek最近晚上'降智'得厉害，白天写代码一遍过，深夜类似难度需反复修改几次才能通过。",
   "source": "公开报道/社媒",
   "topic": "代码能力",
-  "emotion": "正面",
+  "emotion": "负面",
   "date": "2026-06-03",
   "user": "#U6131",
   "userType": "免费版"
@@ -2323,7 +2323,7 @@ window.__FEEDBACKS__ = [
   "quote": "模型还容易遗忘他前两轮提出的要求。",
   "source": "公开报道/社媒",
   "topic": "记忆",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-06-03",
   "user": "#U6132",
   "userType": "免费版"
@@ -2333,7 +2333,7 @@ window.__FEEDBACKS__ = [
   "quote": "套话变多、回答表面和分析变少。",
   "source": "公开报道/社媒",
   "topic": "内容质量",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-06-03",
   "user": "#U6133",
   "userType": "免费版"
@@ -2343,7 +2343,7 @@ window.__FEEDBACKS__ = [
   "quote": "一年前的回答给到很多意想不到的启示，现在倾向于用套话匆匆收尾。",
   "source": "公开报道/社媒",
   "topic": "内容质量",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-06-03",
   "user": "#U6134",
   "userType": "免费版"
@@ -2353,7 +2353,7 @@ window.__FEEDBACKS__ = [
   "quote": "AI很套路、回答没有增量内容、换汤不换药。",
   "source": "公开报道/社媒",
   "topic": "内容质量",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-06-03",
   "user": "#U6135",
   "userType": "免费版"
@@ -2373,7 +2373,7 @@ window.__FEEDBACKS__ = [
   "quote": "翻译长文本PDF直接提示超出能力范围。",
   "source": "公开报道/社媒",
   "topic": "文件/长文本",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-06-03",
   "user": "#U6137",
   "userType": "免费版"
@@ -2383,7 +2383,7 @@ window.__FEEDBACKS__ = [
   "quote": "多次因为'崩了'登上微博热搜。",
   "source": "公开报道/社媒",
   "topic": "稳定性",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-06-03",
   "user": "#U6138",
   "userType": "免费版"
@@ -2393,7 +2393,7 @@ window.__FEEDBACKS__ = [
   "quote": "服务器繁忙，服务不稳定。",
   "source": "公开报道/社媒",
   "topic": "稳定性",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-04-01",
   "user": "#U6139",
   "userType": "免费版"
@@ -2403,7 +2403,7 @@ window.__FEEDBACKS__ = [
   "quote": "接连当机近12小时，导致赶报告写程式资料大量遗失。",
   "source": "公开报道/社媒",
   "topic": "稳定性",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-04-01",
   "user": "#U6140",
   "userType": "免费版"
@@ -2413,7 +2413,7 @@ window.__FEEDBACKS__ = [
   "quote": "这就是当年被捧上神坛的人工智能吗。",
   "source": "公开报道/社媒",
   "topic": "其他",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-04-01",
   "user": "#U6141",
   "userType": "免费版"
@@ -2423,7 +2423,7 @@ window.__FEEDBACKS__ = [
   "quote": "人工智障，崩了也罢。",
   "source": "公开报道/社媒",
   "topic": "稳定性",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-04-01",
   "user": "#U6142",
   "userType": "免费版"
@@ -2433,15 +2433,15 @@ window.__FEEDBACKS__ = [
   "quote": "付费用户因总在关键时刻出状况，纷纷转向豆包、Kimi。",
   "source": "公开报道/社媒",
   "topic": "付费/收费",
-  "emotion": "中性",
+  "emotion": "负面",
   "date": "2026-04-01",
   "user": "#U6143",
   "userType": "付费版"
  }
 ];
 window.__EVAL_LABEL_REVISION__ = {
- "revision_id": "human-review-2026-09-07-v1",
- "reviewed_at": "2026-09-07",
+ "revision_id": "human-review-2026-09-08-v2",
+ "reviewed_at": "2026-09-08",
  "method": "Codex-assisted single-pass review followed by project-owner confirmation; not independent blind double annotation.",
- "record_count": 31
+ "record_count": 63
 };
