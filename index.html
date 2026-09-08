@@ -564,6 +564,46 @@
       font-weight: 500;
     }
 
+    .dataset-select {
+      min-height: 36px;
+      padding: 0 34px 0 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      background: var(--surface);
+      color: var(--text-primary);
+      font: inherit;
+      cursor: pointer;
+    }
+    .dataset-select:focus-visible, .decision-reason:focus-visible { outline: 3px solid var(--primary-soft); outline-offset: 2px; }
+    .real-user-workspace { display: none; margin-bottom: 18px; }
+    .real-user-workspace.active { display: block; }
+    #page-insights.real-user-mode > .kpi-row, #page-insights.real-user-mode > .insights-layout { display:none; }
+    .ru-status { display:flex; justify-content:space-between; gap:16px; align-items:flex-start; padding:16px; background:var(--surface); border-radius:var(--radius-card); box-shadow:var(--shadow); margin-bottom:14px; }
+    .ru-status-copy { min-width:0; }
+    .ru-status-title { font-size:16px; font-weight:700; color:var(--text-primary); margin-bottom:6px; }
+    .ru-status-note { font-size:13px; line-height:1.65; color:var(--text-secondary); overflow-wrap:anywhere; }
+    .ru-metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:14px; }
+    .ru-metric { padding:14px; background:var(--surface); border-radius:var(--radius-card); box-shadow:var(--shadow); min-width:0; }
+    .ru-metric strong { display:block; font-size:22px; color:var(--text-primary); font-variant-numeric:tabular-nums; }
+    .ru-metric span { display:block; margin-top:4px; font-size:12px; color:var(--text-secondary); }
+    .ru-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(340px,.9fr); gap:16px; }
+    .ru-panel { background:var(--surface); border-radius:var(--radius-card); box-shadow:var(--shadow); padding:16px; min-width:0; }
+    .ru-panel h2 { font-size:15px; margin:0 0 12px; }
+    .ru-theme, .ru-opportunity { padding:12px 0; border-bottom:1px solid var(--border); }
+    .ru-theme:last-child, .ru-opportunity:last-child { border-bottom:0; }
+    .ru-theme-head, .ru-opp-head { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }
+    .ru-theme-title, .ru-opp-title { font-size:14px; font-weight:700; color:var(--text-primary); }
+    .ru-theme-meta, .ru-opp-meta { margin-top:4px; font-size:12px; color:var(--text-secondary); font-variant-numeric:tabular-nums; }
+    .ru-evidence summary { margin-top:8px; font-size:12px; color:var(--primary); cursor:pointer; }
+    .ru-evidence-list { margin:8px 0 0; padding-left:18px; color:var(--text-secondary); font-size:12px; line-height:1.65; }
+    .ru-decision { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .ru-decision button { min-height:32px; padding:0 11px; border:1px solid var(--border); border-radius:var(--radius-btn); background:var(--surface); color:var(--text-secondary); cursor:pointer; }
+    .ru-decision button[aria-pressed="true"] { border-color:var(--primary); background:var(--primary-ghost); color:var(--primary); font-weight:600; }
+    .decision-reason { width:100%; margin-top:8px; min-height:72px; resize:vertical; padding:10px; border:1px solid var(--border); border-radius:var(--radius-btn); font:inherit; font-size:13px; }
+    .ru-generate { margin-top:10px; }
+    .ru-generate:disabled { opacity:.45; cursor:not-allowed; }
+    @media (max-width: 900px) { .ru-grid { grid-template-columns:1fr; } .ru-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+
     .kpi-row {
       display: flex;
       gap: 16px;
@@ -1860,6 +1900,7 @@
             <p class="page-subtitle">公开竞品评论评测集的主题探索 · 用于验证分析链路，不代表 InsightLoop 用户需求</p>
           </div>
           <div class="page-actions">
+            <label><span class="sr-only">分析数据集</span><select class="dataset-select" id="insight-dataset"><option value="competitor">公开竞品评论 · 143条</option><option value="real-user-test-v1">真实用户测试 v1 · 23条 / 8人</option></select></label>
             <button class="chip" id="insight-range-btn">近 30 天 <span>▾</span></button>
             <button class="btn btn-primary" data-ai-cap="batch_analyze" data-ai-mode="log">重新分析</button>
           </div>
@@ -1872,6 +1913,18 @@
           </div>
           <span class="ai-banner-tag">评测素材</span>
         </div>
+
+        <section class="real-user-workspace" id="real-user-workspace" aria-live="polite">
+          <div class="ru-status">
+            <div class="ru-status-copy"><div class="ru-status-title">真实用户测试 v1</div><div class="ru-status-note" id="ru-summary">正在载入最近一次已审计运行…</div></div>
+            <span class="ai-banner-tag" id="ru-run-status">AI 草稿</span>
+          </div>
+          <div class="ru-metrics" id="ru-metrics"></div>
+          <div class="ru-grid">
+            <div class="ru-panel"><h2>主题与证据</h2><div id="ru-themes"></div></div>
+            <div class="ru-panel"><h2>机会与人工决策</h2><div id="ru-opportunities"></div></div>
+          </div>
+        </section>
 
         <div class="kpi-row">
           <div class="kpi-card">
@@ -2820,7 +2873,7 @@ export_start / export_progress / export_cancel / export_success。
   <!-- 真实竞品评论覆盖数据：经典脚本先于下方 module 执行，设置 window.__EVAL_CASES__ / window.__FEEDBACKS__，
        使评估看板与反馈中心默认即跑这 143 条真实跨 App 评论（而非内置 15 条 demo）。来源/偏差见 reviews-pipeline/DATA_README.md -->
   <script src="reviews-pipeline/real-data.js?v=eval143-gold-v1"></script>
-  <script type="module" src="ai-integration.js?v=2.3.4-label-revision"></script>
+  <script type="module" src="ai-integration.js?v=2.4.0-real-user-workflow"></script>
   <script>
   /* 死按钮补齐：让每个可点击元素点击后都有真实结果（导航 / 展开 / 弹窗 / 提示）
      与 ai-integration.js 互不干扰（本段只处理无 data-ai-cap 的元素）。 */

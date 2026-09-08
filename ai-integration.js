@@ -1175,6 +1175,8 @@ async function runAI(cap, opts = {}) {
     artifacts = [{ feedback_text: quote }];
     // 时间还原需要“今天”锚点：把当前日期作为 reference_date 注入上下文
     extraConstraints.reference_date = todayISO();
+  } else if ([CAPABILITY.GENERATE_PRD, CAPABILITY.GEN_ACCEPTANCE, CAPABILITY.GEN_TRACKING, CAPABILITY.DECOMPOSE_TASKS].includes(cap) && window.__selectedRealOpportunity) {
+    artifacts = [{ opportunity: window.__selectedRealOpportunity, evidence_boundary: '真实用户测试合并意见；不得编造效果、用户规模或技术事实。' }];
   }
 
   const params = {
@@ -1774,12 +1776,110 @@ function restoreHuman() {
   }
 }
 
+const REAL_USER_DATA_URL = 'reviews-pipeline/real-user-test-v1.json';
+const REAL_USER_RESULT_URL = 'reviews-pipeline/runs/2026-09-08T12-17-35-436Z__real-user-test-v1__glm-4-flash.results.json';
+const REAL_USER_DECISIONS_KEY = 'insightloop_real_user_decisions_v1';
+let realUserDataset = null;
+
+function loadRealUserDecisions() {
+  try { return JSON.parse(localStorage.getItem(REAL_USER_DECISIONS_KEY) || '{}'); } catch { return {}; }
+}
+
+function saveRealUserDecisions(decisions) {
+  localStorage.setItem(REAL_USER_DECISIONS_KEY, JSON.stringify(decisions));
+}
+
+function renderRealUserWorkspace(finalData, audit) {
+  const workspace = $('#real-user-workspace');
+  if (!workspace || !finalData || !realUserDataset) return;
+  const themes = finalData.themes || [];
+  const analysisThemes = audit?.steps?.agent_data_analysis?.data?.themes || [];
+  const byTheme = new Map(analysisThemes.map(t => [t.name, t]));
+  const byId = new Map(realUserDataset.records.map(r => [r.id, r]));
+  $('#ru-summary').textContent = finalData.summary || '模型未生成摘要。';
+  $('#ru-run-status').textContent = 'AI 草稿 · 待人工确认';
+  $('#ru-metrics').innerHTML = [
+    ['23', '合并意见记录'], ['8', '去重参与者'], [String(themes.length), '主题'], ['6/8', '最高单项意见覆盖'],
+  ].map(([value, label]) => `<div class="ru-metric"><strong>${escapeHtml(value)}</strong><span>${escapeHtml(label)}</span></div>`).join('');
+  $('#ru-themes').innerHTML = themes.map(theme => {
+    const quant = byTheme.get(theme.name) || {};
+    const evidence = (theme.evidence_ids || []).map(id => byId.get(id)).filter(Boolean);
+    return `<article class="ru-theme"><div class="ru-theme-head"><div><div class="ru-theme-title">${escapeHtml(theme.name)}</div><div class="ru-theme-meta">${theme.count} / 23 条 · ${theme.participant_count} / 8 人 · 记录占比 ${quant.share_pct ?? '—'}% · 参与者覆盖 ${quant.participant_share_pct ?? '—'}%</div></div><span class="priority-badge ${(theme.severity || 'P2').toLowerCase()}">${escapeHtml(theme.severity || 'P2')}</span></div><details class="ru-evidence"><summary>查看 ${evidence.length} 条证据与参与者编号</summary><ul class="ru-evidence-list">${evidence.map(r => `<li><strong>${escapeHtml(r.id)}</strong> · 参与者 ${escapeHtml(r.participants.join('、'))}：${escapeHtml(r.text)}</li>`).join('')}</ul></details></article>`;
+  }).join('');
+
+  const decisions = loadRealUserDecisions();
+  const opportunities = audit?.steps?.agent_product_strategy?.data?.opportunities || finalData.suggested_opportunities || [];
+  opportunities.forEach((_, index) => { if (!decisions[index]) decisions[index] = { status: 'adopted', reason: '项目负责人确认：采纳。' }; });
+  saveRealUserDecisions(decisions);
+  $('#ru-opportunities').innerHTML = opportunities.map((opp, index) => {
+    const decision = decisions[index];
+    const adopted = decision.status === 'adopted';
+    const relatedTheme = themes.find(theme => theme.name === opp.target_theme) || byTheme.get(opp.target_theme);
+    const relatedEvidence = (relatedTheme?.evidence_ids || []).map(id => byId.get(id)).filter(Boolean);
+    return `<article class="ru-opportunity" data-ru-opp="${index}"><div class="ru-opp-head"><div><div class="ru-opp-title">${escapeHtml(opp.title)}</div><div class="ru-opp-meta">建议优先级 ${escapeHtml(opp.priority)} · AI 草稿</div></div></div><p class="ru-status-note">${escapeHtml(opp.rationale || '')}</p><details class="ru-evidence"><summary>查看关联证据（${relatedEvidence.length} 条）</summary><ul class="ru-evidence-list">${relatedEvidence.map(r => `<li><strong>${escapeHtml(r.id)}</strong> · 参与者 ${escapeHtml(r.participants.join('、'))}：${escapeHtml(r.text)}</li>`).join('')}</ul></details><div class="ru-decision" role="group" aria-label="人工决策"><button data-decision="adopted" aria-pressed="${decision.status === 'adopted'}">采纳</button><button data-decision="deferred" aria-pressed="${decision.status === 'deferred'}">暂缓</button><button data-decision="rejected" aria-pressed="${decision.status === 'rejected'}">驳回</button></div><textarea class="decision-reason" maxlength="500" aria-label="人工决策理由" placeholder="填写人工决策理由">${escapeHtml(decision.reason || '')}</textarea><button class="btn btn-primary ru-generate" data-generate-index="${index}" ${adopted ? '' : 'disabled'}>为已采纳机会生成 PRD / 验收 / 埋点</button><textarea class="opp-prd-content" id="ru-prd-${index}" aria-label="${escapeHtml(opp.title)} PRD 草稿" placeholder="仅在机会采纳后生成；AI 输出仍需人工复核。"></textarea></article>`;
+  }).join('');
+
+  $$('.ru-opportunity').forEach(card => {
+    const index = Number(card.dataset.ruOpp);
+    card.querySelectorAll('[data-decision]').forEach(button => button.addEventListener('click', () => {
+      decisions[index] = { status: button.dataset.decision, reason: card.querySelector('.decision-reason').value };
+      saveRealUserDecisions(decisions);
+      card.querySelectorAll('[data-decision]').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
+      card.querySelector('.ru-generate').disabled = button.dataset.decision !== 'adopted';
+      toast(`人工决策已保存：${button.textContent}`, 'success');
+    }));
+    card.querySelector('.decision-reason').addEventListener('input', e => {
+      decisions[index] = { ...(decisions[index] || {}), reason: e.target.value };
+      saveRealUserDecisions(decisions);
+    });
+    card.querySelector('.ru-generate').addEventListener('click', async () => {
+      if (decisions[index]?.status !== 'adopted') return;
+      window.__selectedRealOpportunity = opportunities[index];
+      const target = `#ru-prd-${index}`;
+      for (const cap of [CAPABILITY.GENERATE_PRD, CAPABILITY.GEN_ACCEPTANCE, CAPABILITY.GEN_TRACKING]) {
+        const trigger = card.querySelector('.ru-generate');
+        trigger.dataset.aiTarget = target;
+        trigger.dataset.aiMode = 'textarea';
+        await runAI(cap, { trigger });
+      }
+    });
+  });
+}
+
+async function setInsightDataset(value) {
+  const page = $('#page-insights');
+  const workspace = $('#real-user-workspace');
+  const subtitle = page?.querySelector('.page-subtitle');
+  const banner = page?.querySelector('.ai-banner-text span');
+  if (value !== 'real-user-test-v1') {
+    page?.classList.remove('real-user-mode'); workspace?.classList.remove('active');
+    window.__ANALYSIS_FEEDBACKS__ = undefined;
+    if (subtitle) subtitle.textContent = '公开竞品评论评测集的主题探索 · 用于验证分析链路，不代表 InsightLoop 用户需求';
+    if (banner) banner.innerHTML = '<strong>数据边界：</strong>当前载入 143 条公开竞品评论；主题、优先级和方案均为 AI 草稿，需人工复核后才可采纳。';
+    return;
+  }
+  page?.classList.add('real-user-mode'); workspace?.classList.add('active');
+  if (subtitle) subtitle.textContent = '8 位真实测试参与者 · 23 条合并意见 · 记录数与参与者数分开计算';
+  if (banner) banner.innerHTML = '<strong>数据边界：</strong>真实用户研究记录的合并转述，并非逐字访谈原文；AI 输出必须人工审核后采纳。';
+  try {
+    realUserDataset = await fetch(REAL_USER_DATA_URL).then(r => { if (!r.ok) throw new Error(`数据集加载失败 ${r.status}`); return r.json(); });
+    window.__ANALYSIS_FEEDBACKS__ = realUserDataset.records;
+    const cached = await fetch(REAL_USER_RESULT_URL).then(r => { if (!r.ok) throw new Error(`审计结果加载失败 ${r.status}`); return r.json(); });
+    renderRealUserWorkspace(cached.final.data, cached.audit);
+  } catch (error) {
+    $('#ru-summary').textContent = `${error.message}。请检查数据文件后重试。`;
+    $('#ru-run-status').textContent = '加载失败';
+  }
+}
+
 /* ============================ 6. 初始化绑定 ============================ */
 function init() {
   // 先回填 localStorage 中的人工态 / 编辑内容 / 活动日志
   loadLocalState();
   // 初始化本地 RAG 向量库（页面会把真实反馈/主题结论注入 window.__RAG_DOCS）
   ragInit();
+  const datasetSelect = $('#insight-dataset');
+  datasetSelect && datasetSelect.addEventListener('change', () => setInsightDataset(datasetSelect.value));
 
   // 绑定所有 [data-ai-cap] 触发元素（把按钮本身作为 trigger 传入，便于分析单条反馈）
   $$('[data-ai-cap]').forEach(btn => {
