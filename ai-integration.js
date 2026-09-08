@@ -938,9 +938,13 @@ async function runAgentPipeline(opts = {}) {
   if (r5.status !== 'failed') {
     const topRecords = [...r1.data.themes].sort((a, b) => b.count - a.count)[0];
     const topParticipants = [...r1.data.themes].sort((a, b) => b.participant_count - a.participant_count)[0];
+    const topSingleEvidence = [...feedbackList].sort((a, b) => ((b.participants || []).length - (a.participants || []).length))[0];
+    const singleEvidenceText = topSingleEvidence && totalParticipants
+      ? `；最高单项意见证据为 ${topSingleEvidence.id}，覆盖 ${(topSingleEvidence.participants || []).length}/${totalParticipants} 位参与者`
+      : '';
     r5.data.themes = r1.data.themes.map(t => ({ ...t }));
     r5.data.suggested_opportunities = r3.data.opportunities.map(o => ({ title: o.title, priority: o.priority, rationale: o.rationale }));
-    r5.data.summary = `按记录数最高为「${topRecords.name}」${topRecords.count}/${feedbackList.length}；按去重参与者覆盖最高为「${topParticipants.name}」${topParticipants.participant_count}/${totalParticipants}。建议由人工结合严重度审核机会优先级。`;
+    r5.data.summary = `按记录数最高为「${topRecords.name}」${topRecords.count}/${feedbackList.length}；按去重参与者覆盖最高为「${topParticipants.name}」${topParticipants.participant_count}/${totalParticipants}${singleEvidenceText}。建议由人工结合严重度审核机会优先级。`;
     r5.data.agent_chain_digest = `用户研究聚类 ${r1.data.themes.length} 个主题 → 程序校验记录数、参与者去重与占比 → 产品机会覆盖高证据主题 → 技术方案标记待核实 → 人工最终确认`;
   }
   pushVersion(CAPABILITY.BATCH_ANALYZE, r5.data, r5.status, seed);

@@ -1,0 +1,586 @@
+{
+  "final": {
+    "request_id": "req_1788869749004_kilhh8",
+    "capability": "batch_analyze",
+    "status": "success",
+    "data": {
+      "summary": "按记录数最高为「AI 拆解与细化」7/23；按去重参与者覆盖最高为「AI 输出质量与确认体验」8/8。建议由人工结合严重度审核机会优先级。",
+      "themes": [
+        {
+          "name": "AI 拆解与细化",
+          "count": 7,
+          "participant_count": 7,
+          "participant_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            7,
+            6
+          ],
+          "sentiment": "neutral",
+          "severity": "P2",
+          "evidence_ids": [
+            "ut_01",
+            "ut_02",
+            "ut_03",
+            "ut_04",
+            "ut_05",
+            "ut_06",
+            "ut_07"
+          ],
+          "main_complaint": "AI 拆解与细化功能存在问题，如细化问题固定、无细化入口、反馈不明确等。"
+        },
+        {
+          "name": "AI 输出质量与确认体验",
+          "count": 5,
+          "participant_count": 8,
+          "participant_ids": [
+            2,
+            3,
+            4,
+            5,
+            7,
+            8,
+            1,
+            6
+          ],
+          "sentiment": "neutral",
+          "severity": "P2",
+          "evidence_ids": [
+            "ut_08",
+            "ut_09",
+            "ut_10",
+            "ut_11",
+            "ut_12"
+          ],
+          "main_complaint": "AI 输出质量与确认体验不佳，如步骤不可编辑、确认方式不清晰、任务树编辑不便等。"
+        },
+        {
+          "name": "待办、习惯与总览",
+          "count": 3,
+          "participant_count": 2,
+          "participant_ids": [
+            7,
+            8
+          ],
+          "sentiment": "negative",
+          "severity": "P2",
+          "evidence_ids": [
+            "ut_13",
+            "ut_14",
+            "ut_15"
+          ],
+          "main_complaint": "待办、习惯与总览功能存在问题，如待办编辑入口不明显、完成数字不更新等。"
+        },
+        {
+          "name": "日期、日历与设置",
+          "count": 7,
+          "participant_count": 2,
+          "participant_ids": [
+            6,
+            7
+          ],
+          "sentiment": "negative",
+          "severity": "P2",
+          "evidence_ids": [
+            "ut_16",
+            "ut_17",
+            "ut_18",
+            "ut_19",
+            "ut_20",
+            "ut_21",
+            "ut_22"
+          ],
+          "main_complaint": "日期、日历与设置存在问题，如日期时间显示错误、视图问题、欢迎语未同步更新等。"
+        },
+        {
+          "name": "导航与界面一致性",
+          "count": 1,
+          "participant_count": 1,
+          "participant_ids": [
+            8
+          ],
+          "sentiment": "negative",
+          "severity": "P2",
+          "evidence_ids": [
+            "ut_23"
+          ],
+          "main_complaint": "AI 页面底部导航中的今日图标消失。"
+        }
+      ],
+      "suggested_opportunities": [
+        {
+          "title": "改善AI 输出质量与确认体验",
+          "priority": 10,
+          "rationale": "5 条合并意见，覆盖 8 位去重参与者；优先级由确定性规则生成，需人工评审。"
+        },
+        {
+          "title": "改善AI 拆解与细化",
+          "priority": 10,
+          "rationale": "7 条合并意见，覆盖 7 位去重参与者；优先级由确定性规则生成，需人工评审。"
+        },
+        {
+          "title": "改善日期、日历与设置",
+          "priority": 7,
+          "rationale": "7 条合并意见，覆盖 2 位去重参与者；优先级由确定性规则生成，需人工评审。"
+        }
+      ],
+      "agent_chain_digest": "用户研究聚类 5 个主题 → 程序校验记录数、参与者去重与占比 → 产品机会覆盖高证据主题 → 技术方案标记待核实 → 人工最终确认"
+    },
+    "error": null,
+    "meta": {
+      "model": "primary",
+      "tokens": 0,
+      "elapsed_ms": 0,
+      "confidence": 0.9,
+      "sources": []
+    }
+  },
+  "audit": {
+    "input_count": 23,
+    "input_ids": [
+      "ut_01",
+      "ut_02",
+      "ut_03",
+      "ut_04",
+      "ut_05",
+      "ut_06",
+      "ut_07",
+      "ut_08",
+      "ut_09",
+      "ut_10",
+      "ut_11",
+      "ut_12",
+      "ut_13",
+      "ut_14",
+      "ut_15",
+      "ut_16",
+      "ut_17",
+      "ut_18",
+      "ut_19",
+      "ut_20",
+      "ut_21",
+      "ut_22",
+      "ut_23"
+    ],
+    "steps": {
+      "agent_user_research": {
+        "request_id": "req_1788869666624_ckalac",
+        "capability": "agent_user_research",
+        "status": "success",
+        "data": {
+          "themes": [
+            {
+              "name": "AI 拆解与细化",
+              "count": 7,
+              "participant_count": 7,
+              "participant_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                7,
+                6
+              ],
+              "sentiment": "neutral",
+              "severity": "P2",
+              "evidence_ids": [
+                "ut_01",
+                "ut_02",
+                "ut_03",
+                "ut_04",
+                "ut_05",
+                "ut_06",
+                "ut_07"
+              ],
+              "main_complaint": "AI 拆解与细化功能存在问题，如细化问题固定、无细化入口、反馈不明确等。"
+            },
+            {
+              "name": "AI 输出质量与确认体验",
+              "count": 5,
+              "participant_count": 8,
+              "participant_ids": [
+                2,
+                3,
+                4,
+                5,
+                7,
+                8,
+                1,
+                6
+              ],
+              "sentiment": "neutral",
+              "severity": "P2",
+              "evidence_ids": [
+                "ut_08",
+                "ut_09",
+                "ut_10",
+                "ut_11",
+                "ut_12"
+              ],
+              "main_complaint": "AI 输出质量与确认体验不佳，如步骤不可编辑、确认方式不清晰、任务树编辑不便等。"
+            },
+            {
+              "name": "待办、习惯与总览",
+              "count": 3,
+              "participant_count": 2,
+              "participant_ids": [
+                7,
+                8
+              ],
+              "sentiment": "negative",
+              "severity": "P2",
+              "evidence_ids": [
+                "ut_13",
+                "ut_14",
+                "ut_15"
+              ],
+              "main_complaint": "待办、习惯与总览功能存在问题，如待办编辑入口不明显、完成数字不更新等。"
+            },
+            {
+              "name": "日期、日历与设置",
+              "count": 7,
+              "participant_count": 2,
+              "participant_ids": [
+                6,
+                7
+              ],
+              "sentiment": "negative",
+              "severity": "P2",
+              "evidence_ids": [
+                "ut_16",
+                "ut_17",
+                "ut_18",
+                "ut_19",
+                "ut_20",
+                "ut_21",
+                "ut_22"
+              ],
+              "main_complaint": "日期、日历与设置存在问题，如日期时间显示错误、视图问题、欢迎语未同步更新等。"
+            },
+            {
+              "name": "导航与界面一致性",
+              "count": 1,
+              "participant_count": 1,
+              "participant_ids": [
+                8
+              ],
+              "sentiment": "negative",
+              "severity": "P2",
+              "evidence_ids": [
+                "ut_23"
+              ],
+              "main_complaint": "AI 页面底部导航中的今日图标消失。"
+            }
+          ],
+          "notes": "根据用户反馈，对主题进行了聚类，并提炼了每个主题的主诉。聚类时考虑了反馈的相似性，但可能存在未完全覆盖所有用户反馈的情况。"
+        },
+        "error": null,
+        "meta": {
+          "model": "primary",
+          "tokens": 0,
+          "elapsed_ms": 0,
+          "confidence": 0.9,
+          "sources": []
+        }
+      },
+      "agent_data_analysis": {
+        "request_id": "req_1788869693097_3smtly",
+        "capability": "agent_data_analysis",
+        "status": "success",
+        "data": {
+          "themes": [
+            {
+              "name": "AI 拆解与细化",
+              "count": 7,
+              "participant_count": 7,
+              "participant_share_pct": 87.5,
+              "share_pct": 30.43,
+              "severity": "P2",
+              "quant_evidence": "7/23 条合并意见；7/8 位去重参与者",
+              "trend": "未知"
+            },
+            {
+              "name": "AI 输出质量与确认体验",
+              "count": 5,
+              "participant_count": 8,
+              "participant_share_pct": 100,
+              "share_pct": 21.74,
+              "severity": "P2",
+              "quant_evidence": "5/23 条合并意见；8/8 位去重参与者",
+              "trend": "未知"
+            },
+            {
+              "name": "待办、习惯与总览",
+              "count": 3,
+              "participant_count": 2,
+              "participant_share_pct": 25,
+              "share_pct": 13.04,
+              "severity": "P2",
+              "quant_evidence": "3/23 条合并意见；2/8 位去重参与者",
+              "trend": "未知"
+            },
+            {
+              "name": "日期、日历与设置",
+              "count": 7,
+              "participant_count": 2,
+              "participant_share_pct": 25,
+              "share_pct": 30.43,
+              "severity": "P2",
+              "quant_evidence": "7/23 条合并意见；2/8 位去重参与者",
+              "trend": "未知"
+            },
+            {
+              "name": "导航与界面一致性",
+              "count": 1,
+              "participant_count": 1,
+              "participant_share_pct": 12.5,
+              "share_pct": 4.35,
+              "severity": "P2",
+              "quant_evidence": "1/23 条合并意见；1/8 位去重参与者",
+              "trend": "未知"
+            }
+          ],
+          "overall_summary": "按记录数最高为「AI 拆解与细化」7/23；按去重参与者覆盖最高为「AI 输出质量与确认体验」8/8。主题可重叠，不汇总相加占比。"
+        },
+        "error": null,
+        "meta": {
+          "model": "primary",
+          "tokens": 0,
+          "elapsed_ms": 0,
+          "confidence": 0.9,
+          "sources": []
+        }
+      },
+      "agent_product_strategy": {
+        "request_id": "req_1788869714645_1ccuzo",
+        "capability": "agent_product_strategy",
+        "status": "success",
+        "data": {
+          "opportunities": [
+            {
+              "title": "改善AI 输出质量与确认体验",
+              "priority": 10,
+              "rationale": "5 条合并意见，覆盖 8 位去重参与者；优先级由确定性规则生成，需人工评审。",
+              "target_theme": "AI 输出质量与确认体验",
+              "expected_impact": "待验证是否提高用户满意度和减少错误操作"
+            },
+            {
+              "title": "改善AI 拆解与细化",
+              "priority": 10,
+              "rationale": "7 条合并意见，覆盖 7 位去重参与者；优先级由确定性规则生成，需人工评审。",
+              "target_theme": "AI 拆解与细化",
+              "expected_impact": "待验证是否提高用户对AI分析结果的满意度和接受度"
+            },
+            {
+              "title": "改善日期、日历与设置",
+              "priority": 7,
+              "rationale": "7 条合并意见，覆盖 2 位去重参与者；优先级由确定性规则生成，需人工评审。",
+              "target_theme": "日期、日历与设置",
+              "expected_impact": "待验证是否提高用户对日期和日历管理的效率"
+            }
+          ],
+          "notes": "所有P2严重程度主题均被考虑，尽管某些主题的参与度和分享比例较低，但基于严重程度和潜在影响，它们也被纳入建议中。"
+        },
+        "error": null,
+        "meta": {
+          "model": "primary",
+          "tokens": 0,
+          "elapsed_ms": 0,
+          "confidence": 0.9,
+          "sources": []
+        }
+      },
+      "agent_tech_review": {
+        "request_id": "req_1788869723472_hux1r1",
+        "capability": "agent_tech_review",
+        "status": "success",
+        "data": {
+          "reviews": [
+            {
+              "opportunity_title": "改善AI 输出质量与确认体验",
+              "feasibility": "medium",
+              "cost": "medium",
+              "risk": "medium",
+              "suggested_approach": "待代码与技术负责人核实：优化AI模型，增加输出确认步骤。",
+              "prerequisites": [
+                "待代码与技术负责人核实"
+              ]
+            },
+            {
+              "opportunity_title": "改善AI 拆解与细化",
+              "feasibility": "medium",
+              "cost": "medium",
+              "risk": "medium",
+              "suggested_approach": "待代码与技术负责人核实：细化AI拆解逻辑，提高结果准确性。",
+              "prerequisites": [
+                "待代码与技术负责人核实"
+              ]
+            },
+            {
+              "opportunity_title": "改善日期、日历与设置",
+              "feasibility": "medium",
+              "cost": "medium",
+              "risk": "medium",
+              "suggested_approach": "待代码与技术负责人核实：优化日期和日历管理功能。",
+              "prerequisites": [
+                "待代码与技术负责人核实"
+              ]
+            }
+          ],
+          "notes": ""
+        },
+        "error": null,
+        "meta": {
+          "model": "primary",
+          "tokens": 0,
+          "elapsed_ms": 0,
+          "confidence": 0.9,
+          "sources": []
+        }
+      },
+      "agent_coordinator": {
+        "request_id": "req_1788869749003_xdvry2",
+        "capability": "agent_coordinator",
+        "status": "success",
+        "data": {
+          "summary": "按记录数最高为「AI 拆解与细化」7/23；按去重参与者覆盖最高为「AI 输出质量与确认体验」8/8。建议由人工结合严重度审核机会优先级。",
+          "themes": [
+            {
+              "name": "AI 拆解与细化",
+              "count": 7,
+              "participant_count": 7,
+              "participant_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                7,
+                6
+              ],
+              "sentiment": "neutral",
+              "severity": "P2",
+              "evidence_ids": [
+                "ut_01",
+                "ut_02",
+                "ut_03",
+                "ut_04",
+                "ut_05",
+                "ut_06",
+                "ut_07"
+              ],
+              "main_complaint": "AI 拆解与细化功能存在问题，如细化问题固定、无细化入口、反馈不明确等。"
+            },
+            {
+              "name": "AI 输出质量与确认体验",
+              "count": 5,
+              "participant_count": 8,
+              "participant_ids": [
+                2,
+                3,
+                4,
+                5,
+                7,
+                8,
+                1,
+                6
+              ],
+              "sentiment": "neutral",
+              "severity": "P2",
+              "evidence_ids": [
+                "ut_08",
+                "ut_09",
+                "ut_10",
+                "ut_11",
+                "ut_12"
+              ],
+              "main_complaint": "AI 输出质量与确认体验不佳，如步骤不可编辑、确认方式不清晰、任务树编辑不便等。"
+            },
+            {
+              "name": "待办、习惯与总览",
+              "count": 3,
+              "participant_count": 2,
+              "participant_ids": [
+                7,
+                8
+              ],
+              "sentiment": "negative",
+              "severity": "P2",
+              "evidence_ids": [
+                "ut_13",
+                "ut_14",
+                "ut_15"
+              ],
+              "main_complaint": "待办、习惯与总览功能存在问题，如待办编辑入口不明显、完成数字不更新等。"
+            },
+            {
+              "name": "日期、日历与设置",
+              "count": 7,
+              "participant_count": 2,
+              "participant_ids": [
+                6,
+                7
+              ],
+              "sentiment": "negative",
+              "severity": "P2",
+              "evidence_ids": [
+                "ut_16",
+                "ut_17",
+                "ut_18",
+                "ut_19",
+                "ut_20",
+                "ut_21",
+                "ut_22"
+              ],
+              "main_complaint": "日期、日历与设置存在问题，如日期时间显示错误、视图问题、欢迎语未同步更新等。"
+            },
+            {
+              "name": "导航与界面一致性",
+              "count": 1,
+              "participant_count": 1,
+              "participant_ids": [
+                8
+              ],
+              "sentiment": "negative",
+              "severity": "P2",
+              "evidence_ids": [
+                "ut_23"
+              ],
+              "main_complaint": "AI 页面底部导航中的今日图标消失。"
+            }
+          ],
+          "suggested_opportunities": [
+            {
+              "title": "改善AI 输出质量与确认体验",
+              "priority": 10,
+              "rationale": "5 条合并意见，覆盖 8 位去重参与者；优先级由确定性规则生成，需人工评审。"
+            },
+            {
+              "title": "改善AI 拆解与细化",
+              "priority": 10,
+              "rationale": "7 条合并意见，覆盖 7 位去重参与者；优先级由确定性规则生成，需人工评审。"
+            },
+            {
+              "title": "改善日期、日历与设置",
+              "priority": 7,
+              "rationale": "7 条合并意见，覆盖 2 位去重参与者；优先级由确定性规则生成，需人工评审。"
+            }
+          ],
+          "agent_chain_digest": "用户研究聚类 5 个主题 → 程序校验记录数、参与者去重与占比 → 产品机会覆盖高证据主题 → 技术方案标记待核实 → 人工最终确认"
+        },
+        "error": null,
+        "meta": {
+          "model": "primary",
+          "tokens": 0,
+          "elapsed_ms": 0,
+          "confidence": 0.9,
+          "sources": []
+        }
+      }
+    }
+  }
+}
