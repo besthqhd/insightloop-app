@@ -132,14 +132,14 @@ export const SCHEMAS = {
   [CAPABILITY.AGENT_USER_RESEARCH]: {
     required: ['themes'],
     fields: {
-      themes: 'array<{name:string, count:number, sentiment:enum(positive|neutral|negative), severity:enum(P0|P1|P2|P3), evidence_ids:array<string>, main_complaint:string}>',
+      themes: 'array<{name:string, count:number, participant_count:number, participant_ids:array<number|string>, sentiment:enum(positive|neutral|negative), severity:enum(P0|P1|P2|P3), evidence_ids:array<string>, main_complaint:string}>',
       notes: 'string',
     },
   },
   [CAPABILITY.AGENT_DATA_ANALYSIS]: {
     required: ['themes'],
     fields: {
-      themes: 'array<{name:string, count:number, share_pct:number, severity:enum(P0|P1|P2|P3), quant_evidence:string, trend:string}>',
+      themes: 'array<{name:string, count:number, participant_count:number, participant_share_pct:number, share_pct:number, severity:enum(P0|P1|P2|P3), quant_evidence:string, trend:string}>',
       overall_summary: 'string',
     },
   },
@@ -161,7 +161,7 @@ export const SCHEMAS = {
     required: ['summary', 'themes', 'suggested_opportunities'],
     fields: {
       summary: 'string',
-      themes: 'array<{name:string, count:number, sentiment:enum(positive|neutral|negative), severity:enum(P0|P1|P2|P3), evidence_ids:array<string>}>',
+      themes: 'array<{name:string, count:number, participant_count:number, sentiment:enum(positive|neutral|negative), severity:enum(P0|P1|P2|P3), evidence_ids:array<string>}>',
       suggested_opportunities: 'array<{title:string, priority:number, rationale:string}>',
       agent_chain_digest: 'string',
     },
@@ -224,12 +224,13 @@ export function buildSystemPrompt(capability, ctx) {
       `必填字段：${schema.required.join(', ')}。`,
       '判定规则：',
       '1. themes 数组：每个主题代表一类用户反馈。name 用 4-12 字概括（如「导出报表耗时过长」）。',
-      '2. count：只能统计输入 feedback_list 中可实际归入该主题的反馈条数；无法完成归类时填 0，并在 notes 说明，严禁估算。',
-      '3. sentiment：该主题整体情绪（positive/neutral/negative）。',
-      '4. severity：P0=阻断核心路径/大量投诉；P1=高频功能受损；P2=体验受损；P3=优化建议。',
-      '5. evidence_ids：支撑该主题的代表性反馈 id 数组（3-6 条）。',
-      '6. main_complaint：用一句话凝练该主题下用户最核心的抱怨或诉求。',
-      '7. notes：聚类时的假设或不确定点。',
+      '2. count：只能统计输入 feedback_list 中可实际归入该主题的唯一反馈 id 数；必须等于 evidence_ids 去重后的数量，严禁估算。',
+      '3. participant_ids：合并 evidence 对应的 participants 并去重；participant_count 必须等于 participant_ids 数量。没有参与者信息时填空数组与 0，不能用反馈条数代替。',
+      '4. sentiment：该主题整体情绪（positive/neutral/negative）。',
+      '5. severity：P0=阻断核心路径/大量投诉；P1=高频功能受损；P2=体验受损；P3=优化建议。',
+      '6. evidence_ids：列出所有实际归入该主题的反馈 id，不得只列代表样本后却声称完整 count。',
+      '7. main_complaint：用一句话凝练该主题下用户最核心的抱怨或诉求。',
+      '8. notes：聚类时的假设或不确定点。',
       '严禁输出解释性文字，只输出合法 JSON。',
     ].join('\n');
   }
@@ -241,10 +242,11 @@ export function buildSystemPrompt(capability, ctx) {
       fieldLines,
       `必填字段：${schema.required.join(', ')}。`,
       '计算规则：',
-      '1. share_pct：该主题反馈量占总反馈的百分比（0-100）。',
+      '1. share_pct：该主题唯一反馈记录数占输入记录总数的百分比（0-100）；participant_share_pct 是去重参与者数占总参与者数的百分比。不得混用两个分母。',
       '2. quant_evidence：只能引用输入中已有的数字或由输入 count 直接计算的占比；不得编造 P95、超时率、用户数或行为指标。无具体数字时写「反馈文本未提供行为指标」。',
       '3. trend：只有输入包含可比较的时间序列时才可写「上升」「下降」或「持平」；否则写「未知」。',
       '4. severity 沿用或基于量化证据调整。',
+      '5. 若主题允许重叠，各主题 share_pct 之和可以超过 100%，不得声称它们合计占比；只能逐主题报告。',
       '严禁输出解释性文字，只输出合法 JSON。',
     ].join('\n');
   }
@@ -261,6 +263,7 @@ export function buildSystemPrompt(capability, ctx) {
       '3. rationale：为什么做、不做会怎样，引用数据。',
       '4. target_theme：关联到输入中的 theme.name。',
       '5. expected_impact：只写待验证的方向性假设（如「待验证是否减少重复操作」）；不得生成未观测的提升百分比、P95 或转化收益。',
+      '6. 不得遗漏反馈记录数或去重参与者数最高的 P0-P2 主题；若不建议处理，必须在 notes 明确说明理由。',
       '严禁输出解释性文字，只输出合法 JSON。',
     ].join('\n');
   }
@@ -277,6 +280,7 @@ export function buildSystemPrompt(capability, ctx) {
       '3. risk：high/medium/low，技术风险与线上影响面。',
       '4. suggested_approach：建议的技术实现路径，50 字以内。',
       '5. prerequisites：落地前必须满足的条件数组（如「需接入消息队列」「需埋点 SDK」）。',
+      '6. 输入没有代码、架构或技术约束证据时，不得断言需要重构数据库、升级框架、接入第三方服务或更换模型；只能写「待代码与技术负责人核实」。',
       '严禁输出解释性文字，只输出合法 JSON。',
     ].join('\n');
   }
@@ -296,6 +300,7 @@ export function buildSystemPrompt(capability, ctx) {
       '2. themes：最终主题列表，从 research_themes 精炼而来，保留 name/count/sentiment/severity/evidence_ids。',
       '3. suggested_opportunities：最终机会建议，综合 product_strategy 与 tech_review，剔除 feasibility=low 且 cost=high 的方案，priority 保留 0-10。',
       '4. agent_chain_digest：一句话概括 5 个 Agent 的协作结论，如「用户研究识别 6 个主题 → 数据分析确认导出占比最高 → 产品策略建议异步化 → 技术评估认为 2 周可落地」。',
+      '5. “最高频”必须同时核对 count 与 participant_count；两者排序不一致时分别陈述，不得混为一个结论。',
       '严禁输出解释性文字，只输出合法 JSON。',
     ].join('\n');
   }

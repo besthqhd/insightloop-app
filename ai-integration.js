@@ -816,6 +816,74 @@ function envelopeBatch(r, data) {
     meta: { model: 'agent-pipeline', ...(r.meta || {}) },
   };
 }
+
+const round2 = n => Math.round(n * 100) / 100;
+const severityBase = { P0: 10, P1: 8, P2: 6, P3: 3 };
+
+function normalizeResearchEvidence(data, feedbackList) {
+  const byId = new Map(feedbackList.map(f => [String(f.id), f]));
+  data.themes = (data?.themes || []).map(theme => {
+    const evidenceIds = [...new Set((theme.evidence_ids || []).map(String))].filter(id => byId.has(id));
+    const participantIds = [...new Set(evidenceIds.flatMap(id => byId.get(id)?.participants || []))];
+    return { ...theme, evidence_ids: evidenceIds, count: evidenceIds.length, participant_ids: participantIds, participant_count: participantIds.length };
+  });
+  return data;
+}
+
+function normalizeQuantification(data, researchThemes, inputCount, totalParticipants) {
+  const modelByName = new Map((data?.themes || []).map(t => [t.name, t]));
+  data.themes = researchThemes.map(theme => {
+    const modelTheme = modelByName.get(theme.name) || {};
+    return {
+      ...modelTheme,
+      name: theme.name,
+      count: theme.count,
+      participant_count: theme.participant_count,
+      participant_share_pct: totalParticipants ? round2(theme.participant_count / totalParticipants * 100) : 0,
+      share_pct: inputCount ? round2(theme.count / inputCount * 100) : 0,
+      severity: modelTheme.severity || theme.severity,
+      quant_evidence: `${theme.count}/${inputCount} 条合并意见；${theme.participant_count}/${totalParticipants} 位去重参与者`,
+      trend: modelTheme.trend || '未知',
+    };
+  });
+  const topRecords = [...data.themes].sort((a, b) => b.count - a.count)[0];
+  const topParticipants = [...data.themes].sort((a, b) => b.participant_count - a.participant_count)[0];
+  data.overall_summary = topRecords
+    ? `按记录数最高为「${topRecords.name}」${topRecords.count}/${inputCount}；按去重参与者覆盖最高为「${topParticipants.name}」${topParticipants.participant_count}/${totalParticipants}。主题可重叠，不汇总相加占比。`
+    : '没有可量化主题。';
+  return data;
+}
+
+function ensurePriorityCoverage(data, analysisThemes) {
+  const opportunities = Array.isArray(data?.opportunities) ? data.opportunities : [];
+  const topThemes = [...analysisThemes]
+    .filter(t => t.severity !== 'P3')
+    .sort((a, b) => (b.participant_count - a.participant_count) || (b.count - a.count))
+    .slice(0, 3);
+  topThemes.forEach(theme => {
+    if (!opportunities.some(o => o.target_theme === theme.name)) {
+      opportunities.push({
+        title: `改善${theme.name}`,
+        priority: Math.min(10, (severityBase[theme.severity] || 3) + Math.round(theme.participant_share_pct / 25)),
+        rationale: `${theme.count} 条合并意见，覆盖 ${theme.participant_count} 位去重参与者；由程序补入，需人工评审。`,
+        target_theme: theme.name,
+        expected_impact: '待验证是否改善对应任务体验',
+      });
+    }
+  });
+  data.opportunities = opportunities.sort((a, b) => b.priority - a.priority);
+  return data;
+}
+
+function qualifyTechAssumptions(data) {
+  data.reviews = (data?.reviews || []).map(review => ({
+    ...review,
+    suggested_approach: `待代码与技术负责人核实：${review.suggested_approach || '暂无实现证据'}`,
+    prerequisites: ['待代码与技术负责人核实'],
+  }));
+  return data;
+}
+
 async function runAgentPipeline(opts = {}) {
   const { seed = Date.now(), instruction = '', timeoutMs = 20000, maxRetry = 2 } = opts;
   const forceFail = FAIL_MODE && String(FAIL_MODE) !== '0';
@@ -834,6 +902,7 @@ async function runAgentPipeline(opts = {}) {
     topic: f.topic || f.source_theme || '待确认',
     participants: Array.isArray(f.participants) ? f.participants : undefined,
   }));
+  const totalParticipants = new Set(feedbackList.flatMap(f => f.participants || [])).size;
   const auditSteps = {};
   window.__lastAgentPipelineAudit = { input_count: feedbackList.length, input_ids: feedbackList.map(f => f.id), steps: auditSteps };
 
@@ -852,18 +921,30 @@ async function runAgentPipeline(opts = {}) {
 
   const r1 = await callStep(CAPABILITY.AGENT_USER_RESEARCH, [{ feedback_list: feedbackList }]);
   if (r1.status === 'failed') return envelopeBatch(r1);
+  normalizeResearchEvidence(r1.data, feedbackList);
   const r2 = await callStep(CAPABILITY.AGENT_DATA_ANALYSIS, [{ themes: r1.data.themes }]);
   if (r2.status === 'failed') return envelopeBatch(r2);
+  normalizeQuantification(r2.data, r1.data.themes, feedbackList.length, totalParticipants);
   const r3 = await callStep(CAPABILITY.AGENT_PRODUCT_STRATEGY, [{ themes: r2.data.themes }]);
   if (r3.status === 'failed') return envelopeBatch(r3);
+  ensurePriorityCoverage(r3.data, r2.data.themes);
   const r4 = await callStep(CAPABILITY.AGENT_TECH_REVIEW, [{ opportunities: r3.data.opportunities }]);
   if (r4.status === 'failed') return envelopeBatch(r4);
+  qualifyTechAssumptions(r4.data);
   const r5 = await callStep(CAPABILITY.AGENT_COORDINATOR, [
     { research_themes: r1.data },
     { analysis_themes: r2.data },
     { opportunities: r3.data },
     { tech_reviews: r4.data },
   ]);
+  if (r5.status !== 'failed') {
+    const topRecords = [...r1.data.themes].sort((a, b) => b.count - a.count)[0];
+    const topParticipants = [...r1.data.themes].sort((a, b) => b.participant_count - a.participant_count)[0];
+    r5.data.themes = r1.data.themes.map(t => ({ ...t }));
+    r5.data.suggested_opportunities = r3.data.opportunities.map(o => ({ title: o.title, priority: o.priority, rationale: o.rationale }));
+    r5.data.summary = `按记录数最高为「${topRecords.name}」${topRecords.count}/${feedbackList.length}；按去重参与者覆盖最高为「${topParticipants.name}」${topParticipants.participant_count}/${totalParticipants}。建议由人工结合严重度审核机会优先级。`;
+    r5.data.agent_chain_digest = `用户研究聚类 ${r1.data.themes.length} 个主题 → 程序校验记录数、参与者去重与占比 → 产品机会覆盖高证据主题 → 技术方案标记待核实 → 人工最终确认`;
+  }
   pushVersion(CAPABILITY.BATCH_ANALYZE, r5.data, r5.status, seed);
   return envelopeBatch(r5, r5.data);
 }
