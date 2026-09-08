@@ -351,8 +351,8 @@ function ragInit() {
 /* ============================ AI 评估看板（Evals） ============================
  * 用固定测试集跑真实 callModel 链路（mock 或真实模型），量化“AI 输出是否可用”：
  *   - 格式稳定率：status !== 'failed'（JSON 可解析 + schema 校验通过）占比
- *   - 任务理解率：至少一个预期维度被正确抽取（情绪/风险/时间还原/多意图/来源）占比
- *   - 有帮助率：输出格式稳定且模型把握度非 low（可据此直接行动）占比
+ *   - 至少一项字段命中率：至少一个预期维度被正确抽取（情绪/风险/时间还原/多意图/来源）占比
+ *   - 可行动代理通过率：输出格式稳定且模型把握度非 low，或命中风险升级的占比；不是人工帮助度
  * 这是 AI 产品上线前必须可度量的核心能力——大多数 demo 只会“能跑”，不会“可衡量”。
  */
 const EVAL_REF_DATE = '2026-07-28';
@@ -591,7 +591,7 @@ async function runEvalCases(cases, modelFn, { concurrency = 1, onProgress } = {}
 async function runEvalSuite({ mode = 'current' } = {}) {
   if (mode === 'compare') return runEvalCompare();
   const modelFn = useRealModel() ? callRealModel : mockModel;
-  const modelLabel = useRealModel() ? '真实模型' : 'Mock（演示基线）';
+  const modelLabel = useRealModel() ? '真实模型' : 'Mock（关键词规则基线）';
   const meta = document.getElementById('eval-meta');
   const runs = await runEvalCases(EVAL_CASES, modelFn, {
     concurrency: EVAL_CONCURRENCY,
@@ -688,8 +688,8 @@ function renderEvalCompare(mockRuns, realRuns, realLabel) {
   if (meta && realRuns.length) {
     meta.innerHTML = `对比结果 · Mock 基线 vs <b>${escapeHtml(realLabel)}</b> · 参考日期 ${EVAL_REF_DATE} · 共 ${total} 条用例`
       + `　|　格式 <b>${pct(mockRuns,'fmt')}/${pct(realRuns,'fmt')}</b>`
-      + `　理解 <b>${pct(mockRuns,'understood')}/${pct(realRuns,'understood')}</b>`
-      + `　帮助 <b>${pct(mockRuns,'helpful')}/${pct(realRuns,'helpful')}</b>`;
+      + `　字段命中 <b>${pct(mockRuns,'understood')}/${pct(realRuns,'understood')}</b>`
+      + `　可行动代理 <b>${pct(mockRuns,'helpful')}/${pct(realRuns,'helpful')}</b>`;
   }
 
   const cmp = document.getElementById('eval-compare');

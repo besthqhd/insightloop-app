@@ -2378,14 +2378,14 @@ export_start / export_progress / export_cancel / export_success。
         </div>
 
         <div class="eval-compare" id="eval-compare" style="display:none">
-          <div class="eval-compare-head">逐用例对比：<span class="eval-muted">Mock（演示基线）</span> vs <span class="eval-muted">真实模型</span>（✓ 命中 / ✗ 未命中 · 理解/帮助）</div>
+          <div class="eval-compare-head">逐用例对比：<span class="eval-muted">Mock（关键词规则基线）</span> vs <span class="eval-muted">真实模型</span>（✓ 达标 / ✗ 未达标 · 字段命中/可行动代理）</div>
           <table class="eval-compare-table">
-            <thead><tr><th>#</th><th>类别</th><th>Mock 理解/帮助</th><th>真实 理解/帮助</th><th>差异</th><th>审计</th></tr></thead>
+            <thead><tr><th>#</th><th>类别</th><th>Mock 字段命中/可行动代理</th><th>真实模型 字段命中/可行动代理</th><th>差异</th><th>审计</th></tr></thead>
             <tbody id="eval-compare-rows"></tbody>
           </table>
         </div>
         <div class="eval-note">
-          <b>指标说明</b>：格式稳定率 = 输出可被解析且通过 schema 校验的占比；至少一项字段命中率 = 命中任一预期维度的比例；可行动代理通过率 = 格式稳定且模型把握度非 low、或命中风险升级的比例，<b>不等于正确率或人工有帮助率</b>。<br>
+          <b>指标说明</b>：格式稳定率 = 输出可被解析且通过 schema 校验的占比；至少一项字段命中率 = 命中任一预期维度的比例；可行动代理通过率 = 格式稳定且模型把握度非 low、或命中风险升级的比例，<b>不等于完整理解、正确率或人工有帮助率</b>。表格中的 × 仅表示未达到对应评测规则，<b>不表示模型调用失败</b>。Mock 是有限关键词规则基线，用于暴露规则系统的能力边界。<br>
           <b>审计方法</b>：点击每行「预期/输出」查看模型实际输出；运行后点击「导出审计结果」保存逐例 JSON。Prompt 调整只能基于已导出的错例归因进行，并应保留调整前基线和未参与调参的复测集。
         </div>
       </section>
