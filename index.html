@@ -600,8 +600,9 @@
     .ru-decision button { min-height:32px; padding:0 11px; border:1px solid var(--border); border-radius:var(--radius-btn); background:var(--surface); color:var(--text-secondary); cursor:pointer; }
     .ru-decision button[aria-pressed="true"] { border-color:var(--primary); background:var(--primary-ghost); color:var(--primary); font-weight:600; }
     .decision-reason { width:100%; margin-top:8px; min-height:72px; resize:vertical; padding:10px; border:1px solid var(--border); border-radius:var(--radius-btn); font:inherit; font-size:13px; }
-    .ru-generate { margin-top:10px; }
+    .ru-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
     .ru-generate:disabled { opacity:.45; cursor:not-allowed; }
+    .ru-transfer:disabled { opacity:.45; cursor:not-allowed; }
     @media (max-width: 900px) { .ru-grid { grid-template-columns:1fr; } .ru-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 
     .kpi-row {
@@ -2873,7 +2874,7 @@ export_start / export_progress / export_cancel / export_success。
   <!-- 真实竞品评论覆盖数据：经典脚本先于下方 module 执行，设置 window.__EVAL_CASES__ / window.__FEEDBACKS__，
        使评估看板与反馈中心默认即跑这 143 条真实跨 App 评论（而非内置 15 条 demo）。来源/偏差见 reviews-pipeline/DATA_README.md -->
   <script src="reviews-pipeline/real-data.js?v=eval143-gold-v1"></script>
-  <script type="module" src="ai-integration.js?v=2.4.0-real-user-workflow"></script>
+  <script type="module" src="ai-integration.js?v=2.4.1-opportunity-transfer"></script>
   <script>
   /* 死按钮补齐：让每个可点击元素点击后都有真实结果（导航 / 展开 / 弹窗 / 提示）
      与 ai-integration.js 互不干扰（本段只处理无 data-ai-cap 的元素）。 */
@@ -2882,6 +2883,7 @@ export_start / export_progress / export_cancel / export_success。
     const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
     function on(el, ev, fn) { if (!el) return; el.addEventListener(ev, (e) => { try { fn(e); } catch (err) { console.error(err); } }); }
     function switchTab(page) { const t = $(`.tab[data-page="${page}"]`); if (t) t.click(); }
+    window.switchTab = switchTab;
     function byText(pageId, txt) {
       return $$(
         `#${pageId} button, #${pageId} .chip, #${pageId} .opp-detail-link, #${pageId} .feedback-detail`
@@ -3184,7 +3186,8 @@ export_start / export_progress / export_cancel / export_success。
           source: c.querySelector('.opp-card-source').textContent,
           priority: c.querySelector('.opp-card-priority').textContent,
           status: c.querySelector('.opp-card-status').textContent,
-          desc: c.dataset.desc || '', story: c.dataset.story || '',
+          desc: c.dataset.desc || '', story: c.dataset.story || '', prd: c.dataset.prd || '',
+          evidence: c.dataset.evidence || '', humanReason: c.dataset.humanReason || '', importId: c.dataset.importId || '',
           oppIndex: c.dataset.opp || '',
         }))));
       } catch (e) {}
@@ -3198,7 +3201,8 @@ export_start / export_progress / export_cancel / export_success。
       saved.forEach(o => {
         const n = document.createElement('div'); n.className = 'opp-card';
         if (o.oppIndex) n.dataset.opp = o.oppIndex;
-        n.dataset.desc = o.desc || ''; n.dataset.story = o.story || '';
+        n.dataset.desc = o.desc || ''; n.dataset.story = o.story || ''; n.dataset.prd = o.prd || '';
+        n.dataset.evidence = o.evidence || ''; n.dataset.humanReason = o.humanReason || ''; n.dataset.importId = o.importId || '';
         n.innerHTML = '<div class="opp-card-title">' + escapeHtml(o.title) + '</div><div class="opp-card-source">' + escapeHtml(o.source) + '</div><div class="opp-card-bottom"><span class="opp-card-priority">' + escapeHtml(o.priority) + '</span><span class="opp-card-status">' + escapeHtml(o.status) + '</span></div>';
         col.insertBefore(n, btn);
       });
@@ -3224,7 +3228,8 @@ export_start / export_progress / export_cancel / export_success。
       card.classList.add('active');
       const statusEl = card.querySelector('.opp-card-status');
       const isDraft = statusEl && /草稿|已编辑/.test(statusEl.textContent);
-      if (isDraft) editOppDraft(card);            // 草稿 / 已编辑机会：点击即编辑
+      if (card.dataset.importId) renderImportedOpp(card);
+      else if (isDraft) editOppDraft(card);            // 草稿 / 已编辑机会：点击即编辑
       else { const idx = card.dataset.opp; if (idx !== undefined) selectOpp(+idx); }
     });
     makeDropdown($('#opp-sort-btn'), ['优先级', '最近更新', '影响用户数'], (opt) => { sortOpp(opt); persistOpps(); });
@@ -3240,15 +3245,38 @@ export_start / export_progress / export_cancel / export_success。
       editOppDraft(n); // 新建后直接打开编辑弹窗
     });
 
-    // 供反馈分析「多意图拆分」调用：把单条意图转为机会草稿（不自动弹编辑框，避免模态堆叠）
-    window.createDraftOpportunity = function (title, desc, source) {
+    function renderImportedOpp(card) {
+      const pEl = document.getElementById('page-opportunities'); if (!pEl || !card) return;
+      const title = card.querySelector('.opp-card-title')?.textContent || '机会';
+      const source = card.querySelector('.opp-card-source')?.textContent || '';
+      const priority = card.querySelector('.opp-card-priority')?.textContent || '优先级 --';
+      pEl.querySelector('.opp-detail-name').textContent = title;
+      pEl.querySelector('.opp-detail-meta').textContent = priority + ' · 状态 已采纳 · ' + source;
+      const blocks = pEl.querySelectorAll('.opp-block-text');
+      if (blocks[0]) blocks[0].textContent = card.dataset.desc || '（暂无描述）';
+      if (blocks[1]) blocks[1].textContent = '作为产品负责人，我希望基于可追溯证据推进该机会，并通过验收与埋点验证效果。';
+      const ta = document.getElementById('opp-prd-content'); if (ta) ta.value = card.dataset.prd || '';
+      const formula = pEl.querySelector('.opp-score-formula'); if (formula) formula.textContent = priority + '（AI 建议，已由人工采纳；不代表效果已验证）';
+      const note = pEl.querySelector('.opp-score-note'); if (note) note.textContent = '关联证据：' + (card.dataset.evidence || '未记录') + '；人工理由：' + (card.dataset.humanReason || '未填写');
+    }
+
+    // 供反馈拆分和真实用户洞察调用；importId 相同时更新原卡片，避免重复创建。
+    window.createDraftOpportunity = function (title, desc, source, options) {
+      options = options || {};
       const col = $('.opp-list-col'); if (!col) return false;
-      const n = document.createElement('div'); n.className = 'opp-card';
-      n.innerHTML = '<div class="opp-card-title">' + escapeHtml(title || '新机会（草稿）') + '</div><div class="opp-card-source">' + escapeHtml(source || '来自反馈拆分') + '</div><div class="opp-card-bottom"><span class="opp-card-priority">优先级 --</span><span class="opp-card-status">草稿</span></div>';
+      let n = options.importId ? Array.from(col.querySelectorAll('.opp-card')).find(c => c.dataset.importId === options.importId) : null;
+      if (!n) { n = document.createElement('div'); n.className = 'opp-card'; }
+      n.innerHTML = '<div class="opp-card-title">' + escapeHtml(title || '新机会（草稿）') + '</div><div class="opp-card-source">' + escapeHtml(source || '来自反馈拆分') + '</div><div class="opp-card-bottom"><span class="opp-card-priority">优先级 ' + escapeHtml(options.priority ?? '--') + '</span><span class="opp-card-status">' + escapeHtml(options.status || '草稿') + '</span></div>';
       n.dataset.desc = desc || '';
+      n.dataset.prd = options.prd || '';
+      n.dataset.evidence = (options.evidenceIds || []).join('、');
+      n.dataset.humanReason = options.humanReason || '';
+      n.dataset.importId = options.importId || '';
       const btn = col.querySelector('.opp-new-btn');
-      col.insertBefore(n, btn);
+      if (!n.parentNode) col.insertBefore(n, btn);
+      $$('.opp-card', col).forEach(c => c.classList.remove('active')); n.classList.add('active');
       persistOpps();
+      if (options.importId) renderImportedOpp(n);
       return true;
     };
 

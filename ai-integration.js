@@ -1816,16 +1816,20 @@ function renderRealUserWorkspace(finalData, audit) {
     const adopted = decision.status === 'adopted';
     const relatedTheme = themes.find(theme => theme.name === opp.target_theme) || byTheme.get(opp.target_theme);
     const relatedEvidence = (relatedTheme?.evidence_ids || []).map(id => byId.get(id)).filter(Boolean);
-    return `<article class="ru-opportunity" data-ru-opp="${index}"><div class="ru-opp-head"><div><div class="ru-opp-title">${escapeHtml(opp.title)}</div><div class="ru-opp-meta">建议优先级 ${escapeHtml(opp.priority)} · AI 草稿</div></div></div><p class="ru-status-note">${escapeHtml(opp.rationale || '')}</p><details class="ru-evidence"><summary>查看关联证据（${relatedEvidence.length} 条）</summary><ul class="ru-evidence-list">${relatedEvidence.map(r => `<li><strong>${escapeHtml(r.id)}</strong> · 参与者 ${escapeHtml(r.participants.join('、'))}：${escapeHtml(r.text)}</li>`).join('')}</ul></details><div class="ru-decision" role="group" aria-label="人工决策"><button data-decision="adopted" aria-pressed="${decision.status === 'adopted'}">采纳</button><button data-decision="deferred" aria-pressed="${decision.status === 'deferred'}">暂缓</button><button data-decision="rejected" aria-pressed="${decision.status === 'rejected'}">驳回</button></div><textarea class="decision-reason" maxlength="500" aria-label="人工决策理由" placeholder="填写人工决策理由">${escapeHtml(decision.reason || '')}</textarea><button class="btn btn-primary ru-generate" data-generate-index="${index}" ${adopted ? '' : 'disabled'}>为已采纳机会生成 PRD / 验收 / 埋点</button><textarea class="opp-prd-content" id="ru-prd-${index}" aria-label="${escapeHtml(opp.title)} PRD 草稿" placeholder="仅在机会采纳后生成；AI 输出仍需人工复核。"></textarea></article>`;
+    return `<article class="ru-opportunity" data-ru-opp="${index}"><div class="ru-opp-head"><div><div class="ru-opp-title">${escapeHtml(opp.title)}</div><div class="ru-opp-meta">建议优先级 ${escapeHtml(opp.priority)} · AI 草稿</div></div></div><p class="ru-status-note">${escapeHtml(opp.rationale || '')}</p><details class="ru-evidence"><summary>查看关联证据（${relatedEvidence.length} 条）</summary><ul class="ru-evidence-list">${relatedEvidence.map(r => `<li><strong>${escapeHtml(r.id)}</strong> · 参与者 ${escapeHtml(r.participants.join('、'))}：${escapeHtml(r.text)}</li>`).join('')}</ul></details><div class="ru-decision" role="group" aria-label="人工决策"><button data-decision="adopted" aria-pressed="${decision.status === 'adopted'}">采纳</button><button data-decision="deferred" aria-pressed="${decision.status === 'deferred'}">暂缓</button><button data-decision="rejected" aria-pressed="${decision.status === 'rejected'}">驳回</button></div><textarea class="decision-reason" maxlength="500" aria-label="人工决策理由" placeholder="填写人工决策理由">${escapeHtml(decision.reason || '')}</textarea><div class="ru-actions"><button class="btn btn-primary ru-generate" data-generate-index="${index}" ${adopted ? '' : 'disabled'}>生成 PRD / 验收 / 埋点</button><button class="btn btn-outline ru-transfer" data-transfer-index="${index}" disabled>转入机会工作区</button></div><textarea class="opp-prd-content" id="ru-prd-${index}" aria-label="${escapeHtml(opp.title)} 最终方案" placeholder="先生成方案并人工审核；有内容后才能转入机会工作区。"></textarea></article>`;
   }).join('');
 
   $$('.ru-opportunity').forEach(card => {
     const index = Number(card.dataset.ruOpp);
+    const opportunity = opportunities[index];
+    const opportunityTheme = themes.find(theme => theme.name === opportunity?.target_theme);
+    const relatedEvidence = (opportunityTheme?.evidence_ids || []).map(id => byId.get(id)).filter(Boolean);
     card.querySelectorAll('[data-decision]').forEach(button => button.addEventListener('click', () => {
       decisions[index] = { status: button.dataset.decision, reason: card.querySelector('.decision-reason').value };
       saveRealUserDecisions(decisions);
       card.querySelectorAll('[data-decision]').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
       card.querySelector('.ru-generate').disabled = button.dataset.decision !== 'adopted';
+      card.querySelector('.ru-transfer').disabled = button.dataset.decision !== 'adopted' || !card.querySelector('.opp-prd-content').value.trim();
       toast(`人工决策已保存：${button.textContent}`, 'success');
     }));
     card.querySelector('.decision-reason').addEventListener('input', e => {
@@ -1842,6 +1846,32 @@ function renderRealUserWorkspace(finalData, audit) {
         trigger.dataset.aiMode = 'textarea';
         await runAI(cap, { trigger });
       }
+      card.querySelector('.ru-transfer').disabled = !card.querySelector('.opp-prd-content').value.trim();
+    });
+    const finalPlan = card.querySelector('.opp-prd-content');
+    finalPlan.addEventListener('input', () => {
+      card.querySelector('.ru-transfer').disabled = decisions[index]?.status !== 'adopted' || !finalPlan.value.trim();
+    });
+    card.querySelector('.ru-transfer').addEventListener('click', () => {
+      if (decisions[index]?.status !== 'adopted' || !finalPlan.value.trim()) {
+        toast('请先采纳机会并完成方案审核', 'error');
+        return;
+      }
+      if (typeof window.createDraftOpportunity !== 'function') {
+        toast('机会工作区尚未就绪，请刷新页面后重试', 'error');
+        return;
+      }
+      const evidenceIds = relatedEvidence.map(r => r.id);
+      window.createDraftOpportunity(opportunity.title, opportunity.rationale || '', `来自真实用户测试 v1 · ${evidenceIds.length} 条关联证据`, {
+        importId: `real-user-test-v1:${opportunity.target_theme || opportunity.title}`,
+        priority: opportunity.priority,
+        status: '已采纳',
+        prd: finalPlan.value,
+        evidenceIds,
+        humanReason: decisions[index].reason || '项目负责人确认：采纳。',
+      });
+      if (typeof window.switchTab === 'function') window.switchTab('opportunities');
+      toast('最终方案已转入机会工作区', 'success');
     });
   });
 }
