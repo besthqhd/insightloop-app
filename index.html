@@ -2086,7 +2086,7 @@
                     <div class="agent-icon">用</div>
                     <div class="agent-info">
                       <span class="agent-name">用户研究 Agent</span>
-                      <span class="agent-desc">聚类 412 条反馈，提炼主诉「导出慢 / 超时」</span>
+                      <span class="agent-desc">演示占位流程；无审计数据时不输出样本量或效果结论</span>
                     </div>
                   </div>
                   <span class="agent-status done"><span>●</span> 已完成</span>
@@ -2203,7 +2203,7 @@
 
               <div>
                 <div class="opp-block-label">机会描述</div>
-                <div class="opp-block-text">用户在导出大报表时面临最长 40s 的同步阻塞，期间界面无任何进度反馈，易被误判为失败而重复点击，进一步加剧服务负载与用户流失。</div>
+                <div class="opp-block-text">演示占位：大报表导出缺少进度反馈；没有真实计时、影响人数或流失数据。</div>
               </div>
 
               <div>
@@ -2221,19 +2221,19 @@
               <div class="opp-prd-editor">
                 <div class="opp-prd-title">PRD 草稿（可编辑）</div>
                 <textarea class="opp-prd-content" id="opp-prd-content"># 问题定义
-当前大报表导出为同步阻塞，最长等待 40s，期间无进度反馈，用户误判失败后重复点击，加剧负载。
+演示占位：当前仅有“导出缺少进度反馈”的假设，需补充真实任务数据。
 
 # 用户故事
 作为运营人员，我希望导出时看到实时进度并可中途取消，以便掌控等待。
 
 # 方案概述
-改为流式生成 + SSE 进度推送；前端分块渲染；支持取消与断点续传。
+待技术负责人核实：异步任务、进度反馈与取消能力。
 
 # 范围
 Web 端报表中心；首期覆盖 3 类核心报表。
 
 # 验收标准
-进度可见；可取消；失败可重试；P95 < 8s。
+进度可见；可取消；失败可重试；性能阈值待建立基线后确定。
 
 # 埋点方案
 export_start / export_progress / export_cancel / export_success。
@@ -2245,7 +2245,7 @@ export_start / export_progress / export_cancel / export_success。
               <div class="opp-score-panel">
                 <div class="opp-score-title">AI 优先级评分（影响 × 价值 × 证据 ÷ 成本）</div>
                 <div class="opp-score-formula">影响 9.0　×　价值 8.5　×　证据 9.2　÷　成本 8.8　=　8.6</div>
-                <div class="opp-score-note">基于 412 条相关反馈与 18% 流失数据估算，评分可溯源至原始证据。</div>
+                <div class="opp-score-note">演示占位评分，无真实样本量、流失率或效果证据；请转入真实机会后查看可追溯依据。</div>
                 <div class="reason-panel" id="opp-reason"></div>
               </div>
 
@@ -2641,11 +2641,11 @@ export_start / export_progress / export_cancel / export_success。
       {
         name: '导出报表异步化（流式 + 进度）',
         meta: '优先级 8.6 · 状态 评估中 · 来源洞察：导出报表耗时过长',
-        desc: '用户在导出大报表时面临最长 40s 的同步阻塞，期间界面无任何进度反馈，易被误判为失败而重复点击，进一步加剧服务负载与用户流失。',
+        desc: '演示占位：大报表导出缺少进度反馈；没有真实计时、影响人数或流失数据。',
         story: '作为运营人员，我希望在导出报表时能看到实时进度并支持中途取消，以便准确掌控等待时间、避免重复操作。',
-        prd: '# 问题定义\n当前大报表导出为同步阻塞，最长等待 40s，期间无进度反馈，用户误判失败后重复点击，加剧负载。\n\n# 用户故事\n作为运营人员，我希望导出时看到实时进度并可中途取消，以便掌控等待。\n\n# 方案概述\n改为流式生成 + SSE 进度推送；前端分块渲染；支持取消与断点续传。\n\n# 范围\nWeb 端报表中心；首期覆盖 3 类核心报表。\n\n# 验收标准\n进度可见；可取消；失败可重试；P95 < 8s。\n\n# 埋点方案\nexport_start / export_progress / export_cancel / export_success。\n\n# 任务拆解\n[前端] 进度条组件；[后端] 流式接口；[测试] 压测脚本。',
+        prd: '# 问题定义\n演示占位：当前仅有“导出缺少进度反馈”的假设，需补充真实任务数据。\n\n# 用户故事\n作为运营人员，我希望导出时看到进度并可中途取消，以便掌控等待。\n\n# 方案概述\n待技术负责人核实：异步任务、进度反馈与取消能力。\n\n# 验收标准\n进度可见；可取消；失败可重试；性能阈值待建立基线后确定。\n\n# 埋点方案\nexport_start / export_progress / export_cancel / export_success。',
         score: { i: 9.0, v: 8.5, e: 9.2, c: 8.8 }, pri: '8.6',
-        note: '基于 412 条相关反馈与 18% 流失数据估算，评分可溯源至原始证据。',
+        note: '演示占位评分，无真实样本量、流失率或效果证据；请转入真实机会后查看可追溯依据。',
       },
       {
         name: '移动端登录失败自愈与重试',
@@ -2750,26 +2750,18 @@ export_start / export_progress / export_cancel / export_success。
       const formula = card.querySelector('.opp-score-formula');
       const note = card.querySelector('.opp-score-note');
       if (name) name.textContent = o.name;
-      if (meta) meta.textContent = o.meta;
-      if (blocks[0]) blocks[0].textContent = o.desc;
-      if (blocks[1]) blocks[1].textContent = o.story;
+      if (meta) meta.textContent = '演示占位 · 无审计证据 · 请转入真实机会';
+      if (blocks[0]) blocks[0].textContent = '该卡仅用于演示机会列表和编辑交互，不作为 InsightLoop 的用户事实或需求结论。';
+      if (blocks[1]) blocks[1].textContent = '待真实证据进入后，由产品负责人补充用户故事。';
       const ta = document.getElementById('opp-prd-content');
-      if (ta) ta.value = o.prd;
-      if (formula) formula.textContent =
-        '影响 ' + o.score.i + '　×　价值 ' + o.score.v + '　×　证据 ' + o.score.e + '　÷　成本 ' + o.score.c + '　=　' + o.pri;
-      if (note) note.textContent = o.note;
+      if (ta) ta.value = '# 演示占位\n\n暂无可引用的真实证据。请从“真实用户测试 v1”转入已采纳机会后再生成和审核方案。';
+      if (formula) formula.textContent = '未评分：缺少真实影响、价值、证据与成本输入';
+      if (note) note.textContent = '无审计证据，不展示虚构样本量、流失率或效果数字。';
       const ors = card.querySelector('#opp-reason');
       if (ors) {
         ors.innerHTML = '<button class="reason-toggle" type="button">▸ 展开判断依据（评分怎么算的）</button>' +
           '<div class="reason-body" style="display:none"><div class="reason-chain">' +
-          '<div class="reason-step"><span class="reason-tag">四维分解</span><div class="reason-bars">' +
-          '<div class="rbar"><span>影响 ' + o.score.i + '</span><i style="width:' + (o.score.i * 10) + '%"></i></div>' +
-          '<div class="rbar"><span>价值 ' + o.score.v + '</span><i style="width:' + (o.score.v * 10) + '%"></i></div>' +
-          '<div class="rbar"><span>证据 ' + o.score.e + '</span><i style="width:' + (o.score.e * 10) + '%"></i></div>' +
-          '<div class="rbar"><span>成本 ' + o.score.c + '</span><i style="width:' + (o.score.c * 10) + '%"></i></div>' +
-          '</div></div>' +
-          '<div class="reason-step"><span class="reason-tag">优先级公式</span><div class="reason-text">影响 ' + o.score.i + ' × 价值 ' + o.score.v + ' × 证据 ' + o.score.e + ' ÷ 成本 ' + o.score.c + ' = <b>' + o.pri + '</b></div></div>' +
-          '<div class="reason-step"><span class="reason-tag">可溯源</span><div class="reason-text">' + o.note + '</div></div>' +
+          '<div class="reason-step"><span class="reason-tag">待补证据</span><div class="reason-text">需补充原始反馈、参与者覆盖、业务价值和工程成本后才能评分。</div></div>' +
           '</div></div>';
         const tog = ors.querySelector('.reason-toggle');
         if (tog) tog.addEventListener('click', () => { const b = ors.querySelector('.reason-body'); if (!b) return; const open = b.style.display !== 'none'; b.style.display = open ? 'none' : 'block'; tog.textContent = (open ? '▸' : '▾') + ' 展开判断依据（评分怎么算的）'; });
@@ -2874,7 +2866,7 @@ export_start / export_progress / export_cancel / export_success。
   <!-- 真实竞品评论覆盖数据：经典脚本先于下方 module 执行，设置 window.__EVAL_CASES__ / window.__FEEDBACKS__，
        使评估看板与反馈中心默认即跑这 143 条真实跨 App 评论（而非内置 15 条 demo）。来源/偏差见 reviews-pipeline/DATA_README.md -->
   <script src="reviews-pipeline/real-data.js?v=eval143-gold-v1"></script>
-  <script type="module" src="ai-integration.js?v=2.4.1-opportunity-transfer"></script>
+  <script type="module" src="ai-integration.js?v=2.4.2-evidence-boundary"></script>
   <script>
   /* 死按钮补齐：让每个可点击元素点击后都有真实结果（导航 / 展开 / 弹窗 / 提示）
      与 ai-integration.js 互不干扰（本段只处理无 data-ai-cap 的元素）。 */
@@ -3180,6 +3172,10 @@ export_start / export_progress / export_cancel / export_success。
       const col = $('.opp-list-col'); if (!col) return;
       const cards = $$('.opp-card', col);
       const cnt = $('.opp-list-title'); if (cnt) cnt.textContent = '机会列表 · ' + cards.length;
+      const subtitle = $('#page-opportunities .page-subtitle');
+      const adoptedCount = cards.filter(c => c.querySelector('.opp-card-status')?.textContent.trim() === '已采纳').length;
+      const importedCount = cards.filter(c => c.dataset.importId).length;
+      if (subtitle) subtitle.textContent = '将高价值洞察转化为可验证的产品机会 · 共 ' + cards.length + ' 个 · ' + adoptedCount + ' 个已采纳 · ' + (cards.length - importedCount) + ' 个演示占位';
       try {
         localStorage.setItem(OPP_STORE_KEY, JSON.stringify(cards.map(c => ({
           title: c.querySelector('.opp-card-title').textContent,
@@ -3209,7 +3205,14 @@ export_start / export_progress / export_cancel / export_success。
       return true;
     }
     restoreOpps();
-    const _firstCard = document.querySelector('.opp-card'); if (_firstCard) { _firstCard.classList.add('active'); if (typeof selectOpp === 'function') selectOpp(0); }
+    persistOpps();
+    const _firstCard = document.querySelector('.opp-card[data-import-id]:not([data-import-id=""])') || document.querySelector('.opp-card');
+    if (_firstCard) {
+      $$('.opp-card').forEach(c => c.classList.remove('active'));
+      _firstCard.classList.add('active');
+      if (_firstCard.dataset.importId) renderImportedOpp(_firstCard);
+      else if (typeof selectOpp === 'function') selectOpp(0);
+    }
     function priOf(card) { const t = card.querySelector('.opp-card-priority'); return t ? (parseFloat(t.textContent.replace(/[^0-9.]/g, '')) || 0) : 0; }
     function sortOpp(by) {
       const col = $('.opp-list-col'); if (!col) return;
@@ -3361,27 +3364,17 @@ export_start / export_progress / export_cancel / export_success。
       return '<div class="funnel-row"><div class="funnel-label">' + label + '</div><div class="funnel-bars"><div class="funnel-bar before" style="width:' + bw + '%"></div><div class="funnel-bar ' + cls + '" style="width:' + aw + '%"></div></div><div class="funnel-value">' + val + '</div></div>';
     }
     function renderEffects() {
-      const d = EFFECTS[effIter][effMode], b = EFFECTS[effIter].before, isD = effMode === 'delta';
       const kr = document.getElementById('dash-kpi-row');
       if (kr) kr.innerHTML =
-        '<div class="dash-kpi-card"><div class="dash-kpi-label">目标完成率</div><div class="dash-kpi-value ' + (isD ? 'green' : '') + '">' + d.c + '</div><div class="dash-kpi-sub">' + d.cs + '</div></div>' +
-        '<div class="dash-kpi-card"><div class="dash-kpi-label">核心指标对比（环比上线前）</div><div class="dash-kpi-value">' + d.m + '</div><div class="dash-kpi-sub">' + d.ms + '</div></div>' +
-        '<div class="dash-kpi-card"><div class="dash-kpi-label">相关主题反馈变化</div><div class="dash-kpi-value green">' + d.s + '</div><div class="dash-kpi-sub">' + d.ss + '</div></div>';
+        '<div class="dash-kpi-card"><div class="dash-kpi-label">目标完成率</div><div class="dash-kpi-value">待采集</div><div class="dash-kpi-sub">需先定义目标与验收样本</div></div>' +
+        '<div class="dash-kpi-card"><div class="dash-kpi-label">核心指标对比</div><div class="dash-kpi-value">待采集</div><div class="dash-kpi-sub">需记录审核耗时、采纳、修改与驳回</div></div>' +
+        '<div class="dash-kpi-card"><div class="dash-kpi-label">主题反馈变化</div><div class="dash-kpi-value">待采集</div><div class="dash-kpi-sub">不能由公开竞品评测集推断</div></div>';
       const tc = document.getElementById('dash-two-col');
       if (tc) tc.innerHTML =
-        '<div class="dash-col-panel"><div class="dash-col-title">转化漏斗对比（' + effLabel(effMode) + '）</div>' +
-          funnelRow('访问 → 注册', b.funnel[0], d.funnel[0], isD) +
-          funnelRow('注册 → 试用', b.funnel[1], d.funnel[1], isD) +
-          funnelRow('试用 → 导出', b.funnel[2], d.funnel[2], isD) +
-          funnelRow('导出 → 留存', b.funnel[3], d.funnel[3], isD) +
-        '</div>' +
-        '<div class="dash-col-panel"><div class="dash-col-title">用户情绪变化（' + effLabel(effMode) + '）</div>' +
-          emoRow('负面反馈', b.emo[0], d.emo[0], 'negative', isD) +
-          emoRow('中性反馈', b.emo[1], d.emo[1], 'neutral', isD) +
-          emoRow('正面反馈', b.emo[2], d.emo[2], 'positive', isD) +
-        '</div>';
+        '<div class="dash-col-panel"><div class="dash-col-title">转化漏斗</div><p class="ru-status-note">尚无真实上线数据。上线前需冻结事件定义、观察窗口和分母。</p></div>' +
+        '<div class="dash-col-panel"><div class="dash-col-title">用户反馈变化</div><p class="ru-status-note">尚无同口径的上线前后反馈，当前不能展示变化或效果结论。</p></div>';
       const sub = document.querySelector('#page-effects .page-subtitle');
-      if (sub) sub.textContent = '验证产品迭代闭环的实际收益 · 当前迭代：' + EFFECTS[effIter].name + ' · 对比 ' + ({ after: '上线后', before: '上线前', delta: '环比变化' }[effMode]);
+      if (sub) sub.textContent = '当前没有真实上线或行为数据 · ' + EFFECTS[effIter].name + ' · ' + effLabel(effMode) + '口径待采集';
     }
     makeDropdown($('#effects-iter-btn'), ['v1.3 导出异步化', 'v1.2 搜索语义重排', 'v1.1 基础体验'], (opt) => {
       effIter = opt.indexOf('v1.3') >= 0 ? 'v13' : opt.indexOf('v1.2') >= 0 ? 'v12' : 'v11';
@@ -3391,7 +3384,7 @@ export_start / export_progress / export_cancel / export_success。
       effMode = opt === '上线后' ? 'after' : opt === '上线前' ? 'before' : 'delta';
       renderEffects(); toast('对比维度：' + opt);
     });
-    on($('#effects-export-btn'), 'click', () => download('上线效果报告_' + EFFECTS[effIter].name + '.md', 'InsightLoop ' + EFFECTS[effIter].name + ' 上线效果报告\n目标完成率 ' + EFFECTS[effIter][effMode].c + '\n留存/转化 ' + EFFECTS[effIter][effMode].m + '\n相关主题 ' + EFFECTS[effIter][effMode].s));
+    on($('#effects-export-btn'), 'click', () => download('上线验证计划_' + EFFECTS[effIter].name + '.md', 'InsightLoop ' + EFFECTS[effIter].name + ' 上线验证计划\n\n当前没有真实上线或行为数据。\n待补：目标、事件定义、分母、基线、观察窗口和验收阈值。'));
     on($('#effects-back-btn'), 'click', () => { switchTab('opportunities'); toast('已返回机会工作区'); });
     // 上线效果初始就渲染一次，避免面板状态与下拉不一致
     renderEffects();
